@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fretboard Pro v210</title>
+<title>Fretboard Pro v211</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -3374,6 +3374,16 @@ header{
     border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 6px;}
   #mtron-row label{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--fg3);
     display:flex;align-items:center;gap:4px;cursor:pointer;}
+  #trf-panel .lab-tool-btn.active{border-color:var(--violet);color:var(--violet);background:rgba(155,110,243,.14);}
+  #imp-panel{display:none;margin:10px 0;padding:10px;background:var(--ink2);border:1px solid var(--ink4);border-radius:8px;}
+  #imp-panel textarea{width:100%;min-height:120px;max-height:240px;box-sizing:border-box;background:var(--ink3);
+    border:1px solid var(--ink5);color:var(--fg1);border-radius:6px;padding:8px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.5;resize:vertical;}
+  #imp-preview{margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:9px;line-height:1.7;color:var(--fg2);}
+  #imp-preview b{color:var(--teal);}
+  #imp-preview .imp-warn{color:var(--gold);}
+  #imp-preview .imp-sec{color:var(--violet);}
+  #imp-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;}
 </style>
 </head>
 <body>
@@ -4303,6 +4313,8 @@ header{
     <button class="comp-action-btn comp-metro-pill" id="lab-tab-btn" onclick="tabPanelToggle()" title="TAB Interactiva">TAB</button>
     <button class="lab-tool-btn" onclick="sendGenToReharm()" title="Enviar al Reharmonizador" style="padding:5px 10px;">♻ Reharm</button>
     <button class="lab-tool-btn" onclick="labOpenPDFModal()" title="Exportar PDF" style="padding:5px 10px;">PDF</button>
+    <button class="lab-tool-btn" onclick="labTransformOpen()" title="Reescribir la progresion al estilo del genero seleccionado" style="padding:5px 10px;color:var(--violet);border-color:rgba(155,110,243,.45);">✦ Transformar</button>
+    <button class="lab-tool-btn" onclick="labImportOpen()" title="Pegar un cifrado y convertirlo en progresión" style="padding:5px 10px;color:var(--teal);border-color:rgba(34,211,168,.45);">↓ Importar</button>
     <button class="lab-tool-btn" onclick="labClear()" title="Limpiar progresión" style="padding:5px 10px;color:var(--rose);border-color:rgba(240,77,136,.4);">✕ Limpiar</button>
   </div>
 
@@ -4313,6 +4325,31 @@ header{
     <button class="lab-tool-btn vary" onclick="labVary()">🔀 Variar</button>
   </div>
 
+  <div id="trf-panel" style="display:none;margin:10px 0;padding:10px;background:var(--ink2);border:1px solid var(--ink4);border-radius:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--violet);font-weight:700;margin-bottom:6px;">Transformar al estilo del g&eacute;nero</div>
+    <div style="font-size:10px;color:var(--fg3);line-height:1.5;margin-bottom:8px;">Usa el g&eacute;nero del selector del Lab. <b>Color</b>: solo la cualidad de cada acorde. <b>Estilo</b>: sustituciones idiom&aacute;ticas que respetan la funci&oacute;n. <b>Reinvenci&oacute;n</b>: reharmoniza conservando inicio y final.</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <button class="lab-tool-btn" id="trf-color"    onclick="labTransform('color')"    style="padding:5px 10px;">Color</button>
+      <button class="lab-tool-btn" id="trf-style"    onclick="labTransform('style')"    style="padding:5px 10px;">Estilo</button>
+      <button class="lab-tool-btn" id="trf-reinvent" onclick="labTransform('reinvent')" style="padding:5px 10px;">Reinvenci&oacute;n</button>
+      <span style="width:1px;height:16px;background:var(--ink5);margin:0 2px;"></span>
+      <button class="lab-tool-btn" id="trf-ab" onclick="labTransformAB()" style="padding:5px 10px;" disabled>Ver original</button>
+      <button class="lab-tool-btn" onclick="labTransformReroll()" title="Otra variante del mismo nivel" style="padding:5px 10px;">↻ Otra</button>
+      <button class="lab-tool-btn" onclick="labTransformReset()" style="padding:5px 10px;color:var(--fg3);">Descartar</button>
+    </div>
+    <div id="trf-status" style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:9px;line-height:1.6;color:var(--fg2);"></div>
+  </div>
+  <div id="imp-panel">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:6px;">Importar cifrado</div>
+    <div style="font-size:10px;color:var(--fg3);line-height:1.5;margin-bottom:7px;">Pega un cifrado en ChordPro, acordes sobre letra o notaci&oacute;n de compases. Se interpreta mientras escribes.</div>
+    <textarea id="imp-text" placeholder="| Am | F | C  G |&#10;&#10;o bien:&#10;&#10;[Verso]&#10;Am      F       C&#10;letra de la canci&oacute;n aqu&iacute;"></textarea>
+    <div id="imp-row">
+      <button class="lab-tool-btn" onclick="labImportPaste()" style="padding:5px 10px;">Pegar del portapapeles</button>
+      <button class="lab-tool-btn fill" id="imp-load" onclick="labImportLoad()" style="padding:5px 10px;" disabled>Cargar en Lab</button>
+      <button class="lab-tool-btn" onclick="labImportOpen(false)" style="padding:5px 10px;color:var(--fg3);">Cerrar</button>
+    </div>
+    <div id="imp-preview"></div>
+  </div>
   <!-- ── CANVAS GRID ── -->
   <!-- Lead Voicings Panel -->
   <div id="lv-panel" style="display:none;"></div>
@@ -4764,6 +4801,7 @@ header{
         <button class="comp-action-btn export-pdf" onclick="compExportPDF()" title="Exportar PDF">PDF</button>
         <button class="comp-action-btn" onclick="compExportMIDI()" title="Exportar MIDI" style="border-color:rgba(100,180,255,.5);color:#64b4ff;">MIDI</button>
         <button class="comp-action-btn" onclick="compExportChordPro()" title="Exportar ChordPro" style="border-color:rgba(155,110,243,.5);color:var(--violet);">ChordPro</button>
+        <button class="comp-action-btn" id="comp-copy-btn" onclick="compCopyText()" title="Copiar acordes y secciones como texto" style="border-color:rgba(34,211,168,.5);color:var(--teal);">📋 Copiar</button>
         <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg3);margin-left:auto;" id="comp-status"></span>
       </div>
 
@@ -10808,6 +10846,8 @@ var WAF_ENGINE = (function(){
     indian_fusion:'nylon', bollywood_modern:'nylon',
     // Clean (eléctrica)
     rock_classic:'clean', metal_prog:'clean', indie_alt:'clean', blues_12bar:'clean',
+    cerati:'clean',   // Melotron o Solina para el color Bocanada
+    cerati_bocanada:'mellotron', cerati_ahivamos:'clean', cerati_fuerza:'steel',
     funk:'clean', reggae:'clean', afrobeat:'clean',
     // Steel (acústica) — también es el default para todo lo demás
     pop_modern:'steel', rnb:'steel', neo_soul:'steel', gospel:'steel',
@@ -20324,6 +20364,48 @@ const C_GENRES={
       cadence_strength:.55,authentic_preference:.45,plagal_preference:.55,
       phrase_symmetry:.85,motivic_repetition:.90,hr_density:.60,
       chromatic_mediants:.05}},
+  // ── Compositores (v210) ───────────────────────────────────────────────
+  // Perfil derivado del analisis de la etapa solista de Gustavo Cerati:
+  // bucles modales sin cadencia, sonoridad fija sobre bajo movil, modos
+  // paralelos como motor formal y planeo cromatico como color.
+  cerati:{label:'Cerati (solista)',base_mode:'dorian',preferred_form:'verse_chorus_bridge',
+    traits:{extension_density:.55,alteration_density:.15,suspended_density:.68,
+      modal_vs_tonal:.88,mode_color_preference:.85,
+      secondary_dominants:.03,modal_interchange:.80,tritone_substitution:.20,
+      chromatic_mediants:.58,line_cliche:.55,passing_diminished:.03,
+      cadence_strength:.18,authentic_preference:.02,plagal_preference:.78,
+      cadence_andaluza:.05,deceptive_resolution:.45,
+      phrase_symmetry:.72,motivic_repetition:.88,hr_density:.30,
+      bass_step_preference:.82}},
+  // Tres epocas con vectores distintos: el mismo autor no compone igual en
+  // 1999 que en 2006. Comparten familia de puntuacion, turnaround y bajo.
+  cerati_bocanada:{label:'Cerati \u00b7 Bocanada (1999)',base_mode:'dorian',preferred_form:'modal_vamp',
+    traits:{extension_density:.78,alteration_density:.12,suspended_density:.62,
+      modal_vs_tonal:.92,mode_color_preference:.90,
+      secondary_dominants:.02,modal_interchange:.85,tritone_substitution:.32,
+      chromatic_mediants:.70,line_cliche:.60,passing_diminished:.02,
+      cadence_strength:.12,authentic_preference:.02,plagal_preference:.70,
+      cadence_andaluza:.05,deceptive_resolution:.50,
+      phrase_symmetry:.70,motivic_repetition:.92,hr_density:.20,
+      bass_step_preference:.88}},
+  cerati_ahivamos:{label:'Cerati \u00b7 Ah\u00ed Vamos (2006)',base_mode:'minor',preferred_form:'verse_chorus_bridge',
+    traits:{extension_density:.34,alteration_density:.10,suspended_density:.72,
+      modal_vs_tonal:.72,mode_color_preference:.70,
+      secondary_dominants:.05,modal_interchange:.65,tritone_substitution:.08,
+      chromatic_mediants:.35,line_cliche:.35,passing_diminished:.02,
+      cadence_strength:.35,authentic_preference:.05,plagal_preference:.80,
+      cadence_andaluza:.05,deceptive_resolution:.35,
+      phrase_symmetry:.85,motivic_repetition:.80,hr_density:.45,
+      bass_step_preference:.60}},
+  cerati_fuerza:{label:'Cerati \u00b7 Fuerza Natural (2009)',base_mode:'mixolydian',preferred_form:'verse_chorus_bridge',
+    traits:{extension_density:.48,alteration_density:.08,suspended_density:.78,
+      modal_vs_tonal:.80,mode_color_preference:.78,
+      secondary_dominants:.05,modal_interchange:.55,tritone_substitution:.05,
+      chromatic_mediants:.30,line_cliche:.45,passing_diminished:.02,
+      cadence_strength:.30,authentic_preference:.05,plagal_preference:.88,
+      cadence_andaluza:.03,deceptive_resolution:.30,
+      phrase_symmetry:.82,motivic_repetition:.78,hr_density:.38,
+      bass_step_preference:.72}},
   custom:{label:'Personalizado',base_mode:'major',preferred_form:'verse_chorus_bridge',traits:{}},
   // ── Fusión India (v182) ──────────────────────────────────────────────────────
   // Géneros basados en el vocabulario de fusión raga/india occidental.
@@ -20405,6 +20487,7 @@ const C_GENRE_GROUPS = [
   {label:'Cine & Clásico',   keys:['cinematic','classical']},
   {label:'Mundial',          keys:['reggae','afrobeat','highlife']},
   {label:'India',            keys:['bollywood_modern','indian_fusion']},
+  {label:'Compositores',     keys:['cerati','cerati_bocanada','cerati_ahivamos','cerati_fuerza']},
 ];
 
 // Construye <optgroup> para cualquier <select> de géneros.
@@ -20569,6 +20652,10 @@ function cClampBars(b){return Math.max(4,Math.min(16,Math.round((b||8)/2)*2));}
 // en "Idiomáticas del género" + "Otras formas" (sin filtro duro — todo sigue
 // disponible). null = sin curación (todas en un solo grupo).
 const C_GENRE_FORMS={
+  cerati:['verse_chorus_bridge','modal_vamp','pop_VCPBC','through_composed','free'],
+  cerati_bocanada:['modal_vamp','through_composed','verse_chorus_bridge','free'],
+  cerati_ahivamos:['verse_chorus_bridge','pop_VCPBC','verse_chorus','free'],
+  cerati_fuerza:['verse_chorus_bridge','pop_VCPBC','modal_vamp','free'],
   jazz_standard:['AABA32','AABA_mod','rhythm_changes','through_composed','period'],
   bebop:['AABA32','rhythm_changes','12bar_blues','AABA_mod'],
   modal_jazz:['modal_vamp','compas_cyclic','through_composed','free'],
@@ -25864,7 +25951,7 @@ function _cGenCoreV209(opts){
 // ═══════════════════════════════════════════════════════════════════════════
 
 const V210 = {
-  on:true, met:true, bas:true, trn:true, dns:true, spl:true,
+  on:true, met:true, bas:true, trn:true, dns:true, spl:true, stygen:true,
   idm:true, variance:true, mod:true, isvl:true,
   N:3, hybridGenre:'', hybridBlend:0.35,
   _fp:[], _report:null
@@ -26090,6 +26177,8 @@ const V210_BASS_PROFILE = {
   highlife:{inv:.45}, afrobeat:{inv:.15}, reggae:{inv:.15}, funk:{inv:.15},
   blues_12bar:{inv:.3}, grunge:{inv:.15}, post_punk:{inv:.3}, metal_prog:{inv:.1},
   flamenco:{inv:.25}, indian_fusion:{inv:.1}, bollywood_modern:{inv:.3},
+  cerati:{inv:.85},   // el bajo caminando bajo sonoridad fija es su firma
+  cerati_bocanada:{inv:.90}, cerati_ahivamos:{inv:.62}, cerati_fuerza:{inv:.72},
   custom:{inv:.5}
 };
 
@@ -26218,7 +26307,9 @@ const V210_TURN = {
   tango:     [{d:1,q:'m7b5'},{d:4,q:'7b9'}],
   folclore:  [{d:4,q:'7'},{d:0,q:'min'}],
   country:   [{d:3,q:'maj'},{d:4,q:'7'}],
-  cinema:    [{d:5,q:'min'},{d:3,q:'maj7'}]
+  cinema:    [{d:5,q:'min'},{d:3,q:'maj7'}],
+  // Doriano: bVII mayor y IV mayor sobre tonica menor. Reinyecta sin cadenciar.
+  cerati:    [{s:10,q:'maj'},{s:5,q:'maj'}]
 };
 
 const V210_TURN_BY_GENRE = {
@@ -26231,7 +26322,8 @@ const V210_TURN_BY_GENRE = {
   bachata:'latin', joropo:'folclore', chacarera:'folclore', zamba:'folclore',
   highlife:'latin', afrobeat:'modal', reggae:'modal',
   indian_fusion:'modal', bollywood_modern:'pop',
-  classical:'cinema', cinematic:'cinema', custom:'pop'
+  classical:'cinema', cinematic:'cinema', cerati:'cerati',
+  cerati_bocanada:'cerati', cerati_ahivamos:'cerati', cerati_fuerza:'cerati', custom:'pop'
 };
 
 function v210MakeTurnChord(spec, key, mode, ctx, beats){
@@ -26384,6 +26476,280 @@ function v210MergeRedundant(chs, ts){
   return n;
 }
 
+
+// ── GEN — GENERACION POR GRAMATICA DE AUTOR ──────────────────────────────
+// El motor generico construye desde repertorios de grados y pesos de rasgos.
+// Un autor no compone asi: compone desde un puñado de bucles matriz, cambia
+// de modo sobre el mismo centro para articular la forma, y mancha con un
+// bloque planeado que va y vuelve. Esta capa genera la seccion desde esa
+// gramatica; las capas posteriores (bajo, turnaround, ortografia) siguen
+// actuando igual sobre el resultado.
+//
+// Grados en SEMITONOS desde el centro, no en grados de escala: el estilo
+// mezcla modos paralelos y la numeracion diatonica se vuelve ambigua.
+
+const V210_STYLE_GEN = {
+  cerati: {
+    // Los cuatro bucles matriz de la skill. m = minoridad de la tonica.
+    loops: {
+      dorian: [
+        {w:3, deg:[[0,'i'],[10,'bVII'],[5,'IV']]},
+        {w:2, deg:[[0,'i'],[5,'IV']]},
+        {w:2, deg:[[0,'i'],[10,'bVII'],[5,'IV'],[0,'i']]},
+        {w:1, deg:[[0,'i'],[3,'bIII'],[10,'bVII'],[5,'IV']]}
+      ],
+      mixolydian: [
+        {w:3, deg:[[0,'I'],[10,'bVII'],[5,'IV']]},
+        {w:2, deg:[[0,'I'],[7,'v'],[10,'bVII']]},
+        {w:2, deg:[[0,'I'],[3,'bIII'],[5,'IV']]},
+        {w:1, deg:[[0,'I'],[5,'IV'],[10,'bVII'],[0,'I']]}
+      ],
+      minor: [
+        {w:3, deg:[[0,'i'],[8,'bVI'],[10,'bVII']]},
+        {w:2, deg:[[0,'i'],[8,'bVI'],[3,'bIII'],[10,'bVII']]},
+        {w:2, deg:[[0,'i'],[10,'bVII'],[8,'bVI'],[10,'bVII']]},
+        {w:1, deg:[[0,'i'],[5,'iv'],[10,'bVII']]}
+      ],
+      // Bucle de pedal: la fundamental no se mueve, la sonoridad si.
+      pedal: [
+        {w:1, deg:[[0,'I'],[5,'IV'],[10,'bVII'],[5,'IV']], pedal:true},
+        {w:1, deg:[[0,'i'],[3,'bIII'],[10,'bVII'],[0,'i']], pedal:true}
+      ]
+    },
+    // Cualidades por grado, de mas seca a mas coloreada. Se elige segun la
+    // densidad de extension y de suspendidos de la epoca.
+    // Dos ejes independientes. La lista ordena por RIQUEZA DE EXTENSION;
+    // la suspension es una decision aparte. Mezclarlas hacia que una epoca
+    // seca pero suspendida pareciera mas extendida que una densa.
+    qual: {
+      i:    ['min','m7','m9','m11'],
+      I:    ['maj','maj7','maj9','6add9'],
+      bVII: ['maj','maj7','9','maj9'],
+      IV:   ['maj','maj7','6','maj9'],
+      bVI:  ['maj','maj7','maj9','6'],
+      bIII: ['maj','maj7','maj9','6'],
+      v:    ['min','m7','m9','m11'],
+      iv:   ['min','m7','m9','m11']
+    },
+    susAlt: {
+      i:['madd9','sus2','sus4'], v:['madd9','sus2','sus4'], iv:['madd9','sus4','sus2'],
+      I:['add9','sus2','sus4'],  bVII:['add9','sus2','sus4'], IV:['add9','sus2','sus4'],
+      bVI:['add9','sus2','maj7'], bIII:['add9','sus2','maj7']
+    },
+    // Distancias de planeo, de mas a menos usadas por el autor.
+    plane: [-2,-3,6,-1],
+    // Modos paralelos como motor formal: el estribillo abre, el resto no.
+    bright: {dorian:'mixolydian', minor:'mixolydian', aeolian:'mixolydian',
+             mixolydian:'mixolydian', major:'major'}
+  }
+};
+
+function _v210Pick(list){ return list[Math.floor(_cRng()*list.length) % list.length]; }
+function _v210PickW(items){
+  let tot=0; for(const it of items) tot += (it.w||1);
+  let r = _cRng()*tot;
+  for(const it of items){ r -= (it.w||1); if(r <= 0) return it; }
+  return items[items.length-1];
+}
+
+// Cualidad segun el nivel de color de la epoca (0..1)
+function _v210Qual(spec, role, ext, susP, last){
+  const opts = spec.qual[role] || spec.qual.I;
+  const pick = () => {
+    // Eje 1: riqueza de extension
+    let i = Math.floor(ext * (opts.length - 1) + (_cRng()*1.6 - 0.5));
+    if(i < 0) i = 0; if(i >= opts.length) i = opts.length - 1;
+    let q = opts[i];
+    // Eje 2: suspension / anadido de cuerda al aire, independiente
+    const alt = spec.susAlt && spec.susAlt[role];
+    if(alt && _cRng() < susP) q = alt[Math.floor(_cRng()*alt.length) % alt.length];
+    return q;
+  };
+  let q = pick();
+  // Un mismo grado repetido con la misma cualidad suena a plantilla.
+  if(last && q === last[role]) q = pick();
+  if(last) last[role] = q;
+  return q;
+}
+
+// Una cualidad que la libreria de formas no sabe digitar produce un voicing
+// nulo y rompe todo lo que consuma voicings (TAB, jam, exportaciones). La
+// gramatica se depura una vez contra el motor real antes de usarse.
+function _v210ValidateSpec(spec, genre){
+  if(spec._validated) return spec;
+  spec._validated = true;
+  spec._dropped = [];
+  const playable = q => {
+    for(const root of [0, 3, 7, 10]){
+      try{ if((cGetCandidates({root:root, quality:q, display:''}, genre)||[]).length) return true; }
+      catch(e){ return false; }
+    }
+    return false;
+  };
+  const cache = {};
+  const filter = table => {
+    for(const role in table){
+      const keep = table[role].filter(q => {
+        if(cache[q] === undefined) cache[q] = playable(q);
+        if(!cache[q] && spec._dropped.indexOf(q) < 0) spec._dropped.push(q);
+        return cache[q];
+      });
+      table[role] = keep.length ? keep : ['maj'];
+    }
+  };
+  filter(spec.qual);
+  if(spec.susAlt) filter(spec.susAlt);
+  if(spec._dropped.length && typeof console !== 'undefined')
+    console.warn('[v210] cualidades sin digitacion descartadas de la gramatica: ' + spec._dropped.join(', '));
+  return spec;
+}
+
+function v210StyleGenerate(sections, genre, prog, ts, traits){
+  const fam = V210_FAMILY[genre];
+  const spec = V210_STYLE_GEN[fam];
+  if(!spec) return {applied:false};
+  _v210ValidateSpec(spec, genre);
+
+  const ext  = Math.max(0, Math.min(1, traits.extension_density  != null ? traits.extension_density  : .5));
+  const susP = Math.max(0, Math.min(1, traits.suspended_density != null ? traits.suspended_density : .5));
+  const hr    = traits.hr_density != null ? traits.hr_density : .35;
+  const planeP = Math.max(0, Math.min(1,
+    0.6*(traits.chromatic_mediants||0) + 0.6*(traits.tritone_substitution||0)));
+  const pedalP = Math.max(0, Math.min(1, (traits.motivic_repetition||0) - 0.55));
+
+  let built = 0, planed = 0, opened = 0;
+
+  for(const sec of sections){
+    if(!sec.chords || !sec.chords.length) continue;
+    if(v210SecLocked(sec)) continue;
+    const T = sec.bars * ts;
+    if(T < 4) continue;
+
+    // ── Modo de la seccion: el estribillo abre sobre el MISMO centro ──────
+    const role = sec.sectionRole || '';
+    const isClimax = (role === 'climax') || /coro|chorus/i.test(String(sec.label||''));
+    let mode = sec.mode || prog.mode;
+    if(isClimax && spec.bright[mode] && spec.bright[mode] !== mode && _cRng() < 0.7){
+      mode = spec.bright[mode]; sec.mode = mode; opened++;
+    }
+    const bank = spec.loops[mode] || spec.loops[(mode==='major')?'mixolydian':'minor'];
+    const usePedal = (role === 'intro' || role === 'outro' || _cRng() < pedalP);
+    const loop = usePedal && spec.loops.pedal.length && _cRng() < 0.6
+      ? _v210PickW(spec.loops.pedal) : _v210PickW(bank);
+
+    // ── Ritmo armonico: uno o dos acordes por compas, nunca mas ───────────
+    const perBar = (_cRng() < 0.35 + hr) ? 2 : 1;
+    let n = Math.max(loop.deg.length, Math.round(sec.bars * perBar));
+    n = Math.min(n, Math.max(2, Math.floor(T / Math.max(1, Math.floor(ts/2)))));
+
+    const kk = cNotePC(sec.key || prog.key);
+    const ctx = cUseFlats(sec.key || prog.key, mode) ? 'flat' : 'sharp';
+    const chords = [];
+    const lastQ = {};
+    for(let i = 0; i < n; i++){
+      const d = loop.deg[i % loop.deg.length];
+      const root = v210PC(kk + d[0]);
+      const q = _v210Qual(spec, d[1], ext, susP, lastQ);
+      chords.push({root:root, quality:q, degree:null, roman:d[1], bass:null,
+        beats:1, tag:'diatonic', _styleGen:true,
+        explain:'Bucle ' + mode + ' \u2014 ' + d[1],
+        display:cChordCtx(root, q, ctx)});
+    }
+
+    // ── Pedal: la fundamental se queda, la sonoridad se mueve ─────────────
+    if(loop.pedal){
+      for(let i = 1; i < chords.length; i++){
+        if(v210RootPC(chords[i]) === kk) continue;
+        chords[i].bass = kk; chords[i].pedal = true;
+        chords[i].explain += ' (pedal de t\u00f3nica)';
+        chords[i].display = cChordCtx(v210RootPC(chords[i]), chords[i].quality, ctx)
+          + '/' + v210NoteName(kk, ctx === 'flat');
+      }
+    }
+
+    // ── Planeo: un bloque ajeno que se va y vuelve ────────────────────────
+    if(chords.length >= 4 && _cRng() < planeP){
+      const i = 1 + Math.floor(_cRng() * (chords.length - 2));
+      if(v210RootPC(chords[i-1]) === v210RootPC(chords[(i+1) % chords.length])){
+        const off = _v210Pick(spec.plane);
+        const nr = v210PC(v210RootPC(chords[i]) + off);
+        chords[i].root = nr;
+        chords[i].tag = 'planing';
+        chords[i].roman = '\u2192' + chords[i].roman;
+        chords[i].explain = 'Planeo a ' + (off > 0 ? '+' : '') + off + ' semitonos \u2014 vuelve';
+        chords[i].display = cChordCtx(nr, chords[i].quality, ctx);
+        planed++;
+      }
+    }
+
+    // ── El reparto de tiempos lo hace el NUCLEO ──────────────────────────
+    // La gramatica decide QUE acordes suenan; cuando suenan es competencia
+    // del motor de ritmo del motor, que conoce el hipermetro, la frase y la
+    // retícula de compas. Repartir aqui por cuenta propia producia ataques
+    // fuera de compas y acordes cruzando la barra.
+    let rp = 'natural';
+    try{
+      const el = document.getElementById('comp-rhythm-profile');
+      if(el && el.value) rp = el.value;
+    }catch(e){}
+    sec.chords = cBuildRhythm(chords, genre, ts, sec.bars, rp, traits, sec);
+    v210ForceTotal(sec.chords, T);
+    built++;
+  }
+  return {applied: built > 0, sections: built, planing: planed, opened: opened};
+}
+
+// ── STY — VOCABULARIO DE ESTILO ──────────────────────────────────────────
+// Algunos estilos se definen tanto por lo que NO usan como por lo que usan.
+// El nucleo genera dominantes funcionales y disminuidos porque son correctos
+// en general; aqui se reescriben segun la gramatica del estilo, conservando
+// la fundamental y el movimiento, que son lo que la forma ya decidio.
+const V210_STYLE = {
+  cerati: {
+    // Alterados y disminuidos no pertenecen al lenguaje: se aplanan.
+    remap: { 'dim7':'m7', 'm7b5':'m7', 'm9b5':'m9', 'dim':'min', 'dim9':'m9',
+             '7b9':'9', '7#9':'9', '7s9':'9', '7alt':'9', '13b9':'13',
+             '7b5':'9', '7#5':'9', '7s5':'9', 'aug7':'9', '7b13':'9',
+             'aug':'maj', 'augMaj7':'maj7' },
+    // Un dominante que baja de quinta a la tonica es una cadencia autentica:
+    // el estilo no la usa. Se suspende — mismo bajo, mismo color, sin tritono.
+    noAuthentic: true,
+    domFamily: ['7','9','11','13','7b9','7#9','7s9','7alt','13b9','7b5','7#5','7s5','aug7','7b13'],
+    susTarget: '9sus4'
+  }
+};
+
+function v210ApplyStyle(sections, genre, key, mode){
+  // Las variantes de un mismo autor comparten su gramatica de estilo.
+  const st = V210_STYLE[genre] || V210_STYLE[String(genre).split('_')[0]];
+  if(!st) return {applied:false};
+  let remapped = 0, suspended = 0;
+  for(const sec of sections){
+    const chs = sec.chords || [];
+    const kk = cNotePC(sec.key || key);
+    const flat = cUseFlats(sec.key || key, sec.mode || mode);
+    for(let i=0;i<chs.length;i++){
+      const ch = chs[i];
+      const q0 = String(ch.quality || '');
+      let q = q0;
+      if(st.remap && st.remap[q] != null){ q = st.remap[q]; remapped++; }
+      if(st.noAuthentic && st.domFamily.indexOf(q) >= 0){
+        const nx = chs[i+1];
+        const tgt = nx ? v210RootPC(nx) : kk;
+        // quinta descendente hacia el acorde siguiente o hacia la tonica
+        if(v210PC(tgt - v210RootPC(ch)) === 5){ q = st.susTarget; suspended++; }
+      }
+      if(q === q0) continue;
+      ch.quality = q;
+      const bassPart = (ch.bass != null) ? ('/' + v210NoteName(ch.bass, flat)) : '';
+      ch.display = cChordCtx(v210RootPC(ch), q, flat ? 'flat' : 'sharp') + bassPart;
+      ch.explain = (ch.explain || '') + ' [estilo]';
+      ch._v210sty = true;
+    }
+  }
+  return {applied:(remapped+suspended)>0, remapped:remapped, suspended:suspended};
+}
+
 function v210ApplyDensityArc(sections, ts, traits, key, mode){
   let ops=0;
   for(const sec of sections){
@@ -26468,7 +26834,10 @@ const V210_MOTION_PROFILE = {
   andaluza:  [.06,.12,.06,.42,.10,.16,.06,.02],
   latin:     [.06,.05,.12,.16,.14,.32,.13,.02],
   raw:       [.10,.04,.20,.18,.22,.16,.09,.01],
-  ragamodal: [.18,.10,.22,.22,.12,.10,.05,.01]
+  ragamodal: [.18,.10,.22,.22,.12,.10,.05,.01],
+  // Grados conjuntos y terceras dominan; el ciclo de quintas es minoritario
+  // y el tritono, aunque raro, esta presente: es su firma de planeo.
+  cerati:    [.10,.06,.16,.24,.20,.14,.06,.04]
 };
 
 const V210_VOCAB = {
@@ -26480,7 +26849,10 @@ const V210_VOCAB = {
   andaluza:  {ok:['maj','min','7','7b9','sus4','add9','m7','7#9','phryg'], bad:['maj7','maj9','m11','13','7alt'], plain:[]},
   latin:     {ok:['maj','min','7','m7','maj7','6','m6','9','m9','7b9','sus4','13','dim7'], bad:['7alt','maj7#11','7#9'], plain:[]},
   raw:       {ok:['maj','min','5','7','sus2','sus4','add9','m7','madd9'], bad:['maj7','maj9','m9','13','7alt','dim7','m7b5','7#11','6add9'], plain:[]},
-  ragamodal: {ok:['maj','min','sus2','sus4','m7','maj7','add9','madd9','5','m9'], bad:['7alt','dim7','m7b5','13b9','7#9'], plain:[]}
+  ragamodal: {ok:['maj','min','sus2','sus4','m7','maj7','add9','madd9','5','m9'], bad:['7alt','dim7','m7b5','13b9','7#9'], plain:[]},
+  cerati:    {ok:['m9','m7','maj7','maj9','add9','madd9','sus2','sus4','9','6','m6','m11',
+                  'min','maj','7sus4','9sus4','5','mMaj7','maj7#11','6add9'],
+              bad:['dim7','7b9','7#9','7alt','13b9','m7b5','aug7','7b13','7b5','7#5'], plain:[]}
 };
 
 const V210_FAMILY = {
@@ -26493,7 +26865,102 @@ const V210_FAMILY = {
   tango:'latin', fado:'latin', samba:'latin', salsa_timba:'latin',
   son_cubano:'latin', cumbia:'latin', bachata:'latin',
   joropo:'latin', chacarera:'latin', zamba:'latin',
-  indian_fusion:'ragamodal', bollywood_modern:'ragamodal', custom:'functional'
+  indian_fusion:'ragamodal', bollywood_modern:'ragamodal',
+  cerati:'cerati', cerati_bocanada:'cerati', cerati_ahivamos:'cerati',
+  cerati_fuerza:'cerati', custom:'functional'
+};
+
+
+// ── Puntuacion especifica de estilo ──────────────────────────────────────
+// La distribucion de movimiento de fundamentales y el vocabulario no bastan
+// para separar un estilo concreto de su familia generica: medidos asi, un
+// bucle de Cerati puntua igual que "modal" o que "pop en bucle". Lo que
+// distingue a un autor son rasgos de contenido, no de distribucion.
+const V210_STYLE_SCORE = {
+  cerati: function(chs, prog){
+    const kk = cNotePC(prog.key || 'C');
+    const n = chs.length;
+    const iv = c => v210PC(v210RootPC(c) - kk);
+    const qual = c => String(c.quality || '');
+    const tones = c => v210Tones(c);
+    const isMin = q => /^m(?!aj)|^min/.test(q);
+    const isMaj = q => !isMin(q) && !/sus|^5$/.test(q);
+
+    // (a) Densidad de color suspendido / anadido: su textura basica.
+    let col = 0;
+    for(const c of chs) if(/sus|add9|add11|6|9|11|13/.test(qual(c))) col++;
+    const susRatio = col / n;
+    const sus = Math.min(100, 30 + susRatio * 200);
+
+    // (b) Ausencia de dominantes funcionales. Un V7 que resuelve por quinta
+    //     descendente es lo que el estilo justamente no hace.
+    let doms = 0;
+    for(let i=0;i<n;i++){
+      const t = v210Ivls(qual(chs[i]));
+      if(t.indexOf(4) < 0 || t.indexOf(10) < 0) continue;
+      const tgt = (i+1<n) ? v210RootPC(chs[i+1]) : kk;
+      if(v210PC(tgt - v210RootPC(chs[i])) === 5) doms++;
+    }
+    const nodom = Math.max(0, 100 - 40 * doms);
+
+    // (c) Grados caracteristicos: IV mayor sobre tonica menor (6a doria),
+    //     bVII mayor, bVI y bIII. Cuantos mas distintos, mas caracteristico.
+    const tonicMinor = chs.some(c => iv(c) === 0 && isMin(qual(c)));
+    const marks = {};
+    for(const c of chs){
+      const d = iv(c);
+      if(d === 5  && isMaj(qual(c)) && tonicMinor) marks.IV = 1;
+      // Sobre tonica mayor el giro caracteristico es el v MENOR (mixolidio
+      // sin sensible): elimina la sensibilidad y con ella toda urgencia.
+      if(d === 7  && isMin(qual(c)) && !tonicMinor) marks.vMin = 1;
+      if(d === 10 && isMaj(qual(c))) marks.bVII = 1;
+      if(d === 8  && isMaj(qual(c))) marks.bVI = 1;
+      if(d === 3  && isMaj(qual(c))) marks.bIII = 1;
+      if(/sus/.test(qual(c))) marks.sus = 1;
+    }
+    const modalchar = Math.min(100, 20 + 26 * Object.keys(marks).length);
+
+    // (d) El bucle vuelve: cierra en la tonica o en el acorde inicial.
+    const last = iv(chs[n-1]), first = iv(chs[0]);
+    const loopret = (last === 0 || last === first || v210RootPC(chs[n-1]) === v210RootPC(chs[0])) ? 100 : 45;
+
+    // (e) Planeo: un bloque ajeno a la escala que se va y regresa. No se
+    //     penaliza su ausencia; se premia su presencia.
+    const sc = C_SCALES[prog.mode] || C_SCALES.major;
+    const inScale = d => sc.indexOf(d) >= 0;
+    let plan = 55;
+    for(let i=1;i<n-1;i++){
+      if(inScale(iv(chs[i]))) continue;
+      if(v210RootPC(chs[i-1]) === v210RootPC(chs[i+1])) { plan = 100; break; }
+      if(qual(chs[i]) === qual(chs[i-1]) || qual(chs[i]) === qual(chs[i+1])) plan = Math.max(plan, 85);
+    }
+
+    // (f) Sonoridad fija sobre bajo movil. Es el primero de los cinco rasgos
+    //     que definen el estilo y el scoring generico lo ignoraba por completo.
+    let slash = 0, stepwise = 0, prevB = null;
+    for(const c of chs){
+      const b = (c.bass != null) ? v210PC(c.bass) : v210RootPC(c);
+      if(c.bass != null && v210PC(c.bass) !== v210RootPC(c)) slash++;
+      if(prevB !== null){
+        let d = v210PC(b - prevB); if(d > 6) d -= 12;
+        if(Math.abs(d) === 1 || Math.abs(d) === 2) stepwise++;
+      }
+      prevB = b;
+    }
+    // Sin informacion de bajo no se puede medir el rasgo: neutral. Contar el
+    // movimiento de fundamentales como si fuera bajo seria inventarlo.
+    const hasBass = chs.some(c => c.bass != null);
+    const bassScore = (n < 2 || !hasBass) ? 55
+      : Math.min(100, 40 + 110 * (stepwise / (n - 1)) + 60 * (slash / n));
+
+    // El retorno a la tonica no discrimina: todo bucle pop tambien cierra en
+    // ella. Se conserva como dato pero pesa poco; el peso va a los dos rasgos
+    // que si separan al autor de su familia generica.
+    const score = 0.20*sus + 0.26*nodom + 0.26*modalchar + 0.04*loopret + 0.08*plan + 0.16*bassScore;
+    return {score: score,
+      parts:{sus:Math.round(sus), nodom:Math.round(nodom), modal:Math.round(modalchar),
+             loop:Math.round(loopret), planeo:Math.round(plan), bajo:Math.round(bassScore)}};
+  }
 };
 
 function v210ScoreProg(prog, genre, traits){
@@ -26542,10 +27009,19 @@ function v210ScoreProg(prog, genre, traits){
   const uniq=new Set(chs.map(c=>v210RootPC(c)+':'+c.quality)).size;
   const variety=Math.max(0,Math.min(100, 24*uniq - 10));
 
-  const score = 0.34*motion + 0.24*vocab + 0.14*extScore + 0.16*cadence + 0.12*variety;
-  return {score:Math.round(score*10)/10,
-    parts:{motion:Math.round(motion), vocab:Math.round(vocab), ext:Math.round(extScore),
-           cadence:Math.round(cadence), variety:Math.round(variety), family:fam}};
+  let score = 0.34*motion + 0.24*vocab + 0.14*extScore + 0.16*cadence + 0.12*variety;
+  const parts = {motion:Math.round(motion), vocab:Math.round(vocab), ext:Math.round(extScore),
+                 cadence:Math.round(cadence), variety:Math.round(variety), family:fam};
+  // Capa de autor: pesa mas que la generica porque es la que discrimina.
+  const styler = V210_STYLE_SCORE[fam];
+  if(styler){
+    try{
+      const st = styler(chs, prog);
+      score = 0.45*score + 0.55*st.score;
+      for(const k in st.parts) parts[k] = st.parts[k];
+    }catch(e){}
+  }
+  return {score:Math.round(score*10)/10, parts:parts};
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -26609,13 +27085,19 @@ const V210_MOD_GRAMMAR = {
   post_punk:       {bridge:'up_minor_third',note:'mediante — desplazamiento frío'},
   flamenco:        {bridge:null,           note:'sin modulación: el eje frigio no se abandona'},
   indian_fusion:   {bridge:null,           note:'sin modulación: el raga fija el centro'},
-  bollywood_modern:{bridge:'relative',     note:'relativo — contraste de antara'}
+  bollywood_modern:{bridge:'relative',     note:'relativo — contraste de antara'},
+  cerati:          {bridge:'up_minor_third',note:'mediante cromatica \u2014 el puente se va a la tercera menor'},
+  cerati_bocanada: {bridge:'up_minor_third',note:'mediante cromatica \u2014 plano modal desplazado'},
+  cerati_ahivamos: {bridge:'relative',      note:'relativo \u2014 apertura del puente'},
+  cerati_fuerza:   {bridge:'subdominant',   note:'al IV \u2014 giro luminoso'}
 };
 
 function v210ModTarget(spec, key, mode){
   const k=cNotePC(key);
   const flat=cUseFlats(key,mode);
-  const nm=pc=>v210NoteName(pc,flat);
+  // El destino se escribe por su relacion con el centro, no por la del
+  // centro consigo mismo: subir una tercera menor desde Do da Mib, no Re#.
+  const nm=pc=>v210NoteName(pc, V210_FLAT_SIDE.indexOf(v210PC(pc-k))>=0 ? true : flat);
   switch(spec){
     case 'up_step':        return nm(v210PC(k+2));
     case 'up_semitone':    return nm(v210PC(k+1));
@@ -26720,8 +27202,10 @@ function v210PostProcess(prog, opts, ctxInfo){
     (sec.chords||[]).forEach(c=>{ c.beats = (c.beats>0) ? Math.round(c.beats) : ts; });
     if(sec.chords && sec.chords.length) v210ForceTotal(sec.chords, sec.bars*ts);
   });
+  if(V210.stygen) rep.gen = v210StyleGenerate(sections, genre, prog, ts, traits);
   if(V210.dns) rep.dns = v210ApplyDensityArc(sections, ts, traits, prog.key, prog.mode);
   if(V210.trn) rep.trn = v210ApplyTurnarounds(sections, genre, prog.key, prog.mode, ts);
+  rep.sty = v210ApplyStyle(sections, genre, prog.key, prog.mode);
   if(V210.met) rep.met = v210ApplyMeter(sections, genre, ts, ctxInfo.palo);
   if(V210.bas) rep.bas = v210ApplyBass(sections, genre, traits, ts, flat);
   if(V210.spl) rep.spl = v210ApplySpelling(sections, prog.key, prog.mode);
@@ -26826,6 +27310,26 @@ function cGenerateProgression(opts){
 // ── wrapper de voicings: ISVL en junturas ─────────────────────────────────
 function cApplyVoicings(chords, genre){
   const v=_cApplyVoicingsCoreV209(chords, genre);
+  // Red de seguridad: si una cualidad no tiene forma digitable el nucleo
+  // devuelve un hueco, y todo lo que recorre el array revienta. Se rellena
+  // con un voicing derivado de las alturas del acorde.
+  try{
+    for(let i=0;i<v.length;i++){
+      if(v[i] && v[i].midi && v[i].midi.length) continue;
+      const ch = chords[i] || {};
+      const pcs = v210Tones(ch);
+      const bass = (ch.bass != null) ? v210PC(ch.bass) : pcs[0];
+      const midi = [];
+      midi.push(40 + v210PC(bass - 40));
+      for(let k=0;k<pcs.length && midi.length<5;k++){
+        let m = 55 + v210PC(pcs[k] - 55);
+        while(m <= midi[midi.length-1]) m += 12;
+        if(m < 84) midi.push(m);
+      }
+      v[i] = {chord:ch, shapeKey:'fallback', label:'\u2014', voicing:[null,null,null,null,null,null],
+              midi:midi, score:0, isOpen:false, isIdiom:false, _fallback:true};
+    }
+  }catch(e){}
   if(!V210.on || !V210.isvl) return v;
   try{
     const prog=(typeof COMP_STATE!=='undefined')?COMP_STATE.progression:null;
@@ -26904,6 +27408,8 @@ function v210RenderBadge(){
     if(r.passes.trn&&r.passes.trn.applied) bits.push('turnaround '+r.passes.trn.family);
     if(r.passes.dns&&r.passes.dns.applied) bits.push('densidad ×'+r.passes.dns.ops);
     if(r.passes.spl&&r.passes.spl.applied) bits.push(r.passes.spl.respelled+' reescritos');
+    if(r.passes.sty&&r.passes.sty.applied) bits.push('estilo: '+r.passes.sty.remapped+' reasignados, '+r.passes.sty.suspended+' suspendidos');
+    if(r.passes.gen&&r.passes.gen.applied) bits.push('gram\u00e1tica de autor: '+r.passes.gen.sections+' secciones'+(r.passes.gen.planing?', '+r.passes.gen.planing+' planeos':'')+(r.passes.gen.opened?', '+r.passes.gen.opened+' aperturas':''));
   }
   el.innerHTML='<b>Idiomaticidad '+r.score+'/100</b> · '+r.candidates+' versiones evaluadas<br>'
     +'<span style="opacity:.8">fundamentales '+(p.motion||0)+' · vocabulario '+(p.vocab||0)
@@ -27013,6 +27519,7 @@ if(typeof window!=='undefined'){
   window.C_FORMS=C_FORMS;
   window.v210PostProcess=v210PostProcess;
   window.v210ScoreProg=v210ScoreProg;
+  window.V210_STYLE_SCORE=V210_STYLE_SCORE;
   window.v210Fingerprint=v210Fingerprint;
   window.v210ApplyMeter=v210ApplyMeter;
   window.v210ApplyBass=v210ApplyBass;
@@ -27021,6 +27528,14 @@ if(typeof window!=='undefined'){
   window.v210HybridTraits=v210HybridTraits;
   window.v210RepairBoundaries=v210RepairBoundaries;
   window.v210ApplySpelling=v210ApplySpelling;
+  window.v210ApplyStyle=v210ApplyStyle;
+  window.v210StyleGenerate=v210StyleGenerate;
+  window._qToChordId=_qToChordId;
+  window.V210_FAMILY=V210_FAMILY;
+  window.V210_STYLE_GEN=V210_STYLE_GEN;
+  window.v210Ivls=v210Ivls;
+  window.V210_STYLE=V210_STYLE;
+  window.C_GENRE_GROUPS=C_GENRE_GROUPS;
   window.v210MergeRedundant=v210MergeRedundant;
   window.v210Parallel=v210Parallel;
   window.v210ForceTotal=v210ForceTotal;
@@ -27579,6 +28094,13 @@ function cParallelPenalty(prevMidi, currMidi){
 // jazz/neo_soul/bossa: priorizar common tones y voice leading suave.
 // rock/metal: priorizar formas idiomáticas de guitarra.
 const _VL_GENRE_WEIGHTS = {
+  // open      : premio por cuerdas al aire (y doble en las tres agudas)
+  // topHold   : premio por mantener la nota superior entre acordes
+  // staticBass: penalizacion del bajo inmovil (por defecto 2.5)
+  cerati:          { score: 2.2, commonTone: 2.2, open: 2.4, topHold: 2.2, staticBass: 0.6 },
+  cerati_bocanada: { score: 2.0, commonTone: 2.4, open: 2.0, topHold: 2.6, staticBass: 0.4 },
+  cerati_ahivamos: { score: 2.6, commonTone: 1.8, open: 2.8, topHold: 1.8, staticBass: 0.9 },
+  cerati_fuerza:   { score: 2.5, commonTone: 2.0, open: 3.0, topHold: 2.0, staticBass: 0.8 },
   jazz_standard: { score: 1.5, commonTone: 1.8 },
   jazz_bebop:    { score: 1.5, commonTone: 1.8 },
   modal_jazz:    { score: 1.4, commonTone: 1.9 },
@@ -27603,6 +28125,20 @@ function _setVLWeightsForGenre(genre) {
   const w = _VL_GENRE_WEIGHTS[genre] || { score: 3.0, commonTone: 1.2 };
   _vlScoreWeight  = w.score;
   _vlCommonWeight = w.commonTone;
+  _vlOpenWeight    = w.open != null ? w.open : 0;
+  _vlTopHoldWeight = w.topHold != null ? w.topHold : 0;
+  _vlStaticBassPen = w.staticBass != null ? w.staticBass : 2.5;
+}
+let _vlOpenWeight = 0, _vlTopHoldWeight = 0, _vlStaticBassPen = 2.5;
+
+// Cuerdas al aire, con el doble de valor en las tres agudas: ahi es donde
+// producen la 9a y la 4a que dan el color, no en el bajo.
+function _vlOpenCount(c){
+  const v = c && c.voicing;
+  if(!v || !v.length) return 0;
+  let n = 0;
+  for(let i = 0; i < v.length; i++) if(v[i] === 0) n += (i >= 3 ? 2 : 1);
+  return n;
 }
 
 function cLeadCost(prev,c){
@@ -27614,7 +28150,9 @@ function cLeadCost(prev,c){
   const cBass=Math.min(...c.midi);
   const bd=Math.abs(prevBass-cBass);
   // Penalize static bass (0) and very large leaps (>9 semitones)
-  const bm=bd===0?2.5:bd<=2?0:bd===5||bd===7?0.5:bd<=4?1:bd<=9?3:6;
+  // El pedal de bajo es idiomatico en algunos estilos: la penalizacion
+  // del bajo inmovil se calibra por genero en vez de ser fija.
+  const bm=bd===0?_vlStaticBassPen:bd<=2?0:bd===5||bd===7?0.5:bd<=4?1:bd<=9?3:6;
 
   // ── Voice-leading distance (pitch-class aware) ──
   const vlDist=cVLDist(prev.midi,c.midi)*1.4;
@@ -27651,7 +28189,20 @@ function cLeadCost(prev,c){
   // ── Score reward — M3: peso calibrado por género ──
   const scoreReward=c.score*_vlScoreWeight;
 
-  return vlDist + bm + parallelPen + crossPen - commonBonus - contraryBonus - scoreReward;
+  // ── Sonoridad fija sobre bajo movil ───────────────────────────────────
+  // El rasgo se premia explicitamente: mantener la nota superior (y la
+  // inmediatamente inferior) mientras la fundamental cambia. Sin esto el
+  // Viterbi prefiere repartir el movimiento entre todas las voces.
+  let holdBonus = 0;
+  if(_vlTopHoldWeight){
+    if(cTop === prevTop && cBass !== prevBass) holdBonus += _vlTopHoldWeight;
+    const pn = prev.midi.length, cn = c.midi.length;
+    if(pn > 1 && cn > 1 && prev.midi[pn-2] === c.midi[cn-2]) holdBonus += _vlTopHoldWeight * 0.55;
+  }
+  const openBonus = _vlOpenWeight ? _vlOpenCount(c) * _vlOpenWeight : 0;
+
+  return vlDist + bm + parallelPen + crossPen - commonBonus - contraryBonus - scoreReward
+         - holdBonus - openBonus;
 }
 
 // ── cGenSopranoLine — ME-4.C ─────────────────────────────────
@@ -31497,8 +32048,8 @@ function compTabBuild(){
 
   COMP_TAB.chordData = voicings.map(function(v, i){
     const ch = chords[i] || {};
-    // normV: acepta int/null o {fret,mute,note}
-    const raw = v.voicing || v;
+    // normV: acepta int/null o {fret,mute,note}. v puede venir vacio.
+    const raw = (v && (v.voicing || v)) || null;
     const voicing = Array.isArray(raw) ? raw.map(function(x, s){
       if(x===null||x===undefined) return null;
       if(typeof x==='number') return x;
@@ -33720,6 +34271,10 @@ function cNormalizeBeats(chords, ts, bars) {
 
 
 const C_GENRE_TEMPO={
+  cerati:          {bpm:96,  ts:'4'},
+  cerati_bocanada: {bpm:76,  ts:'4'},
+  cerati_ahivamos: {bpm:118, ts:'4'},
+  cerati_fuerza:   {bpm:104, ts:'4'},
   jazz_standard:   {bpm:120, ts:'4'},
   bebop:           {bpm:200, ts:'4'},
   bossa_nova:      {bpm:130, ts:'4'},
@@ -35596,6 +36151,74 @@ window.compExportMIDI = function(){
 // ══════════════════════════════════════════════════════════════
 //  v93 — CHORDPRO ENRIQUECIDO
 // ══════════════════════════════════════════════════════════════
+
+// ── Copiar como texto: secciones y acordes, sin adornos ───────────────────
+// Pensado para pegar en notas, chat o correo: una linea por seccion.
+window.compCopyText = function(){
+  const st = document.getElementById('comp-status');
+  const say = m => { if(st){ st.textContent = m; setTimeout(()=>{ st.textContent=''; }, 2600); } };
+
+  const prog = (typeof COMP_STATE!=='undefined') ? COMP_STATE.progression : null;
+  if(!prog || !prog.formPlan || !prog.formPlan.sections.length){
+    say('Primero genera una composicion');
+    if(typeof showToast==='function') showToast('Primero genera una composición');
+    return;
+  }
+
+  const bpmEl = document.getElementById('comp-bpm');
+  const tsEl  = document.getElementById('comp-ts');
+  const bpm   = (bpmEl && bpmEl.value) || '120';
+  const ts    = (tsEl && tsEl.value) || '4';
+  const tsMap = {'2':'2/4','3':'3/4','4':'4/4','5':'5/4','6':'6/8','7':'7/8','10':'10/8','12':'12/8','16':'16/4'};
+  const genre = (C_GENRES[prog.genre] && C_GENRES[prog.genre].label) || prog.genre;
+  const mode  = String(prog.mode||'').replace(/_/g,' ');
+
+  const secs = prog.formPlan.sections.filter(s => s.chords && s.chords.length);
+  const wid  = secs.reduce((a,s)=>Math.max(a, String(s.label||s.id||'').length), 0);
+
+  const lines = [];
+  lines.push(prog.key + ' ' + mode + ' \u2014 ' + genre);
+  lines.push(bpm + ' BPM \u00b7 ' + (tsMap[ts]||ts+'/4') + ' \u00b7 ' + prog.totalBars + ' compases');
+  lines.push('');
+
+  let prevKey = null;
+  for(const sec of secs){
+    const label = String(sec.label || sec.id || '');
+    // Marcar el cambio de tonalidad solo cuando ocurre
+    const secKey = sec.key + ' ' + String(sec.mode||'').replace(/_/g,' ');
+    if(prevKey !== null && secKey !== prevKey) lines.push('   [' + secKey + ']');
+    prevKey = secKey;
+    const names = sec.chords.map(c => c.display).join('  ');
+    lines.push(label.padEnd(wid+2) + names);
+  }
+
+  const seed = (typeof _cGetSeed === 'function') ? _cGetSeed() : null;
+  if(seed){ lines.push(''); lines.push('Semilla: ' + seed); }
+
+  const text = lines.join('\n');
+
+  const ok = () => say('\U0001F4CB Copiado \u00b7 ' + secs.length + ' secciones');
+  const fallback = () => {
+    // Safari y los iframes con permisos restringidos rechazan la API de
+    // portapapeles; execCommand dentro del gesto del clic si funciona.
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, text.length);
+      const done = document.execCommand('copy');
+      document.body.removeChild(ta);
+      done ? ok() : say('No se pudo copiar');
+    }catch(e){ say('No se pudo copiar'); }
+  };
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok).catch(fallback);
+  } else fallback();
+};
+
 window.compExportChordPro = function(){
   const prog = COMP_STATE.progression;
   if(!prog){ if(typeof showToast==='function') showToast('Primero genera una composición'); return; }
@@ -40658,7 +41281,93 @@ function labVary(){
 }
 
 // ✕ LIMPIAR
+// ── UI de importacion ────────────────────────────────────────────────────
+window.labImportOpen = function(show){
+  const p = document.getElementById('imp-panel'); if(!p) return;
+  const open = (show === false) ? false : (p.style.display === 'none' || !p.style.display);
+  p.style.display = open ? 'block' : 'none';
+  if(open){
+    const ta = document.getElementById('imp-text');
+    if(ta && !ta._wired){
+      ta._wired = true;
+      ta.addEventListener('input', labImportPreview);
+      ta.addEventListener('paste', () => setTimeout(labImportPreview, 0));
+    }
+    labImportPreview();
+    if(ta) ta.focus();
+  }
+};
+
+window.labImportPaste = function(){
+  const ta = document.getElementById('imp-text'); if(!ta) return;
+  const done = t => { ta.value = t; labImportPreview(); };
+  if(navigator.clipboard && navigator.clipboard.readText){
+    navigator.clipboard.readText().then(done).catch(() => {
+      const pv = document.getElementById('imp-preview');
+      if(pv) pv.innerHTML = '<span class="imp-warn">El navegador no me deja leer el portapapeles. Pega con el teclado.</span>';
+      ta.focus();
+    });
+  } else ta.focus();
+};
+
+window.labImportPreview = function(){
+  const ta = document.getElementById('imp-text');
+  const pv = document.getElementById('imp-preview');
+  const btn = document.getElementById('imp-load');
+  if(!ta || !pv) return;
+  const tsEl = document.getElementById('gen-ts');
+  const ts = parseInt(tsEl && tsEl.value, 10) || 4;
+  const maxBars = (function(){
+    const el = document.getElementById('canvas-bars');
+    if(!el || !el.options.length) return 16;
+    let m = 0; for(const o of el.options) m = Math.max(m, parseInt(o.value,10)||0);
+    return m || 16;
+  })();
+
+  if(!ta.value.trim()){ pv.innerHTML = ''; if(btn) btn.disabled = true; return; }
+
+  let e;
+  try{ e = impAnalyze(ta.value, ts, maxBars); }
+  catch(err){ pv.innerHTML = '<span class="imp-warn">No pude interpretarlo: ' + err.message + '</span>';
+              if(btn) btn.disabled = true; return; }
+
+  if(!e.chords.length){
+    pv.innerHTML = '<span class="imp-warn">' +
+      (e.warnings.length ? e.warnings.map(w => w.msg).join(' \u00b7 ') : 'Ningun acorde reconocible') + '</span>';
+    if(btn) btn.disabled = true; return;
+  }
+
+  const FMT = {chordpro:'ChordPro', compases:'notaci\u00f3n de compases', 'acordes-sobre-letra':'acordes sobre letra'};
+  const conf = Math.round((e.confidence||0) * 100);
+  let h = '<b>' + e.chords.length + ' acordes</b> \u00b7 ' + (FMT[e.format]||e.format) +
+          ' \u00b7 <b>' + e.key + ' ' + String(e.mode).replace(/_/g,' ') + '</b> (' + conf + '% de certeza)' +
+          ' \u00b7 ' + e.bars + ' compases \u00d7 ' + e.cpc + ' por compas<br>';
+  if(e.sections.length > 1)
+    h += '<span class="imp-sec">' + e.sections.map(s => s.label + ' (' + s.chords.length + ')').join(' \u00b7 ') + '</span><br>';
+  h += e.chords.slice(0, 32).map(c => c.display).join('  ') + (e.chords.length > 32 ? '  \u2026' : '') + '<br>';
+  if(e.truncated > 0)
+    h += '<span class="imp-warn">Sobran ' + e.truncated + ' acordes para ' + maxBars + ' compases: se recortan.</span><br>';
+  // Lo que no se entendio se dice con su numero de linea, no se traga.
+  if(e.warnings.length)
+    h += e.warnings.slice(0, 6).map(w =>
+      '<span class="imp-warn">' + (w.line ? 'L\u00ednea ' + w.line + ': ' : '') + w.msg + '</span>').join('<br>');
+  pv.innerHTML = h;
+  if(btn) btn.disabled = false;
+};
+
+window.labImportLoad = function(){
+  const e = IMP.last;
+  if(!e || !e.chords.length) return;
+  try{ _genPushUndo(); }catch(err){}
+  try{ trfReset(); }catch(err){}
+  labLoadProg(e);                       // misma ruta que una progresion guardada
+  labImportOpen(false);
+  try{ if(typeof showToast === 'function') showToast('Importados ' + e.chords.length + ' acordes en ' + e.key + ' ' + e.mode); }catch(err){}
+};
+
+
 function labClear(){
+  try{ trfReset(); }catch(e){}
   _genPushUndo();
   // Detener playback
   if(_genPlaying) _stopGenPlayback();
@@ -41601,8 +42310,820 @@ async function labRenderSaved(){
   }).join('');
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  IMPORTAR CIFRADO — v211
+//  Pega un cifrado de cualquier procedencia y la app lo interpreta. Acepta
+//  ChordPro, acordes sobre letra y notacion de compases, sin que el usuario
+//  tenga que declarar cual es. Lo dificil no es el formato: es normalizar el
+//  cifrado (A-7, AM7, F#m7b5, Ab maj9(#11)) al vocabulario interno.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const IMP = { last:null };
+
+// ── Normalizacion de simbolos ────────────────────────────────────────────
+// El orden importa: se prueba de mas especifico a mas general, y la
+// distincion M/m es sensible a mayusculas (M7 es mayor, m7 es menor).
+const IMP_SUFFIX = [
+  [/^$/,                          'maj'],
+  [/^(maj|MAJ|Maj|M)$/,           'maj'],
+  [/^(m|min|Min|MIN|-)$/,         'min'],
+  [/^5$/,                         '5'],
+  [/^(maj7|Maj7|MAJ7|M7|ma7|7M|j7|t7)$/,        'maj7'],
+  [/^(maj9|Maj9|M9|ma9|9M)$/,                   'maj9'],
+  [/^(maj13|M13)$/,                             'maj13'],
+  [/^(maj7|M7)(#11|\+11)$/,                     'maj7#11'],
+  [/^(m|min|Min|-)(maj7|Maj7|MAJ7|M7|ma7)$/,     'mMaj7'],
+  [/^(m|min|Min|-)7b5$/,                        'm7b5'],
+  [/^(m|min|Min|-)7-5$/,                        'm7b5'],
+  [/^(o|0|ø|O)7?$/,                             'm7b5'],
+  [/^(dim|DIM|Dim)$/,                           'dim'],
+  [/^(dim7|DIM7|Dim7)$/,                        'dim7'],
+  [/^(aug|AUG|Aug|\+)$/,                        'aug'],
+  [/^(m|min|Min|-)6$/,                          'm6'],
+  [/^(m|min|Min|-)69$/,                         'm6add9'],
+  [/^(m|min|Min|-)7$/,                          'm7'],
+  [/^(m|min|Min|-)9$/,                          'm9'],
+  [/^(m|min|Min|-)11$/,                         'm11'],
+  [/^(m|min|Min|-)13$/,                         'm13'],
+  [/^(m|min|Min|-)(add9|add2|2)$/,              'madd9'],
+  [/^(m|min|Min|-)(sus4|sus)$/,                 'sus4'],
+  [/^(m|min|Min|-)(b6)$/,                       'min'],
+  [/^6$/,                                       '6'],
+  [/^(69|6\/9|6add9)$/,                         '6add9'],
+  [/^7$/,                                       '7'],
+  [/^9$/,                                       '9'],
+  [/^11$/,                                      '11'],
+  [/^13$/,                                      '13'],
+  [/^7b9$/,   '7b9'],  [/^7#9$/,   '7#9'],
+  [/^7b5$/,   '7b5'],  [/^7#5$/,   '7#5'],  [/^7\+5$/, '7#5'],  [/^\+7$/, '7#5'],
+  [/^7#11$/,  '7#11'], [/^7b13$/,  '7b13'],
+  [/^(alt|7alt)$/,     '7alt'],
+  [/^13b9$/,  '13b9'],
+  [/^(sus|sus4)$/,     'sus4'],
+  [/^sus2$/,           'sus2'],
+  [/^7(sus|sus4)$/,    '7sus4'],
+  [/^9(sus|sus4)$/,    '9sus4'],
+  [/^13(sus|sus4)$/,   '13sus4'],
+  [/^(add9|add2|2)$/,  'add9'],
+  [/^add11$/,          'add11'],
+  [/^(aug7|7aug)$/,    'aug7']
+];
+
+const IMP_PC = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+
+// Devuelve {root, quality, bass} o null. No lanza: un cifrado ilegible es
+// dato, no excepcion.
+function impParseChord(tok){
+  if(!tok) return null;
+  let t = String(tok)
+    .replace(/[\u266F\uFF03]/g,'#').replace(/[\u266D]/g,'b')
+    // Los simbolos compuestos se resuelven antes que los sueltos: si no,
+    // "A\u03947" se convierte en "Amaj77" y deja de parsear.
+    .replace(/[\u0394\u2206]7/g,'maj7').replace(/[\u0394\u2206]/g,'maj7')
+    .replace(/[\u00F8\u00D8]7/g,'m7b5').replace(/[\u00F8\u00D8]/g,'m7b5')
+    .replace(/[\u00B0\u02DA]7/g,'dim7').replace(/[\u00B0\u02DA]/g,'dim')
+    .replace(/[\u2013\u2014\u2212]/g,'-')
+    .replace(/[()\s]/g,'').replace(/[,.;:!?"']+$/,'');
+  if(!t) return null;
+
+  // 6/9 y 6/8 no son bajos alternativos: se normalizan antes de partir.
+  t = t.replace(/6\/9/g,'69');
+
+  // Bajo alternativo
+  let bass = null;
+  const slash = t.indexOf('/');
+  if(slash > 0){
+    const b = t.slice(slash+1);
+    const bm = /^([A-G])([#b]?)$/.exec(b);
+    if(!bm) return null;
+    bass = ((IMP_PC[bm[1]] + (bm[2]==='#'?1:bm[2]==='b'?-1:0)) % 12 + 12) % 12;
+    t = t.slice(0, slash);
+  }
+
+  const m = /^([A-G])([#b]{0,2})(.*)$/.exec(t);
+  if(!m) return null;
+  let root = IMP_PC[m[1]];
+  for(const ch of m[2]) root += (ch === '#' ? 1 : -1);
+  root = ((root % 12) + 12) % 12;
+
+  const suf = m[3];
+  for(const [re, q] of IMP_SUFFIX) if(re.test(suf)) return {root, quality:q, bass, raw:tok};
+  return null;
+}
+
+// ── Etiquetas de seccion ─────────────────────────────────────────────────
+const IMP_SECTION = /^[\s\[\(]*((intro|verso|verse|estrofa|estribillo|chorus|coro|pre[\s-]?coro|pre[\s-]?chorus|puente|bridge|solo|outro|final|interludio|instrumental|tag|vuelta|parte|riff)[^\]\)\n]{0,24})[\s\]\):]*$/i;
+
+function impSectionLabel(line){
+  const m = IMP_SECTION.exec(String(line).trim());
+  if(!m) return null;
+  const s = m[1].trim();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ── Analisis del texto ───────────────────────────────────────────────────
+function impParseText(text, ts){
+  ts = ts || 4;
+  const out = {chords:[], sections:[], format:null, warnings:[], lines:0};
+  if(!text || !String(text).trim()){ out.warnings.push({line:0, msg:'No hay texto que interpretar'}); return out; }
+
+  const lines = String(text).replace(/\r/g,'').split('\n');
+  out.lines = lines.length;
+  const hasBracket = /\[[A-G][^\]]{0,12}\]/.test(text);
+  // Basta con dos barras en total: un cifrado de una sola linea
+  // ("| Am | F | C |") tambien es notacion de compases.
+  const hasBars    = (text.match(/\|/g)||[]).length >= 2 &&
+                     lines.some(l => (l.match(/\|/g)||[]).length >= 2);
+  out.format = hasBracket ? 'chordpro' : hasBars ? 'compases' : 'acordes-sobre-letra';
+
+  let current = null;
+  let barNo = 0;   // el compas es global al cifrado, no a la linea
+  const push = (c, bar) => {
+    if(!current){ current = {label:'Importado', chords:[]}; out.sections.push(current); }
+    c.bar = bar;
+    current.chords.push(c);
+    out.chords.push(c);
+  };
+
+  for(let li = 0; li < lines.length; li++){
+    const raw = lines[li];
+    const line = raw.trim();
+    if(!line) continue;
+
+    const lab = impSectionLabel(line);
+    if(lab && !impParseChord(line.replace(/[\[\]()]/g,''))){
+      current = {label:lab, chords:[]};
+      out.sections.push(current);
+      continue;
+    }
+
+    if(out.format === 'chordpro'){
+      const re = /\[([^\]\n]{1,14})\]/g; let m, found = 0;
+      while((m = re.exec(raw))){
+        const c = impParseChord(m[1]);
+        if(c) { push(c, null); found++; }
+        else out.warnings.push({line:li+1, msg:'No reconozco «' + m[1] + '»'});
+      }
+      continue;
+    }
+
+    if(out.format === 'compases' && line.indexOf('|') >= 0){
+      const bars = line.split('|').map(x => x.trim()).filter(x => x !== '');
+      let ok = 0, bad = 0;
+      const staged = [];
+      bars.forEach(barTxt => {
+        const bi = barNo++;
+        const toks = barTxt.split(/\s+/).filter(Boolean);
+        toks.forEach(tk => {
+          if(/^[%\/\-.]+$/.test(tk)) return;            // repeticion de compas
+          const c = impParseChord(tk);
+          if(c){ staged.push([c, bi]); ok++; } else bad++;
+        });
+      });
+      if(ok && ok >= bad){ staged.forEach(([c, bi]) => push(c, bi)); }
+      else if(bad) out.warnings.push({line:li+1, msg:'Linea con barras que no entiendo'});
+      continue;
+    }
+
+    // Acordes sobre letra: una linea es de acordes si la mayoria de sus
+    // tokens son acordes validos. Evita confundir "Am" en la letra con un
+    // acorde suelto exigiendo densidad, no presencia.
+    const toks = line.split(/\s+/).filter(Boolean);
+    if(!toks.length) continue;
+    const parsed = toks.map(impParseChord);
+    const good = parsed.filter(Boolean).length;
+    if(good === toks.length || (toks.length >= 2 && good / toks.length >= 0.7)){
+      parsed.forEach((c, i) => { if(c) push(c, null); });
+      const missed = toks.filter((t, i) => !parsed[i]);
+      if(missed.length) out.warnings.push({line:li+1, msg:'Salto «' + missed.join(' ') + '»'});
+    }
+  }
+
+  if(!out.chords.length) out.warnings.push({line:0, msg:'No encontre ningun acorde reconocible'});
+  return out;
+}
+
+// ── Deduccion de tonalidad y modo ────────────────────────────────────────
+// El modulo vive fuera del IIFE del Composer: C_SCALES y v210Ivls no estan
+// en su ambito. Con las tablas prestadas la deduccion fallaba en silencio y
+// devolvia siempre Do mayor. Tablas propias, verificadas por test.
+const IMP_SCALES = {
+  major:      [0,2,4,5,7,9,11],
+  minor:      [0,2,3,5,7,8,10],
+  dorian:     [0,2,3,5,7,9,10],
+  mixolydian: [0,2,4,5,7,9,10],
+  phrygian:   [0,1,3,5,7,8,10],
+  lydian:     [0,2,4,6,7,9,11]
+};
+const IMP_IVLS = {
+  maj:[0,4,7], min:[0,3,7], dim:[0,3,6], aug:[0,4,8], '5':[0,7],
+  sus2:[0,2,7], sus4:[0,5,7], '6':[0,4,7,9], m6:[0,3,7,9], '6add9':[0,2,4,7,9],
+  m6add9:[0,2,3,7,9], maj7:[0,4,7,11], maj9:[0,2,4,7,11], maj13:[0,2,4,7,9,11],
+  'maj7#11':[0,4,6,7,11], m7:[0,3,7,10], m9:[0,2,3,7,10], m11:[0,2,3,5,7,10],
+  m13:[0,2,3,7,9,10], m7b5:[0,3,6,10], dim7:[0,3,6,9], mMaj7:[0,3,7,11],
+  '7':[0,4,7,10], '9':[0,2,4,7,10], '11':[0,2,4,5,7,10], '13':[0,2,4,7,9,10],
+  '7b9':[0,1,4,7,10], '7#9':[0,3,4,7,10], '7b5':[0,4,6,10], '7#5':[0,4,8,10],
+  '7#11':[0,4,6,7,10], '7b13':[0,4,7,8,10], '7alt':[0,1,4,8,10],
+  '13b9':[0,1,4,7,9,10], '7sus4':[0,5,7,10], '9sus4':[0,2,5,7,10],
+  '13sus4':[0,2,5,7,9,10], add9:[0,2,4,7], madd9:[0,2,3,7], add11:[0,4,5,7],
+  aug7:[0,4,8,10]
+};
+function impIvls(q){ return IMP_IVLS[q] || IMP_IVLS.maj; }
+const IMP_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+const IMP_MODES = ['major','minor','dorian','mixolydian','phrygian','lydian'];
+
+function impInferKey(chords){
+  if(!chords || !chords.length) return {key:'C', mode:'major', score:0, confidence:0};
+
+  // Todos los modos de una misma coleccion comparten las mismas notas, asi
+  // que la cobertura no puede distinguirlos: empata siempre. Lo que decide
+  // un centro es la EVIDENCIA DE TONICA — que haya un acorde sobre ella, con
+  // la calidad que el modo exige — mas la marca caracteristica del modo.
+  const PRIOR = {major:1.00, minor:1.00, mixolydian:0.72, dorian:0.72, lydian:0.55, phrygian:0.58};
+  const TONIC_MAJ = {major:1, mixolydian:1, lydian:1};
+  // Grado que un modo necesita exhibir para reclamarse modal, y con que calidad
+  const MARK = {mixolydian:{deg:10, maj:true}, dorian:{deg:5, maj:true},
+                lydian:{deg:6, maj:true},     phrygian:{deg:1, maj:true}};
+
+  const isMin = q => /^m(?!aj)|^min/.test(String(q));
+  const isMaj = q => !isMin(q) && !/^sus|^5$/.test(String(q));
+  const first = chords[0].root % 12, last = chords[chords.length-1].root % 12;
+
+  let best = {key:'C', mode:'major', score:-1e9};
+  for(let k = 0; k < 12; k++){
+    for(const mode of IMP_MODES){
+      const set = IMP_SCALES[mode].map(x => (k + x) % 12);
+      let s = 0;
+
+      // (a) Cobertura: elige la COLECCION, no el centro
+      for(const c of chords){
+        const tones = impIvls(c.quality);
+        let inside = 0;
+        for(const iv of tones) if(set.indexOf((c.root + iv) % 12) >= 0) inside++;
+        s += inside / tones.length;
+        if(set.indexOf(c.root % 12) >= 0) s += 0.25;
+      }
+
+      // (b) Evidencia de tonica: sin un acorde sobre el centro no hay centro
+      const wantMaj = !!TONIC_MAJ[mode];
+      let tonicHits = 0, tonicRight = 0;
+      for(const c of chords){
+        if(c.root % 12 !== k) continue;
+        tonicHits++;
+        if(wantMaj ? isMaj(c.quality) : isMin(c.quality)) tonicRight++;
+      }
+      // Presencia y calidad son dos cosas: que exista un acorde de tonica con
+      // la calidad del modo es un hecho binario. Cuantas veces aparece ya lo
+      // mide el termino siguiente; contarlo dos veces premiaba al acorde mas
+      // repetido del bucle, que rara vez es la tonica.
+      if(!tonicHits) s -= chords.length * 0.55;
+      else {
+        s += (tonicRight > 0 ? 1.1 : 0) * 0.85;
+        s -= (tonicRight === 0 ? tonicHits * 0.70 : 0);
+      }
+      s += (tonicHits / chords.length) * chords.length * 0.45;
+
+      // (b2) Cadencia hacia el centro. Es el indicio mas fuerte y el unico
+      // que no se confunde en un bucle: el ultimo acorde de un ciclo casi
+      // nunca es la tonica, asi que premiar el final orientaba mal.
+      let cad = 0;
+      for(let i = 0; i < chords.length; i++){
+        const prev = chords[(i - 1 + chords.length) % chords.length].root % 12;
+        if(chords[i].root % 12 !== k) continue;
+        const pq = chords[(i - 1 + chords.length) % chords.length].quality;
+        const d = ((prev - k) % 12 + 12) % 12;
+        // Un v MENOR no es una dominante: no cadencia, solo se mueve.
+        const domish = !isMin(pq);
+        if(d === 7) cad += domish ? 1.00 : 0.40;   // V  -> I
+        else if(d === 5)  cad += domish ? 0.55 : 0.25;  // IV -> I  plagal
+        else if(d === 10) cad += domish ? 0.55 : 0.20;  // bVII -> i modal
+        else if(d === 2)  cad += domish ? 0.30 : 0.12;
+      }
+      s += cad * 1.30;
+      // El primer acorde orienta; el ultimo de un bucle casi nunca es la
+      // tonica, asi que pesa poco.
+      if(first === k) s += chords.length * 0.18;
+      if(last  === k) s += chords.length * 0.08;
+
+      // (c) Marca del modo: un modo sin su grado caracteristico no se sostiene
+      const mk = MARK[mode];
+      if(mk){
+        const seen = chords.some(c => (c.root - k + 12) % 12 === mk.deg &&
+                                      (mk.maj ? isMaj(c.quality) : isMin(c.quality)));
+        if(!seen) s -= chords.length * 0.9;
+      }
+
+      s *= PRIOR[mode];
+      if(s > best.score) best = {key:IMP_NOTES[k], mode:mode, score:s};
+    }
+  }
+  best.confidence = Math.max(0, Math.min(1, best.score / (chords.length * 2.1)));
+  return best;
+}
+
+// ── Construccion de la entrada del Lab ───────────────────────────────────
+// Cifrado legible sin depender del formateador del Composer.
+const IMP_SYM = {maj:'', min:'m', dim:'dim', aug:'aug', '5':'5', sus2:'sus2', sus4:'sus4',
+  '6':'6', m6:'m6', '6add9':'6/9', m6add9:'m6/9', maj7:'maj7', maj9:'maj9', maj13:'maj13',
+  'maj7#11':'maj7#11', m7:'m7', m9:'m9', m11:'m11', m13:'m13', m7b5:'m7b5', dim7:'dim7',
+  mMaj7:'mMaj7', '7':'7', '9':'9', '11':'11', '13':'13', '7b9':'7b9', '7#9':'7#9',
+  '7b5':'7b5', '7#5':'7#5', '7#11':'7#11', '7b13':'7b13', '7alt':'7alt', '13b9':'13b9',
+  '7sus4':'7sus4', '9sus4':'9sus4', '13sus4':'13sus4', add9:'add9', madd9:'madd9',
+  add11:'add11', aug7:'aug7'};
+function impDisplay(root, q, bass){
+  const s = IMP_NOTES[((root % 12) + 12) % 12] + (IMP_SYM[q] != null ? IMP_SYM[q] : q);
+  return (bass != null && bass !== root) ? s + '/' + IMP_NOTES[((bass % 12) + 12) % 12] : s;
+}
+
+function impBuildEntry(parsed, ts, maxBars){
+  ts = ts || 4; maxBars = maxBars || 16;
+  const inf = impInferKey(parsed.chords);
+
+  // Acordes por compas: si el cifrado traia barras, se respeta; si no, uno
+  // por compas, que es lo que el usuario puede ajustar despues.
+  let cpc = 1;
+  if(parsed.format === 'compases'){
+    const per = {};
+    parsed.chords.forEach(c => { if(c.bar != null) per[c.bar] = (per[c.bar]||0) + 1; });
+    const vals = Object.keys(per).map(k => per[k]);
+    if(vals.length) cpc = Math.min(4, Math.max(1, Math.max.apply(null, vals)));
+  }
+
+  const capacity = maxBars * cpc;
+  const used = parsed.chords.slice(0, capacity);
+  const truncated = parsed.chords.length - used.length;
+
+  const chords = used.map(c => {
+    const q  = c.quality;
+    // _qToChordId vive en el IIFE del Composer: se usa la copia expuesta.
+    // Sin ella, 'm7' buscaba un id 'm7' inexistente (es 'min7') y caia a mayor.
+    const qmap = (typeof window !== 'undefined' && window._qToChordId) || null;
+    const id = qmap ? qmap(q) : q;
+    const def = (typeof ALL_CHORDS !== 'undefined') ? ALL_CHORDS.find(a => a.id === id) : null;
+    return {
+      // El lienzo del Lab identifica la fundamental por NOMBRE de nota, no
+      // por clase de altura. Con un numero el acorde se dibuja pero la cadena
+      // de voicings no lo resuelve: se ve y no suena.
+      root: IMP_NOTES[((c.root % 12) + 12) % 12],
+      chordId: def ? def.id : 'maj',
+      display: impDisplay(c.root, q, c.bass),
+      beats: Math.max(1, Math.round(ts / cpc)),
+      _bass: c.bass, _quality: q
+    };
+  });
+
+  return {
+    chords: chords,
+    key: inf.key, mode: inf.mode, confidence: inf.confidence,
+    bars: Math.max(1, Math.ceil(chords.length / cpc)),
+    // Sin genero: 'custom' no es una opcion del selector del Lab, asi que
+    // asignarlo dejaba el <select> en vacio y la cadena de voicings sin
+    // genero con el que resolver. Se respeta lo que el usuario tenga puesto.
+    cpc: cpc, ts: ts, name: 'Importado',
+    format: parsed.format, sections: parsed.sections,
+    warnings: parsed.warnings, truncated: truncated
+  };
+}
+
+// ── API de alto nivel ────────────────────────────────────────────────────
+function impAnalyze(text, ts, maxBars){
+  const parsed = impParseText(text, ts);
+  const entry  = impBuildEntry(parsed, ts, maxBars);
+  IMP.last = entry;
+  return entry;
+}
+
+if(typeof window !== 'undefined'){
+  window.IMP = IMP;
+  window.impParseChord = impParseChord;
+  window.impParseText  = impParseText;
+  window.impInferKey   = impInferKey;
+  window.impBuildEntry = impBuildEntry;
+  window.impAnalyze    = impAnalyze;
+  window.impSectionLabel = impSectionLabel;
+  window.impDisplay = impDisplay;
+  window.IMP_SCALES = IMP_SCALES;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TRANSFORMAR AL ESTILO — v211
+//  Reescribe la progresion del lienzo como lo haria un musico del genero
+//  seleccionado. Tres niveles, de menos a mas invasivo:
+//    COLOR       solo la cualidad de cada acorde; fundamentales intactas
+//    ESTILO      ademas, sustituciones idiomaticas que respetan la funcion
+//    REINVENCION reharmoniza con la gramatica del genero, anclando inicio y fin
+//  Ningun nivel toca el ritmo: cada acorde conserva sus tiempos. La armonia
+//  decide QUE suena; la metrica ya estaba decidida.
+//
+//  Todo opera en ids de ALL_CHORDS, que es el vocabulario del lienzo. El
+//  vocabulario del Composer vive en otro ambito y no se toca desde aqui.
+// ═══════════════════════════════════════════════════════════════════════════
+
+const TRF = { orig:null, result:null, showing:'orig', level:null, genre:null, reroll:0, scores:null };
+
+const TRF_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const TRF_PC = {C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11};
+function trfPC(n){ if(typeof n === 'number') return ((n%12)+12)%12; const v = TRF_PC[String(n).trim()]; return v == null ? 0 : v; }
+
+// RNG con semilla: misma entrada, mismo resultado; "otra version" cambia la semilla.
+function trfRng(seedStr){
+  let h = 2166136261 >>> 0;
+  for(let i = 0; i < seedStr.length; i++){ h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return function(){
+    h += 0x6D2B79F5; let t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function trfDef(id){ return (typeof ALL_CHORDS !== 'undefined') ? ALL_CHORDS.find(a => a.id === id) : null; }
+
+// Clase de triada a partir de los intervalos del acorde
+function trfClass(def){
+  const f = (def && def.f) || [0,4,7];
+  const has = x => f.indexOf(x) >= 0 || f.indexOf(x + 12) >= 0;
+  if(has(3) && has(6) && !has(7)) return 'dim';
+  if(has(3)) return 'min';
+  if(has(4)) return 'maj';
+  return 'maj';            // suspendidos y quintas: se tratan como mayores
+}
+function trfIsDom(def){
+  const f = (def && def.f) || [];
+  return f.indexOf(4) >= 0 && f.indexOf(10) >= 0;
+}
+
+// Funcion armonica por distancia al centro (en semitonos)
+function trfRole(deg){
+  if(deg === 0 || deg === 9 || deg === 4) return 'T';
+  if(deg === 5 || deg === 2 || deg === 8 || deg === 3) return 'S';
+  return 'D';                                   // 7, 11, 10, 1, 6
+}
+
+// ── COLOR: paletas por familia, ordenadas de seca a rica ─────────────────
+const TRF_COLOR = {
+  jazz:      {maj:{T:['maj7','6add9','maj9','maj13'], S:['maj7','maj9','6add9'], D:['7','9','13','13']},
+              min:{T:['min7','min9','min11'], S:['min7','min9','min11'], D:['min7','min9']}, dim:['m7b5','m7b5','m9b5']},
+  functional:{maj:{T:['maj','maj7','add9'], S:['maj','maj7','6'], D:['7','7','9']},
+              min:{T:['min','min7'], S:['min','min7'], D:['min','min7']}, dim:['dim','m7b5']},
+  loop:      {maj:{T:['maj','add9','maj7','sus2'], S:['maj','add9','maj7'], D:['maj','sus4','add9']},
+              min:{T:['min','min7','madd9'], S:['min','min7'], D:['min','min7']}, dim:['dim']},
+  blues:     {maj:{T:['7','9','13'], S:['7','9','13'], D:['7','9','13']},
+              min:{T:['min7','min9'], S:['min7'], D:['7']}, dim:['dim7']},
+  andaluza:  {maj:{T:['maj','7','add9'], S:['maj','7'], D:['7','7b9','7']},
+              min:{T:['min','min7','madd9'], S:['min','min7'], D:['min']}, dim:['dim']},
+  latin:     {maj:{T:['maj7','6','6add9','maj9'], S:['maj7','6','maj9'], D:['7','9','13','7b9']},
+              min:{T:['min7','min9','min6'], S:['min7','min9'], D:['min7']}, dim:['m7b5']},
+  raw:       {maj:{T:['5','maj','add9'], S:['5','maj'], D:['5','maj']},
+              min:{T:['5','min','min7'], S:['min','5'], D:['min','5']}, dim:['dim']},
+  modal:     {maj:{T:['maj7','sus2','maj9','6'], S:['maj7','sus2','add9'], D:['7sus4','9sus4','sus4']},
+              min:{T:['min7','min9','min11'], S:['min7','min9'], D:['min7','min9']}, dim:['m7b5']},
+  ragamodal: {maj:{T:['maj','sus2','add9'], S:['maj','sus2'], D:['sus4','maj']},
+              min:{T:['min','madd9','min7'], S:['min','min7'], D:['min']}, dim:['dim']},
+  cerati:    {maj:{T:['add9','sus2','maj7','6add9'], S:['add9','maj7','sus2','6'], D:['sus4','add9','9sus4']},
+              min:{T:['min9','madd9','min7','min11'], S:['min7','min9','madd9'], D:['min7','min9']}, dim:['min7']}
+};
+const TRF_FAMILY_FALLBACK = {
+  jazz_standard:'jazz', bebop:'jazz', latin_jazz:'jazz', bossa_nova:'jazz', neo_soul:'jazz',
+  gospel:'jazz', rnb:'jazz', modal_jazz:'modal', pop_modern:'loop', indie_alt:'loop',
+  country:'functional', classical:'functional', cinematic:'modal', rock_classic:'raw',
+  grunge:'raw', post_punk:'modal', metal_prog:'modal', funk:'modal', reggae:'modal',
+  afrobeat:'modal', highlife:'latin', blues_12bar:'blues', flamenco:'andaluza', tango:'latin',
+  fado:'latin', samba:'latin', salsa_timba:'latin', son_cubano:'latin', cumbia:'latin',
+  bachata:'latin', joropo:'latin', chacarera:'latin', zamba:'latin',
+  indian_fusion:'ragamodal', bollywood_modern:'ragamodal',
+  cerati:'cerati', cerati_bocanada:'cerati', cerati_ahivamos:'cerati', cerati_fuerza:'cerati'
+};
+function trfFamily(genre){
+  if(typeof window !== 'undefined' && window.V210_FAMILY && window.V210_FAMILY[genre]) return window.V210_FAMILY[genre];
+  return TRF_FAMILY_FALLBACK[genre] || 'functional';
+}
+function trfTraits(genre){
+  try{ if(window.cBuildTraits) return window.cBuildTraits(genre, null) || {}; }catch(e){}
+  return {extension_density:.5, suspended_density:.3, tritone_substitution:.2};
+}
+
+function trfPick(list, richness, rng){
+  if(!list || !list.length) return null;
+  let i = Math.floor(richness * (list.length - 1) + (rng()*1.4 - 0.45));
+  if(i < 0) i = 0; if(i >= list.length) i = list.length - 1;
+  return list[i];
+}
+
+function trfColorId(cls, role, fam, traits, rng){
+  const pal = TRF_COLOR[fam] || TRF_COLOR.functional;
+  const ext = traits.extension_density != null ? traits.extension_density : .5;
+  if(cls === 'dim') return trfPick(pal.dim, ext, rng);
+  const tab = (pal[cls] || pal.maj)[role] || (pal[cls] || pal.maj).T;
+  return trfPick(tab, ext, rng);
+}
+
+// ── ESTILO: sustituciones idiomaticas, slot a slot ───────────────────────
+// Nunca se insertan acordes: el lienzo es una reticula fija y anadir uno
+// romperia la metrica. Se SUSTITUYE dentro de cada casilla, conservando la
+// funcion: es lo que hace un reharmonizador de verdad.
+function trfStyle(seq, key, fam, traits, rng, mode){
+  const kk = trfPC(key);
+  const n = seq.length;
+  const ttp = traits.tritone_substitution != null ? traits.tritone_substitution : .2;
+  const deg = c => (c.pc - kk + 12) % 12;
+
+  for(let i = 0; i < n; i++){
+    const c = seq[i], nx = seq[(i + 1) % n], pv = seq[(i - 1 + n) % n];
+    const d = deg(c);
+    const fifthDown = ((nx.pc - c.pc + 12) % 12) === 5;      // c resuelve por quinta en nx
+
+    if(fam === 'jazz' || fam === 'latin'){
+      // IV -> ii7: misma funcion subdominante, mas movimiento por quintas
+      if(d === 5 && c.cls === 'maj' && rng() < 0.5){ c.pc = (kk + 2) % 12; c.id = 'min7'; c.why = 'IV \u2192 ii7'; continue; }
+      // Dominante secundaria: un acorde que no es tonica y cae por quinta
+      if(fifthDown && d !== 0 && !trfIsDom(trfDef(c.id)) && rng() < 0.65){
+        c.id = (fam === 'latin') ? '7b9' : '7'; c.why = 'dominante secundaria'; continue;
+      }
+      // Sustitucion tritonal de un dominante que resuelve por quinta
+      if(fifthDown && trfIsDom(trfDef(c.id)) && rng() < ttp * 0.9){
+        c.pc = (c.pc + 6) % 12; c.id = '7'; c.why = 'subV'; continue;
+      }
+      // ii de una menor: semidisminuido
+      if(fifthDown && c.cls === 'min' && nx && deg(nx) === 7 && rng() < 0.4){ c.id = 'm7b5'; c.why = 'ii\u00f8'; continue; }
+    }
+    else if(fam === 'blues'){
+      if(c.cls === 'maj'){ c.id = trfPick(['7','9','13'], traits.extension_density||.5, rng); c.why = 'dominante de blues'; }
+    }
+    else if(fam === 'cerati'){
+      // Sin dominantes funcionales: V -> bVII o v menor
+      if(d === 7 || trfIsDom(trfDef(c.id))){
+        if(rng() < 0.6){ c.pc = (kk + 10) % 12; c.id = 'add9'; c.why = 'V \u2192 \u266dVII'; }
+        else { c.id = 'min7'; c.why = 'V \u2192 v menor'; }
+        continue;
+      }
+      // Planeo: entre dos acordes iguales, un bloque desplazado un tono
+      if(i > 0 && i < n - 1 && pv.pc === nx.pc && rng() < 0.45){
+        c.pc = (c.pc + 10) % 12; c.why = 'planeo'; continue;
+      }
+      // IV mayor sobre tonica menor: la sexta doria
+      if(d === 5 && c.cls === 'min' && rng() < 0.5){ c.id = 'add9'; c.cls = 'maj'; c.why = 'IV dorio'; }
+    }
+    else if(fam === 'raw'){
+      // El V que cierra un ciclo y vuelve a la tonica se respeta: es la
+      // costura del bucle. El bVII entra como paso en el interior.
+      const seam = (i === n - 1) || (deg(nx) === 0);
+      if(d === 7 && !seam && rng() < 0.6){ c.pc = (kk + 10) % 12; c.id = 'maj'; c.why = 'V \u2192 \u266dVII'; }
+      else if(d === 5 && rng() < 0.3){ c.id = '5'; c.why = 'quinta'; }
+    }
+    else if(fam === 'andaluza'){
+      // El bII andaluz pertenece al eje frigio. En tonalidad mayor no existe:
+      // ahi el giro espanol es el iv menor prestado y el V con 9a menor.
+      const minorCtx = /minor|phrygian|aeolian/.test(String(mode||''));
+      if(minorCtx){
+        if(d === 7 && rng() < 0.6){ c.pc = (kk + 1) % 12; c.id = 'maj'; c.why = 'V \u2192 \u266dII'; }
+      } else {
+        if(d === 5 && c.cls === 'maj' && rng() < 0.55){ c.id = 'min'; c.cls = 'min'; c.why = 'iv prestado'; }
+        else if(d === 7){ c.id = '7b9'; c.why = 'V7\u266d9'; }
+      }
+    }
+    else if(fam === 'modal' || fam === 'ragamodal'){
+      if(trfIsDom(trfDef(c.id)) || d === 7){
+        if(rng() < 0.5){ c.pc = (kk + 10) % 12; c.id = 'maj7'; c.why = 'dominante \u2192 \u266dVII'; }
+        else { c.id = '7sus4'; c.why = 'dominante suspendida'; }
+      }
+    }
+    else if(fam === 'functional'){
+      if(fifthDown && d !== 0 && d !== 7 && c.cls === 'maj' && rng() < 0.35){ c.id = '7'; c.why = 'V/x'; }
+      if(d === 11){ c.id = 'm7b5'; c.why = 'vii\u00f8'; }
+    }
+    else if(fam === 'loop'){
+      if(d === 7 && rng() < 0.3){ c.id = 'sus4'; c.why = 'dominante suspendida'; }
+    }
+  }
+  return seq;
+}
+
+// ── Lectura y escritura del lienzo ───────────────────────────────────────
+function trfReadCanvas(){
+  const out = [];
+  if(typeof _canvasChords === 'undefined') return out;
+  for(let i = 0; i < _canvasChords.length; i++){
+    const c = _canvasChords[i];
+    if(!c || c._empty) continue;
+    const def = c.chord || trfDef(c.chordId);
+    out.push({slot:i, pc:trfPC(c.root), id:c.chordId, cls:trfClass(def), beats:c.beats, why:null});
+  }
+  return out;
+}
+
+const TRF_FLATS = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+// La fundamental que lee el motor va en sostenidos (su convencion); la que
+// se ESCRIBE sigue la funcion: un bVII es Bb, no A#.
+function trfSpell(pc, key){
+  const d = (pc - trfPC(key) + 12) % 12;
+  return [1,3,8,10].indexOf(d) >= 0 ? TRF_FLATS[pc] : TRF_NOTES[pc];
+}
+
+function trfWrite(seq, key){
+  for(const s of seq){
+    const def = trfDef(s.id) || trfDef('maj');
+    const name = TRF_NOTES[s.pc];
+    const shown = trfSpell(s.pc, key);
+    let fn = null;
+    try{ fn = getHarmonicFunction(def.f, name, key); }catch(e){}
+    _canvasChords[s.slot] = {root:name, chordId:def.id, chord:def,
+      display:shown + (def.sym || ''), fn:fn, beats:s.beats, _trfWhy:s.why};
+  }
+}
+
+function trfSnapshot(){ return _canvasChords.map(c => c ? Object.assign({}, c) : null); }
+function trfRestore(snap){ _canvasChords = snap.map(c => c ? Object.assign({}, c) : null); }
+
+function trfRefresh(){
+  try{ _renderCanvasGrid(); }catch(e){}
+  try{ _updateTransportFromCanvas(); }catch(e){}
+}
+
+// ── Puntuacion de idiomaticidad (reutiliza el motor del Composer) ────────
+const TRF_TO_Q = {maj:'maj',min:'min',dim:'dim',aug:'aug',sus2:'sus2',sus4:'sus4','5':'5',
+  maj7:'maj7','7':'7',min7:'m7',m7b5:'m7b5',dim7:'dim7',mMaj7:'mMaj7','6':'6',min6:'m6',
+  maj9:'maj9','9':'9',min9:'m9','11':'11',min11:'m11','13':'13',min13:'m13',maj13:'maj13',
+  '7b9':'7b9','7s9':'7#9','7b5':'7b5','7s11':'7#11','7b13':'7b13','7alt':'7alt','13b9':'13b9',
+  '7sus4':'7sus4','9sus4':'9sus4','13sus4':'13sus4',add9:'add9',madd9:'madd9','6add9':'6add9',
+  m6add9:'m6add9',add11:'add11',aug7:'aug7',m9b5:'m9b5',maj9s11:'maj7#11'};
+function trfScore(seq, key, mode, genre){
+  if(typeof window === 'undefined' || !window.v210ScoreProg) return null;
+  const chs = seq.map(s => ({root:s.pc, quality:TRF_TO_Q[s.id] || 'maj', beats:s.beats||4, display:''}));
+  try{
+    const prog = {key:key, mode:mode, genre:genre, flatChords:chs, traits:trfTraits(genre),
+      formPlan:{sections:[{id:'A', bars:Math.max(1, chs.length), key:key, mode:mode, chords:chs}]}};
+    return window.v210ScoreProg(prog, genre, prog.traits).score;
+  }catch(e){ return null; }
+}
+
+// ── REINVENCION: el generador del genero, anclado ────────────────────────
+function trfReinvent(seq, key, mode, genre, rng){
+  if(typeof window === 'undefined' || !window.cGenerateProgression) return null;
+  const qmap = window._qToChordId;
+  let gen = null;
+  try{
+    if(window._cInitSeed) window._cInitSeed('TRF-' + genre + '-' + key + '-' + TRF.reroll);
+    gen = window.cGenerateProgression({genre:genre, key:key, mode:mode,
+      bars:Math.max(4, Math.min(16, seq.length)), tonalMap:[]});
+  }catch(e){ return null; }
+  const flat = (gen && gen.flatChords) || [];
+  if(!flat.length) return null;
+  const n = seq.length;
+  for(let i = 0; i < n; i++){
+    // Anclas: el primer y el ultimo acorde conservan su fundamental. Es lo
+    // que hace que la reinvencion siga sonando a la misma cancion.
+    if(i === 0 || i === n - 1){ seq[i].why = 'ancla'; continue; }
+    const g = flat[i % flat.length];
+    const q = String(g.quality || 'maj');
+    let id = qmap ? qmap(q) : q;
+    if(!trfDef(id)) id = TRF_TO_Q[id] ? id : 'maj';
+    if(!trfDef(id)) id = 'maj';
+    seq[i].pc = ((typeof g.root === 'number') ? g.root : trfPC(g.root)) % 12;
+    seq[i].id = id;
+    seq[i].cls = trfClass(trfDef(id));
+    seq[i].why = 'reinventado';
+  }
+  return seq;
+}
+
+// ── Orquestacion ─────────────────────────────────────────────────────────
+function trfApply(level){
+  const genreEl = document.getElementById('canvas-genre');
+  const genre = genreEl && genreEl.value && genreEl.value !== 'none' ? genreEl.value : null;
+  if(!genre) return {error:'Elige primero un g\u00e9nero en el selector del Lab'};
+
+  // El original se captura una sola vez: transformar dos veces no debe
+  // transformar lo ya transformado.
+  if(!TRF.orig){
+    TRF.orig = trfSnapshot();
+    if(!trfReadCanvas().length){ TRF.orig = null; return {error:'El lienzo est\u00e1 vac\u00edo'}; }
+  }
+  trfRestore(TRF.orig);
+
+  const key  = (document.getElementById('canvas-key')  || {}).value || 'C';
+  const mode = (document.getElementById('canvas-mode') || {}).value || 'major';
+  const fam = trfFamily(genre);
+  const traits = trfTraits(genre);
+  const seq = trfReadCanvas();
+  const rng = trfRng(seq.map(s => s.pc + ':' + s.id).join('|') + '#' + genre + '#' + level + '#' + TRF.reroll);
+  const before = trfScore(seq.map(s => Object.assign({}, s)), key, mode, genre);
+
+  if(level === 'reinvent'){
+    if(!trfReinvent(seq, key, mode, genre, rng)) return {error:'No pude generar en este g\u00e9nero'};
+  } else if(level === 'style'){
+    trfStyle(seq, key, fam, traits, rng, mode);
+  }
+  // El color se aplica en los tres niveles: es la piel del genero.
+  const kk = trfPC(key);
+  for(const s of seq){
+    if(s.why === 'ancla' || !s.why || level === 'color'){
+      const role = trfRole((s.pc - kk + 12) % 12);
+      const id = trfColorId(s.cls, role, fam, traits, rng);
+      if(id && trfDef(id)) s.id = id;
+    }
+  }
+
+  trfWrite(seq, key);
+  TRF.result = trfSnapshot();
+  TRF.showing = 'result'; TRF.level = level; TRF.genre = genre;
+  const after = trfScore(seq, key, mode, genre);
+  TRF.scores = {before:before, after:after};
+  trfRefresh();
+  return {ok:true, level:level, genre:genre, family:fam, before:before, after:after,
+          changes:seq.filter(s => s.why).length};
+}
+
+function trfToggleAB(){
+  if(!TRF.orig || !TRF.result) return null;
+  if(TRF.showing === 'result'){ trfRestore(TRF.orig); TRF.showing = 'orig'; }
+  else { trfRestore(TRF.result); TRF.showing = 'result'; }
+  trfRefresh();
+  return TRF.showing;
+}
+
+// Si el usuario edita el lienzo a mano, el original de referencia cambia.
+function trfReset(){ TRF.orig = null; TRF.result = null; TRF.showing = 'orig'; TRF.reroll = 0; }
+
+// ── UI ───────────────────────────────────────────────────────────────────
+window.labTransformOpen = function(show){
+  const p = document.getElementById('trf-panel'); if(!p) return;
+  const open = (show === false) ? false : (p.style.display === 'none' || !p.style.display);
+  p.style.display = open ? 'block' : 'none';
+  if(open) labTransformStatus();
+};
+
+window.labTransform = function(level){
+  try{ _genPushUndo(); }catch(e){}
+  const r = trfApply(level);
+  labTransformStatus(r);
+  return r;
+};
+
+window.labTransformReroll = function(){
+  if(!TRF.level) return;
+  TRF.reroll++;
+  labTransformStatus(trfApply(TRF.level));
+};
+
+window.labTransformAB = function(){
+  const s = trfToggleAB();
+  labTransformStatus();
+  return s;
+};
+
+window.labTransformReset = function(){
+  if(TRF.orig){ trfRestore(TRF.orig); trfRefresh(); }
+  trfReset();
+  labTransformStatus();
+};
+
+window.labTransformStatus = function(r){
+  const st = document.getElementById('trf-status');
+  const ab = document.getElementById('trf-ab');
+  if(ab){
+    ab.disabled = !(TRF.orig && TRF.result);
+    ab.textContent = TRF.showing === 'result' ? 'Ver original' : 'Ver transformado';
+  }
+  ['color','style','reinvent'].forEach(l => {
+    const b = document.getElementById('trf-' + l);
+    if(b) b.classList.toggle('active', TRF.level === l && TRF.showing === 'result');
+  });
+  if(!st) return;
+  if(r && r.error){ st.innerHTML = '<span style="color:var(--gold)">' + r.error + '</span>'; return; }
+  if(!TRF.result){ st.textContent = 'Elige un nivel. El ritmo no se toca en ninguno.'; return; }
+  const L = {color:'Color', style:'Estilo', reinvent:'Reinvenci\u00f3n'};
+  const sc = TRF.scores || {};
+  const delta = (sc.before != null && sc.after != null) ? (sc.after - sc.before) : null;
+  const gl = (typeof C_GENRES !== 'undefined' && C_GENRES[TRF.genre] && C_GENRES[TRF.genre].label) || TRF.genre;
+  st.innerHTML = '<b>' + L[TRF.level] + '</b> \u00b7 ' + gl +
+    (delta != null ? ' \u00b7 idiomaticidad ' + sc.before.toFixed(0) + ' \u2192 <b>' + sc.after.toFixed(0) + '</b>' +
+      ' (' + (delta >= 0 ? '+' : '') + delta.toFixed(0) + ')' : '') +
+    ' \u00b7 mostrando <b>' + (TRF.showing === 'result' ? 'transformado' : 'original') + '</b>';
+};
+
+if(typeof window !== 'undefined'){
+  window.TRF = TRF;
+  window.trfApply = trfApply;
+  window.trfToggleAB = trfToggleAB;
+  window.trfReset = trfReset;
+  window.trfFamily = trfFamily;
+  window.trfReadCanvas = trfReadCanvas;
+  window.trfDef = trfDef;
+  // Lo que el usuario ve escrito en cada casilla
+  window.trfDisplays = function(){
+    return (typeof _canvasChords === 'undefined') ? [] :
+      _canvasChords.filter(c => c && !c._empty).map(c => c.display);
+  };
+}
+
 function labLoadProg(idx){
-  var entry = window._LAB_SAVED[idx]; if(!entry) return;
+  // Acepta indice o entrada directa: asi el importador reutiliza esta
+  // misma ruta en vez de duplicar la carga del lienzo.
+  var entry = (idx && typeof idx === 'object') ? idx : window._LAB_SAVED[idx];
+  if(!entry) return;
   var cpc  = entry.cpc  || 1;
   var bars = entry.bars || 8;
   // Read ts from entry if saved, otherwise from current selector
