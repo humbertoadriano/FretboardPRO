@@ -3385,6 +3385,114 @@ header{
   #imp-preview .imp-sec{color:var(--violet);}
   #imp-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;}
 </style>
+<style>
+/* ===== Tocar · módulo integrado en Fretboard Pro v210 (tokens de la app: --ink*, --fg*, --gold, --teal, --coral, --violet) ===== */
+#panel-tocar h2{color:var(--gold);}
+#panel-tocar .toc-hidden{display:none!important;}
+#panel-tocar .toc-mono{font-family:'JetBrains Mono',monospace;}
+#panel-tocar .toc-sub{font-size:12px;color:var(--fg2);line-height:1.5;}
+#panel-tocar .toc-btn{min-height:44px;min-width:44px;padding:0 14px;border:1px solid var(--ink5);background:var(--ink3);color:var(--fg);
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border-radius:var(--r2);cursor:pointer;display:inline-flex;align-items:center;
+  justify-content:center;gap:8px;transition:all .15s;touch-action:manipulation;user-select:none}
+#panel-tocar .toc-btn:active{transform:scale(.97)}
+#panel-tocar .toc-btn[disabled]{opacity:.45;cursor:default}
+#panel-tocar .toc-btn.toc-primary{background:var(--gold);border-color:var(--gold);color:#1a1405;box-shadow:var(--glow-gold)}
+#panel-tocar .toc-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:rgba(240,180,41,.10)}
+#panel-tocar .toc-file{position:relative;justify-content:space-between;width:100%}
+#panel-tocar .toc-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+#panel-tocar .toc-file .toc-st{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#panel-tocar .toc-stack{display:grid;gap:10px}
+#panel-tocar .toc-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg3);text-transform:uppercase;letter-spacing:1px}
+
+/* encabezado de la canción + selector de vista */
+#panel-tocar .toc-songbar{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+#panel-tocar .toc-title{font-size:15px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-tocar .toc-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg2);margin-top:2px}
+#panel-tocar .toc-seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;background:var(--ink3);border:1px solid var(--ink4);border-radius:var(--r2);padding:4px}
+#panel-tocar .toc-seg .toc-btn{border:none;background:transparent;color:var(--fg2);min-height:40px;padding:0 6px;font-size:12px}
+#panel-tocar .toc-seg .toc-btn[aria-pressed="true"]{background:var(--ink5);color:var(--gold)}
+
+/* vista: acorde grande */
+#panel-tocar .toc-now{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+#panel-tocar .toc-now.toc-doubt{border-style:dashed;border-color:var(--coral)}
+#panel-tocar .toc-big{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(56px,20vw,96px);line-height:.95;letter-spacing:-1.5px;color:var(--fg);overflow-wrap:anywhere;min-width:0}
+#panel-tocar .toc-big .toc-root{color:var(--gold);text-shadow:0 0 24px rgba(240,180,41,.25)}
+#panel-tocar .toc-big .toc-bass{font-size:.42em;color:var(--fg2);letter-spacing:0}
+#panel-tocar .toc-tier{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 8px;border-radius:var(--r3);border:1px solid var(--ink5);color:var(--fg2)}
+#panel-tocar .toc-tier.toc-t-dudoso{border-color:var(--coral);color:var(--coral)}
+#panel-tocar .toc-tier.toc-t-probable{border-color:var(--sky);color:var(--sky)}
+#panel-tocar .toc-tier.toc-t-corregido{border-color:var(--teal);color:var(--teal)}
+#panel-tocar .toc-diagram{width:clamp(96px,28vw,128px);height:auto;display:block}
+#panel-tocar .toc-next{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#panel-tocar .toc-nextname{font-family:'JetBrains Mono',monospace;font-size:clamp(24px,8vw,34px);font-weight:700;color:var(--fg)}
+#panel-tocar .toc-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+#panel-tocar .toc-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink5)}
+#panel-tocar .toc-dot.on{background:var(--fg2);border-color:var(--fg2)}
+#panel-tocar .toc-dot.last{background:var(--gold);border-color:var(--gold);box-shadow:var(--glow-gold)}
+#panel-tocar .toc-capo{font-size:12px;color:var(--fg2);margin-top:-4px}
+
+/* vista general: compases que avanzan */
+#toc-generalView{display:contents}
+#panel-tocar .toc-strip{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;position:sticky;top:0;z-index:5;background:var(--ink);padding:6px 0 10px}
+#panel-tocar .toc-strip>div{background:var(--ink2);border:1px solid var(--ink4);border-radius:var(--r2);padding:8px 12px;min-width:0}
+#panel-tocar .toc-strip .toc-sn{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-tocar .toc-strip .toc-sn.toc-gold{color:var(--gold)}
+#panel-tocar .toc-bars{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px}
+
+#panel-tocar .toc-bar{display:flex;min-height:52px;background:var(--ink2);border:1px solid var(--ink4);border-radius:var(--r2);overflow:hidden;position:relative}
+#panel-tocar .toc-bar::before{content:attr(data-n);position:absolute;top:3px;left:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--fg3);pointer-events:none}
+#panel-tocar .toc-bar.toc-past{opacity:.45}
+#panel-tocar .toc-cell{flex:1 1 0;min-width:0;min-height:50px;border:0;background:transparent;color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:clamp(13px,3.8vw,16px);font-weight:700;padding:14px 4px 4px 8px;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-tocar .toc-cell+.toc-cell{border-left:1px solid var(--ink4)}
+#panel-tocar .toc-cell.toc-cont{color:var(--fg3);font-weight:400}
+#panel-tocar .toc-cell.toc-doubt{text-decoration:underline dashed var(--coral);text-underline-offset:4px}
+#panel-tocar .toc-cell.toc-fixed{text-decoration:underline solid var(--teal);text-underline-offset:4px}
+#panel-tocar .toc-cell.toc-cur{background:rgba(240,180,41,.16);color:var(--gold);box-shadow:inset 0 -3px 0 var(--gold)}
+#panel-tocar .toc-legend{font-size:11px;color:var(--fg3);margin:4px 0 10px}
+
+/* controles */
+#panel-tocar .toc-row{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+#panel-tocar .toc-step{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:10px;align-items:center}
+#panel-tocar .toc-step output{text-align:center;font-weight:700;color:var(--fg);min-width:0}
+#panel-tocar .toc-step output small{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:400;color:var(--fg3)}
+#panel-tocar .toc-pills{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
+#panel-tocar .toc-pills .toc-btn{border-radius:20px;font-size:12px;padding:0 6px}
+#panel-tocar .toc-ctrl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+#panel-tocar .toc-chartstate{font-size:12px;color:var(--fg2)}
+#panel-tocar .toc-foot{font-size:11px;color:var(--fg3);line-height:1.5}
+
+/* transporte */
+#toc-transport{position:fixed;left:0;right:0;bottom:0;z-index:900;background:rgba(14,12,11,.96);backdrop-filter:blur(8px);border-top:1px solid var(--ink4);
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
+#toc-transport .toc-in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:10px;align-items:center}
+#toc-transport .toc-play{width:54px;height:54px;border-radius:50%;font-size:18px}
+#toc-transport input[type=range]{width:100%;accent-color:var(--gold);height:44px}
+#toc-transport .toc-time{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg2);white-space:nowrap}
+#panel-tocar.visible{padding-bottom:110px}
+
+/* hojas y aviso */
+#toc-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:950}
+.toc-sheet{position:fixed;left:0;right:0;bottom:0;z-index:960;background:var(--ink2);border-top:1px solid var(--ink5);border-radius:var(--r) var(--r) 0 0;
+  padding-top:16px;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-height:82vh;overflow:auto;font-family:'Inter',sans-serif;color:var(--fg)}
+.toc-sheet .toc-in{max-width:640px;margin:0 auto;display:grid;gap:12px}
+.toc-sheet h3{font-size:18px;font-weight:800;color:var(--gold)}
+.toc-sheet p{font-size:12px;color:var(--fg2);line-height:1.5}
+.toc-sheet .toc-opt{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px}
+.toc-sheet .toc-opt .toc-btn{justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:15px}
+.toc-sheet .toc-opt small{font-family:'Inter',sans-serif;font-size:11px;color:var(--fg3);font-weight:500}
+.toc-sheet textarea{width:100%;min-height:170px;background:var(--ink3);border:1px solid var(--ink5);color:var(--fg);border-radius:var(--r3);padding:10px;font-family:'JetBrains Mono',monospace;font-size:16px;line-height:1.5;resize:vertical;user-select:text}
+.toc-sheet .toc-msg{font-size:12px;color:var(--coral)}
+.toc-sheet .toc-btn{min-height:44px;padding:0 14px;border:1px solid var(--ink5);background:var(--ink3);color:var(--fg);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border-radius:var(--r2);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.toc-sheet .toc-btn.toc-primary{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.toc-sheet .toc-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.toc-sheet .toc-hidden,#toc-transport.toc-hidden,#toc-scrim.toc-hidden,.toc-sheet.toc-hidden{display:none!important}
+#toc-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:980;background:var(--ink4);color:var(--fg);border:1px solid var(--ink5);padding:8px 14px;border-radius:20px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;max-width:90vw}
+#toc-toast.toc-hidden{display:none}
+@media (prefers-reduced-motion:reduce){#panel-tocar .toc-btn:active{transform:none}}
+#toc-transport .toc-btn{min-height:44px;min-width:44px;padding:0 12px;border:1px solid var(--ink5);background:var(--ink3);color:var(--fg);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border-radius:var(--r2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation}
+#toc-transport .toc-btn.toc-primary{background:var(--gold);border-color:var(--gold);color:#1a1405;box-shadow:var(--glow-gold);border-radius:50%}
+
+</style>
 </head>
 <body>
 
@@ -3414,6 +3522,9 @@ header{
     </button>
     <button class="nav-tab" onclick="setMode('improv')">
       <span class="full">Análisis</span><span class="short">ANÁ</span>
+    </button>
+    <button class="nav-tab" data-tocar="1" onclick="setMode('tocar')">
+      <span class="full">Tocar</span><span class="short">TOCAR</span>
     </button>
   </div>
   <div class="audio-badge" onclick="_ensureAudio()">
@@ -3964,6 +4075,82 @@ header{
 <!-- ══════════════════════════════════════════
      PANEL: ANÁLISIS & IMPROVISACIÓN (v97)
 ══════════════════════════════════════════ -->
+<div class="panel" id="panel-tocar">
+  <div class="card">
+    <h2>Tocar</h2>
+    <div class="toc-sub">Carga una canción y sus acordes, y tócala con el disco: el acorde que suena, el que sigue, el tono y el capo que te queden cómodos.</div>
+  </div>
+
+  <div class="card toc-stack" id="toc-loadView">
+    <span class="toc-lbl">Canción</span>
+    <label class="toc-btn toc-file"><span>Audio</span><span class="toc-st" id="toc-audioSt">MP3, M4A o WAV</span><input type="file" id="toc-audioIn" accept="audio/*,.mp3,.m4a,.wav"></label>
+    <label class="toc-btn toc-file"><span>Acordes</span><span class="toc-st" id="toc-songSt">.song.json</span><input type="file" id="toc-songIn" accept=".json,application/json"></label>
+    <button class="toc-btn toc-primary" data-tact="start" id="toc-startBtn" disabled>Empezar</button>
+    <button class="toc-btn" data-tact="demo">Probar con un ejemplo</button>
+    <div class="toc-foot">El audio se queda en tu dispositivo.</div>
+  </div>
+
+  <div id="toc-playView" class="toc-hidden">
+    <div class="card toc-songbar">
+      <div><div class="toc-title" id="toc-songTitle">—</div><div class="toc-meta" id="toc-songMeta"></div></div>
+      <div class="toc-seg" role="group" aria-label="Vista durante la reproducción">
+        <button class="toc-btn" data-tact="view" data-v="big" aria-pressed="true">Acorde grande</button>
+        <button class="toc-btn" data-tact="view" data-v="general" aria-pressed="false">Vista general</button>
+      </div>
+    </div>
+
+    <div id="toc-bigView">
+      <div class="card toc-now" id="toc-nowCard">
+        <div>
+          <div class="toc-lbl">Ahora</div>
+          <div class="toc-big" id="toc-nowChord">—</div>
+          <span class="toc-tier toc-hidden" id="toc-nowTier"></span>
+        </div>
+        <svg class="toc-diagram" id="toc-nowDiagram" viewBox="0 0 120 150" role="img" aria-label="Digitación"></svg>
+      </div>
+      <div class="card toc-next">
+        <div><div class="toc-lbl">Sigue</div><div class="toc-nextname" id="toc-nextChord">—</div></div>
+        <div class="toc-dots" id="toc-dots" aria-label="Tiempos hasta el cambio"></div>
+      </div>
+      <div class="toc-capo" id="toc-capoNote"></div>
+    </div>
+
+    <div id="toc-generalView" class="toc-hidden">
+      <div class="toc-strip">
+        <div><div class="toc-lbl">Ahora</div><div class="toc-sn toc-gold" id="toc-stripNow">—</div></div>
+        <div><div class="toc-lbl">Sigue</div><div class="toc-sn" id="toc-stripNext">—</div></div>
+      </div>
+    </div>
+
+    <div class="card" id="toc-barsCard">
+      <div class="toc-lbl">Compases</div>
+      <div class="toc-legend">Toca un compás para saltar ahí · mantén pulsado para corregir · subrayado punteado: dudoso</div>
+      <div class="toc-bars" id="toc-bars"></div>
+    </div>
+
+    <div class="card">
+      <div class="toc-ctrl-grid">
+        <div class="toc-row"><span class="ctrl-lbl">Tono</span>
+          <div class="toc-step"><button class="toc-btn" data-tact="tr" data-v="-1" aria-label="Bajar un semitono">−</button><output id="toc-trOut">Original</output><button class="toc-btn" data-tact="tr" data-v="1" aria-label="Subir un semitono">+</button></div></div>
+        <div class="toc-row"><span class="ctrl-lbl">Capo</span>
+          <div class="toc-step"><button class="toc-btn" data-tact="capo" data-v="-1" aria-label="Bajar capo">−</button><output id="toc-capoOut">Sin capo</output><button class="toc-btn" data-tact="capo" data-v="1" aria-label="Subir capo">+</button></div></div>
+        <div class="toc-row"><span class="ctrl-lbl">Velocidad</span>
+          <div class="toc-pills" id="toc-rateSeg"><button class="toc-btn" data-tact="rate" data-v="0.6">60%</button><button class="toc-btn" data-tact="rate" data-v="0.75">75%</button><button class="toc-btn" data-tact="rate" data-v="0.9">90%</button><button class="toc-btn" data-tact="rate" data-v="1" aria-pressed="true">100%</button></div></div>
+        <div class="toc-row"><span class="ctrl-lbl">Acordes</span>
+          <div class="toc-pills" id="toc-lvlSeg"><button class="toc-btn" data-tact="lvl" data-v="triad">Triadas</button><button class="toc-btn" data-tact="lvl" data-v="seventh">Séptimas</button><button class="toc-btn" data-tact="lvl" data-v="full" aria-pressed="true">Completo</button></div></div>
+      </div>
+    </div>
+
+    <div class="card toc-stack">
+      <span class="ctrl-lbl">Cifra</span>
+      <div class="toc-chartstate" id="toc-chartState">Sin cifra: acordes detectados solo por el audio.</div>
+      <div class="toc-pills"><button class="toc-btn" data-tact="chart">Pegar cifra</button><button class="toc-btn" data-tact="export">Copiar acordes</button></div>
+    </div>
+    <div class="toc-foot" id="toc-foot"></div>
+  </div>
+</div>
+
+
 <div id="panel-improv" class="panel">
 
   <!-- Header -->
@@ -47747,5 +47934,1454 @@ window.fmDeleteSection = fmDeleteSection;
   <div id="lab-countdown-num" style="font-family:'Inter',sans-serif;font-size:clamp(120px,30vw,220px);font-weight:900;color:rgba(255,255,255,.55);line-height:1;user-select:none;letter-spacing:-4px;transition:opacity .25s,transform .25s;">3</div>
 </div>
 
+<nav id="toc-transport" class="toc-hidden" aria-label="Reproducción">
+  <div class="toc-in">
+    <button class="toc-btn toc-primary toc-play" data-tact="play" id="toc-playBtn" aria-label="Reproducir">▶</button>
+    <button class="toc-btn" data-tact="back" aria-label="Atrás 5 segundos">−5</button>
+    <input type="range" id="toc-seek" min="0" max="1000" value="0" aria-label="Posición">
+    <span class="toc-time" id="toc-time">0:00</span>
+  </div>
+</nav>
+
+<div id="toc-scrim" class="toc-hidden" data-tact="close"></div>
+<section class="toc-sheet toc-hidden" id="toc-sheet" role="dialog" aria-modal="true" aria-labelledby="toc-sheetTitle">
+  <div class="toc-in">
+    <h3 id="toc-sheetTitle">Corregir acorde</h3>
+    <p id="toc-sheetInfo"></p>
+    <div class="toc-stack" id="toc-opts"></div>
+    <textarea class="toc-hidden" id="toc-copyBox" readonly aria-label="Acordes en JSON"></textarea>
+    <button class="toc-btn" data-tact="close">Cerrar</button>
+  </div>
+</section>
+<section class="toc-sheet toc-hidden" id="toc-chartSheet" role="dialog" aria-modal="true" aria-labelledby="toc-chartTitle">
+  <div class="toc-in">
+    <h3 id="toc-chartTitle">Pegar cifra</h3>
+    <p>Pega la cifra de la canción, con letra o sin ella. La cifra dice qué acordes son; el audio dice cuándo suenan. Si está en otro tono o con capo, se ajusta sola.</p>
+    <textarea id="toc-chartIn" aria-label="Texto de la cifra" placeholder="Intro: C7M(9)  A7(13)&#10;Dm7(9)   G7(13)"></textarea>
+    <button class="toc-btn" data-tact="abbr" id="toc-abbrBtn" aria-pressed="false">La cifra abrevia repeticiones</button>
+    <p class="toc-msg" id="toc-chartMsg"></p>
+    <button class="toc-btn toc-primary" data-tact="align">Alinear con el audio</button>
+    <button class="toc-btn toc-hidden" data-tact="unchart" id="toc-unchartBtn">Quitar cifra</button>
+    <button class="toc-btn" data-tact="closechart">Cerrar</button>
+  </div>
+</section>
+<div id="toc-toast" class="toc-hidden" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+/*
+ * SoundTouch JS v0.1.30 audio processing library
+ * Copyright (c) Olli Parviainen
+ * Copyright (c) Ryan Berdeen
+ * Copyright (c) Jakub Fiala
+ * Copyright (c) Steve 'Cutter' Blades
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+class FifoSampleBuffer {
+  constructor() {
+    this._vector = new Float32Array();
+    this._position = 0;
+    this._frameCount = 0;
+  }
+  get vector() {
+    return this._vector;
+  }
+  get position() {
+    return this._position;
+  }
+  get startIndex() {
+    return this._position * 2;
+  }
+  get frameCount() {
+    return this._frameCount;
+  }
+  get endIndex() {
+    return (this._position + this._frameCount) * 2;
+  }
+  clear() {
+    this.receive(this._frameCount);
+    this.rewind();
+  }
+  put(numFrames) {
+    this._frameCount += numFrames;
+  }
+  putSamples(samples, position, numFrames = 0) {
+    position = position || 0;
+    const sourceOffset = position * 2;
+    if (!(numFrames >= 0)) {
+      numFrames = (samples.length - sourceOffset) / 2;
+    }
+    const numSamples = numFrames * 2;
+    this.ensureCapacity(numFrames + this._frameCount);
+    const destOffset = this.endIndex;
+    this.vector.set(samples.subarray(sourceOffset, sourceOffset + numSamples), destOffset);
+    this._frameCount += numFrames;
+  }
+  putBuffer(buffer, position, numFrames = 0) {
+    position = position || 0;
+    if (!(numFrames >= 0)) {
+      numFrames = buffer.frameCount - position;
+    }
+    this.putSamples(buffer.vector, buffer.position + position, numFrames);
+  }
+  receive(numFrames) {
+    if (!(numFrames >= 0) || numFrames > this._frameCount) {
+      numFrames = this.frameCount;
+    }
+    this._frameCount -= numFrames;
+    this._position += numFrames;
+  }
+  receiveSamples(output, numFrames = 0) {
+    const numSamples = numFrames * 2;
+    const sourceOffset = this.startIndex;
+    output.set(this._vector.subarray(sourceOffset, sourceOffset + numSamples));
+    this.receive(numFrames);
+  }
+  extract(output, position = 0, numFrames = 0) {
+    const sourceOffset = this.startIndex + position * 2;
+    const numSamples = numFrames * 2;
+    output.set(this._vector.subarray(sourceOffset, sourceOffset + numSamples));
+  }
+  ensureCapacity(numFrames = 0) {
+    const minLength = parseInt(numFrames * 2);
+    if (this._vector.length < minLength) {
+      const newVector = new Float32Array(minLength);
+      newVector.set(this._vector.subarray(this.startIndex, this.endIndex));
+      this._vector = newVector;
+      this._position = 0;
+    } else {
+      this.rewind();
+    }
+  }
+  ensureAdditionalCapacity(numFrames = 0) {
+    this.ensureCapacity(this._frameCount + numFrames);
+  }
+  rewind() {
+    if (this._position > 0) {
+      this._vector.set(this._vector.subarray(this.startIndex, this.endIndex));
+      this._position = 0;
+    }
+  }
+}
+
+class AbstractFifoSamplePipe {
+  constructor(createBuffers) {
+    if (createBuffers) {
+      this._inputBuffer = new FifoSampleBuffer();
+      this._outputBuffer = new FifoSampleBuffer();
+    } else {
+      this._inputBuffer = this._outputBuffer = null;
+    }
+  }
+  get inputBuffer() {
+    return this._inputBuffer;
+  }
+  set inputBuffer(inputBuffer) {
+    this._inputBuffer = inputBuffer;
+  }
+  get outputBuffer() {
+    return this._outputBuffer;
+  }
+  set outputBuffer(outputBuffer) {
+    this._outputBuffer = outputBuffer;
+  }
+  clear() {
+    this._inputBuffer.clear();
+    this._outputBuffer.clear();
+  }
+}
+
+class RateTransposer extends AbstractFifoSamplePipe {
+  constructor(createBuffers) {
+    super(createBuffers);
+    this.reset();
+    this._rate = 1;
+  }
+  set rate(rate) {
+    this._rate = rate;
+  }
+  reset() {
+    this.slopeCount = 0;
+    this.prevSampleL = 0;
+    this.prevSampleR = 0;
+  }
+  clone() {
+    const result = new RateTransposer();
+    result.rate = this._rate;
+    return result;
+  }
+  process() {
+    const numFrames = this._inputBuffer.frameCount;
+    this._outputBuffer.ensureAdditionalCapacity(numFrames / this._rate + 1);
+    const numFramesOutput = this.transpose(numFrames);
+    this._inputBuffer.receive();
+    this._outputBuffer.put(numFramesOutput);
+  }
+  transpose(numFrames = 0) {
+    if (numFrames === 0) {
+      return 0;
+    }
+    const src = this._inputBuffer.vector;
+    const srcOffset = this._inputBuffer.startIndex;
+    const dest = this._outputBuffer.vector;
+    const destOffset = this._outputBuffer.endIndex;
+    let used = 0;
+    let i = 0;
+    while (this.slopeCount < 1.0) {
+      dest[destOffset + 2 * i] = (1.0 - this.slopeCount) * this.prevSampleL + this.slopeCount * src[srcOffset];
+      dest[destOffset + 2 * i + 1] = (1.0 - this.slopeCount) * this.prevSampleR + this.slopeCount * src[srcOffset + 1];
+      i = i + 1;
+      this.slopeCount += this._rate;
+    }
+    this.slopeCount -= 1.0;
+    if (numFrames !== 1) {
+      out: while (true) {
+        while (this.slopeCount > 1.0) {
+          this.slopeCount -= 1.0;
+          used = used + 1;
+          if (used >= numFrames - 1) {
+            break out;
+          }
+        }
+        const srcIndex = srcOffset + 2 * used;
+        dest[destOffset + 2 * i] = (1.0 - this.slopeCount) * src[srcIndex] + this.slopeCount * src[srcIndex + 2];
+        dest[destOffset + 2 * i + 1] = (1.0 - this.slopeCount) * src[srcIndex + 1] + this.slopeCount * src[srcIndex + 3];
+        i = i + 1;
+        this.slopeCount += this._rate;
+      }
+    }
+    this.prevSampleL = src[srcOffset + 2 * numFrames - 2];
+    this.prevSampleR = src[srcOffset + 2 * numFrames - 1];
+    return i;
+  }
+}
+
+class FilterSupport {
+  constructor(pipe) {
+    this._pipe = pipe;
+  }
+  get pipe() {
+    return this._pipe;
+  }
+  get inputBuffer() {
+    return this._pipe.inputBuffer;
+  }
+  get outputBuffer() {
+    return this._pipe.outputBuffer;
+  }
+  fillInputBuffer() {
+    throw new Error('fillInputBuffer() not overridden');
+  }
+  fillOutputBuffer(numFrames = 0) {
+    while (this.outputBuffer.frameCount < numFrames) {
+      const numInputFrames = 8192 * 2 - this.inputBuffer.frameCount;
+      this.fillInputBuffer(numInputFrames);
+      if (this.inputBuffer.frameCount < 8192 * 2) {
+        break;
+      }
+      this._pipe.process();
+    }
+  }
+  clear() {
+    this._pipe.clear();
+  }
+}
+
+const noop = function () {
+  return;
+};
+
+class SimpleFilter extends FilterSupport {
+  constructor(sourceSound, pipe, callback = noop) {
+    super(pipe);
+    this.callback = callback;
+    this.sourceSound = sourceSound;
+    this.historyBufferSize = 22050;
+    this._sourcePosition = 0;
+    this.outputBufferPosition = 0;
+    this._position = 0;
+  }
+  get position() {
+    return this._position;
+  }
+  set position(position) {
+    if (position > this._position) {
+      throw new RangeError('New position may not be greater than current position');
+    }
+    const newOutputBufferPosition = this.outputBufferPosition - (this._position - position);
+    if (newOutputBufferPosition < 0) {
+      throw new RangeError('New position falls outside of history buffer');
+    }
+    this.outputBufferPosition = newOutputBufferPosition;
+    this._position = position;
+  }
+  get sourcePosition() {
+    return this._sourcePosition;
+  }
+  set sourcePosition(sourcePosition) {
+    this.clear();
+    this._sourcePosition = sourcePosition;
+  }
+  onEnd() {
+    this.callback();
+  }
+  fillInputBuffer(numFrames = 0) {
+    const samples = new Float32Array(numFrames * 2);
+    const numFramesExtracted = this.sourceSound.extract(samples, numFrames, this._sourcePosition);
+    this._sourcePosition += numFramesExtracted;
+    this.inputBuffer.putSamples(samples, 0, numFramesExtracted);
+  }
+  extract(target, numFrames = 0) {
+    this.fillOutputBuffer(this.outputBufferPosition + numFrames);
+    const numFramesExtracted = Math.min(numFrames, this.outputBuffer.frameCount - this.outputBufferPosition);
+    this.outputBuffer.extract(target, this.outputBufferPosition, numFramesExtracted);
+    const currentFrames = this.outputBufferPosition + numFramesExtracted;
+    this.outputBufferPosition = Math.min(this.historyBufferSize, currentFrames);
+    this.outputBuffer.receive(Math.max(currentFrames - this.historyBufferSize, 0));
+    this._position += numFramesExtracted;
+    return numFramesExtracted;
+  }
+  handleSampleData(event) {
+    this.extract(event.data, 4096);
+  }
+  clear() {
+    super.clear();
+    this.outputBufferPosition = 0;
+  }
+}
+
+const USE_AUTO_SEQUENCE_LEN = 0;
+const DEFAULT_SEQUENCE_MS = USE_AUTO_SEQUENCE_LEN;
+const USE_AUTO_SEEKWINDOW_LEN = 0;
+const DEFAULT_SEEKWINDOW_MS = USE_AUTO_SEEKWINDOW_LEN;
+const DEFAULT_OVERLAP_MS = 8;
+const _SCAN_OFFSETS = [[124, 186, 248, 310, 372, 434, 496, 558, 620, 682, 744, 806, 868, 930, 992, 1054, 1116, 1178, 1240, 1302, 1364, 1426, 1488, 0], [-100, -75, -50, -25, 25, 50, 75, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [-20, -15, -10, -5, 5, 10, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [-4, -3, -2, -1, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
+const AUTOSEQ_TEMPO_LOW = 0.5;
+const AUTOSEQ_TEMPO_TOP = 2.0;
+const AUTOSEQ_AT_MIN = 125.0;
+const AUTOSEQ_AT_MAX = 50.0;
+const AUTOSEQ_K = (AUTOSEQ_AT_MAX - AUTOSEQ_AT_MIN) / (AUTOSEQ_TEMPO_TOP - AUTOSEQ_TEMPO_LOW);
+const AUTOSEQ_C = AUTOSEQ_AT_MIN - AUTOSEQ_K * AUTOSEQ_TEMPO_LOW;
+const AUTOSEEK_AT_MIN = 25.0;
+const AUTOSEEK_AT_MAX = 15.0;
+const AUTOSEEK_K = (AUTOSEEK_AT_MAX - AUTOSEEK_AT_MIN) / (AUTOSEQ_TEMPO_TOP - AUTOSEQ_TEMPO_LOW);
+const AUTOSEEK_C = AUTOSEEK_AT_MIN - AUTOSEEK_K * AUTOSEQ_TEMPO_LOW;
+class Stretch extends AbstractFifoSamplePipe {
+  constructor(createBuffers) {
+    super(createBuffers);
+    this._quickSeek = true;
+    this.midBufferDirty = false;
+    this.midBuffer = null;
+    this.overlapLength = 0;
+    this.autoSeqSetting = true;
+    this.autoSeekSetting = true;
+    this._tempo = 1;
+    this.setParameters(44100, DEFAULT_SEQUENCE_MS, DEFAULT_SEEKWINDOW_MS, DEFAULT_OVERLAP_MS);
+  }
+  clear() {
+    super.clear();
+    this.clearMidBuffer();
+  }
+  clearMidBuffer() {
+    if (this.midBufferDirty) {
+      this.midBufferDirty = false;
+      this.midBuffer = null;
+    }
+  }
+  setParameters(sampleRate, sequenceMs, seekWindowMs, overlapMs) {
+    if (sampleRate > 0) {
+      this.sampleRate = sampleRate;
+    }
+    if (overlapMs > 0) {
+      this.overlapMs = overlapMs;
+    }
+    if (sequenceMs > 0) {
+      this.sequenceMs = sequenceMs;
+      this.autoSeqSetting = false;
+    } else {
+      this.autoSeqSetting = true;
+    }
+    if (seekWindowMs > 0) {
+      this.seekWindowMs = seekWindowMs;
+      this.autoSeekSetting = false;
+    } else {
+      this.autoSeekSetting = true;
+    }
+    this.calculateSequenceParameters();
+    this.calculateOverlapLength(this.overlapMs);
+    this.tempo = this._tempo;
+  }
+  set tempo(newTempo) {
+    let intskip;
+    this._tempo = newTempo;
+    this.calculateSequenceParameters();
+    this.nominalSkip = this._tempo * (this.seekWindowLength - this.overlapLength);
+    this.skipFract = 0;
+    intskip = Math.floor(this.nominalSkip + 0.5);
+    this.sampleReq = Math.max(intskip + this.overlapLength, this.seekWindowLength) + this.seekLength;
+  }
+  get tempo() {
+    return this._tempo;
+  }
+  get inputChunkSize() {
+    return this.sampleReq;
+  }
+  get outputChunkSize() {
+    return this.overlapLength + Math.max(0, this.seekWindowLength - 2 * this.overlapLength);
+  }
+  calculateOverlapLength(overlapInMsec = 0) {
+    let newOvl;
+    newOvl = this.sampleRate * overlapInMsec / 1000;
+    newOvl = newOvl < 16 ? 16 : newOvl;
+    newOvl -= newOvl % 8;
+    this.overlapLength = newOvl;
+    this.refMidBuffer = new Float32Array(this.overlapLength * 2);
+    this.midBuffer = new Float32Array(this.overlapLength * 2);
+  }
+  checkLimits(x, mi, ma) {
+    return x < mi ? mi : x > ma ? ma : x;
+  }
+  calculateSequenceParameters() {
+    let seq;
+    let seek;
+    if (this.autoSeqSetting) {
+      seq = AUTOSEQ_C + AUTOSEQ_K * this._tempo;
+      seq = this.checkLimits(seq, AUTOSEQ_AT_MAX, AUTOSEQ_AT_MIN);
+      this.sequenceMs = Math.floor(seq + 0.5);
+    }
+    if (this.autoSeekSetting) {
+      seek = AUTOSEEK_C + AUTOSEEK_K * this._tempo;
+      seek = this.checkLimits(seek, AUTOSEEK_AT_MAX, AUTOSEEK_AT_MIN);
+      this.seekWindowMs = Math.floor(seek + 0.5);
+    }
+    this.seekWindowLength = Math.floor(this.sampleRate * this.sequenceMs / 1000);
+    this.seekLength = Math.floor(this.sampleRate * this.seekWindowMs / 1000);
+  }
+  set quickSeek(enable) {
+    this._quickSeek = enable;
+  }
+  clone() {
+    const result = new Stretch();
+    result.tempo = this._tempo;
+    result.setParameters(this.sampleRate, this.sequenceMs, this.seekWindowMs, this.overlapMs);
+    return result;
+  }
+  seekBestOverlapPosition() {
+    return this._quickSeek ? this.seekBestOverlapPositionStereoQuick() : this.seekBestOverlapPositionStereo();
+  }
+  seekBestOverlapPositionStereo() {
+    let bestOffset;
+    let bestCorrelation;
+    let correlation;
+    let i = 0;
+    this.preCalculateCorrelationReferenceStereo();
+    bestOffset = 0;
+    bestCorrelation = Number.MIN_VALUE;
+    for (; i < this.seekLength; i = i + 1) {
+      correlation = this.calculateCrossCorrelationStereo(2 * i, this.refMidBuffer);
+      if (correlation > bestCorrelation) {
+        bestCorrelation = correlation;
+        bestOffset = i;
+      }
+    }
+    return bestOffset;
+  }
+  seekBestOverlapPositionStereoQuick() {
+    let bestOffset;
+    let bestCorrelation;
+    let correlation;
+    let scanCount = 0;
+    let correlationOffset;
+    let tempOffset;
+    this.preCalculateCorrelationReferenceStereo();
+    bestCorrelation = Number.MIN_VALUE;
+    bestOffset = 0;
+    correlationOffset = 0;
+    tempOffset = 0;
+    for (; scanCount < 4; scanCount = scanCount + 1) {
+      let j = 0;
+      while (_SCAN_OFFSETS[scanCount][j]) {
+        tempOffset = correlationOffset + _SCAN_OFFSETS[scanCount][j];
+        if (tempOffset >= this.seekLength) {
+          break;
+        }
+        correlation = this.calculateCrossCorrelationStereo(2 * tempOffset, this.refMidBuffer);
+        if (correlation > bestCorrelation) {
+          bestCorrelation = correlation;
+          bestOffset = tempOffset;
+        }
+        j = j + 1;
+      }
+      correlationOffset = bestOffset;
+    }
+    return bestOffset;
+  }
+  preCalculateCorrelationReferenceStereo() {
+    let i = 0;
+    let context;
+    let temp;
+    for (; i < this.overlapLength; i = i + 1) {
+      temp = i * (this.overlapLength - i);
+      context = i * 2;
+      this.refMidBuffer[context] = this.midBuffer[context] * temp;
+      this.refMidBuffer[context + 1] = this.midBuffer[context + 1] * temp;
+    }
+  }
+  calculateCrossCorrelationStereo(mixingPosition, compare) {
+    const mixing = this._inputBuffer.vector;
+    mixingPosition += this._inputBuffer.startIndex;
+    let correlation = 0;
+    let i = 2;
+    const calcLength = 2 * this.overlapLength;
+    let mixingOffset;
+    for (; i < calcLength; i = i + 2) {
+      mixingOffset = i + mixingPosition;
+      correlation += mixing[mixingOffset] * compare[i] + mixing[mixingOffset + 1] * compare[i + 1];
+    }
+    return correlation;
+  }
+  overlap(overlapPosition) {
+    this.overlapStereo(2 * overlapPosition);
+  }
+  overlapStereo(inputPosition) {
+    const input = this._inputBuffer.vector;
+    inputPosition += this._inputBuffer.startIndex;
+    const output = this._outputBuffer.vector;
+    const outputPosition = this._outputBuffer.endIndex;
+    let i = 0;
+    let context;
+    let tempFrame;
+    const frameScale = 1 / this.overlapLength;
+    let fi;
+    let inputOffset;
+    let outputOffset;
+    for (; i < this.overlapLength; i = i + 1) {
+      tempFrame = (this.overlapLength - i) * frameScale;
+      fi = i * frameScale;
+      context = 2 * i;
+      inputOffset = context + inputPosition;
+      outputOffset = context + outputPosition;
+      output[outputOffset + 0] = input[inputOffset + 0] * fi + this.midBuffer[context + 0] * tempFrame;
+      output[outputOffset + 1] = input[inputOffset + 1] * fi + this.midBuffer[context + 1] * tempFrame;
+    }
+  }
+  process() {
+    let offset;
+    let temp;
+    let overlapSkip;
+    if (this.midBuffer === null) {
+      if (this._inputBuffer.frameCount < this.overlapLength) {
+        return;
+      }
+      this.midBuffer = new Float32Array(this.overlapLength * 2);
+      this._inputBuffer.receiveSamples(this.midBuffer, this.overlapLength);
+    }
+    while (this._inputBuffer.frameCount >= this.sampleReq) {
+      offset = this.seekBestOverlapPosition();
+      this._outputBuffer.ensureAdditionalCapacity(this.overlapLength);
+      this.overlap(Math.floor(offset));
+      this._outputBuffer.put(this.overlapLength);
+      temp = this.seekWindowLength - 2 * this.overlapLength;
+      if (temp > 0) {
+        this._outputBuffer.putBuffer(this._inputBuffer, offset + this.overlapLength, temp);
+      }
+      const start = this._inputBuffer.startIndex + 2 * (offset + this.seekWindowLength - this.overlapLength);
+      this.midBuffer.set(this._inputBuffer.vector.subarray(start, start + 2 * this.overlapLength));
+      this.skipFract += this.nominalSkip;
+      overlapSkip = Math.floor(this.skipFract);
+      this.skipFract -= overlapSkip;
+      this._inputBuffer.receive(overlapSkip);
+    }
+  }
+}
+
+const testFloatEqual = function (a, b) {
+  return (a > b ? a - b : b - a) > 1e-10;
+};
+
+class SoundTouch {
+  constructor() {
+    this.transposer = new RateTransposer(false);
+    this.stretch = new Stretch(false);
+    this._inputBuffer = new FifoSampleBuffer();
+    this._intermediateBuffer = new FifoSampleBuffer();
+    this._outputBuffer = new FifoSampleBuffer();
+    this._rate = 0;
+    this._tempo = 0;
+    this.virtualPitch = 1.0;
+    this.virtualRate = 1.0;
+    this.virtualTempo = 1.0;
+    this.calculateEffectiveRateAndTempo();
+  }
+  clear() {
+    this.transposer.clear();
+    this.stretch.clear();
+  }
+  clone() {
+    const result = new SoundTouch();
+    result.rate = this.rate;
+    result.tempo = this.tempo;
+    return result;
+  }
+  get rate() {
+    return this._rate;
+  }
+  set rate(rate) {
+    this.virtualRate = rate;
+    this.calculateEffectiveRateAndTempo();
+  }
+  set rateChange(rateChange) {
+    this._rate = 1.0 + 0.01 * rateChange;
+  }
+  get tempo() {
+    return this._tempo;
+  }
+  set tempo(tempo) {
+    this.virtualTempo = tempo;
+    this.calculateEffectiveRateAndTempo();
+  }
+  set tempoChange(tempoChange) {
+    this.tempo = 1.0 + 0.01 * tempoChange;
+  }
+  set pitch(pitch) {
+    this.virtualPitch = pitch;
+    this.calculateEffectiveRateAndTempo();
+  }
+  set pitchOctaves(pitchOctaves) {
+    this.pitch = Math.exp(0.69314718056 * pitchOctaves);
+    this.calculateEffectiveRateAndTempo();
+  }
+  set pitchSemitones(pitchSemitones) {
+    this.pitchOctaves = pitchSemitones / 12.0;
+  }
+  get inputBuffer() {
+    return this._inputBuffer;
+  }
+  get outputBuffer() {
+    return this._outputBuffer;
+  }
+  calculateEffectiveRateAndTempo() {
+    const previousTempo = this._tempo;
+    const previousRate = this._rate;
+    this._tempo = this.virtualTempo / this.virtualPitch;
+    this._rate = this.virtualRate * this.virtualPitch;
+    if (testFloatEqual(this._tempo, previousTempo)) {
+      this.stretch.tempo = this._tempo;
+    }
+    if (testFloatEqual(this._rate, previousRate)) {
+      this.transposer.rate = this._rate;
+    }
+    if (this._rate > 1.0) {
+      if (this._outputBuffer != this.transposer.outputBuffer) {
+        this.stretch.inputBuffer = this._inputBuffer;
+        this.stretch.outputBuffer = this._intermediateBuffer;
+        this.transposer.inputBuffer = this._intermediateBuffer;
+        this.transposer.outputBuffer = this._outputBuffer;
+      }
+    } else {
+      if (this._outputBuffer != this.stretch.outputBuffer) {
+        this.transposer.inputBuffer = this._inputBuffer;
+        this.transposer.outputBuffer = this._intermediateBuffer;
+        this.stretch.inputBuffer = this._intermediateBuffer;
+        this.stretch.outputBuffer = this._outputBuffer;
+      }
+    }
+  }
+  process() {
+    if (this._rate > 1.0) {
+      this.stretch.process();
+      this.transposer.process();
+    } else {
+      this.transposer.process();
+      this.stretch.process();
+    }
+  }
+}
+
+class WebAudioBufferSource {
+  constructor(buffer) {
+    this.buffer = buffer;
+    this._position = 0;
+  }
+  get dualChannel() {
+    return this.buffer.numberOfChannels > 1;
+  }
+  get position() {
+    return this._position;
+  }
+  set position(value) {
+    this._position = value;
+  }
+  extract(target, numFrames = 0, position = 0) {
+    this.position = position;
+    let left = this.buffer.getChannelData(0);
+    let right = this.dualChannel ? this.buffer.getChannelData(1) : this.buffer.getChannelData(0);
+    let i = 0;
+    for (; i < numFrames; i++) {
+      target[i * 2] = left[i + position];
+      target[i * 2 + 1] = right[i + position];
+    }
+    return Math.min(numFrames, left.length - position);
+  }
+}
+
+const getWebAudioNode = function (context, filter, sourcePositionCallback = noop, bufferSize = 4096) {
+  const node = context.createScriptProcessor(bufferSize, 2, 2);
+  const samples = new Float32Array(bufferSize * 2);
+  node.onaudioprocess = event => {
+    let left = event.outputBuffer.getChannelData(0);
+    let right = event.outputBuffer.getChannelData(1);
+    let framesExtracted = filter.extract(samples, bufferSize);
+    sourcePositionCallback(filter.sourcePosition);
+    if (framesExtracted === 0) {
+      filter.onEnd();
+    }
+    let i = 0;
+    for (; i < framesExtracted; i++) {
+      left[i] = samples[i * 2];
+      right[i] = samples[i * 2 + 1];
+    }
+  };
+  return node;
+};
+
+const pad = function (n, width, z) {
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+};
+const minsSecs = function (secs) {
+  const mins = Math.floor(secs / 60);
+  const seconds = secs - mins * 60;
+  return `${mins}:${pad(parseInt(seconds), 2)}`;
+};
+
+const onUpdate = function (sourcePosition) {
+  const currentTimePlayed = this.timePlayed;
+  const sampleRate = this.sampleRate;
+  this.sourcePosition = sourcePosition;
+  this.timePlayed = sourcePosition / sampleRate;
+  if (currentTimePlayed !== this.timePlayed) {
+    const timePlayed = new CustomEvent('play', {
+      detail: {
+        timePlayed: this.timePlayed,
+        formattedTimePlayed: this.formattedTimePlayed,
+        percentagePlayed: this.percentagePlayed
+      }
+    });
+    this._node.dispatchEvent(timePlayed);
+  }
+};
+class PitchShifter {
+  constructor(context, buffer, bufferSize, onEnd = noop) {
+    this._soundtouch = new SoundTouch();
+    const source = new WebAudioBufferSource(buffer);
+    this.timePlayed = 0;
+    this.sourcePosition = 0;
+    this._filter = new SimpleFilter(source, this._soundtouch, onEnd);
+    this._node = getWebAudioNode(context, this._filter, sourcePostion => onUpdate.call(this, sourcePostion), bufferSize);
+    this.tempo = 1;
+    this.rate = 1;
+    this.duration = buffer.duration;
+    this.sampleRate = context.sampleRate;
+    this.listeners = [];
+  }
+  get formattedDuration() {
+    return minsSecs(this.duration);
+  }
+  get formattedTimePlayed() {
+    return minsSecs(this.timePlayed);
+  }
+  get percentagePlayed() {
+    return 100 * this._filter.sourcePosition / (this.duration * this.sampleRate);
+  }
+  set percentagePlayed(perc) {
+    this._filter.sourcePosition = parseInt(perc * this.duration * this.sampleRate);
+    this.sourcePosition = this._filter.sourcePosition;
+    this.timePlayed = this.sourcePosition / this.sampleRate;
+  }
+  get node() {
+    return this._node;
+  }
+  set pitch(pitch) {
+    this._soundtouch.pitch = pitch;
+  }
+  set pitchSemitones(semitone) {
+    this._soundtouch.pitchSemitones = semitone;
+  }
+  set rate(rate) {
+    this._soundtouch.rate = rate;
+  }
+  set tempo(tempo) {
+    this._soundtouch.tempo = tempo;
+  }
+  connect(toNode) {
+    this._node.connect(toNode);
+  }
+  disconnect() {
+    this._node.disconnect();
+  }
+  on(eventName, cb) {
+    this.listeners.push({
+      name: eventName,
+      cb: cb
+    });
+    this._node.addEventListener(eventName, event => cb(event.detail));
+  }
+  off(eventName = null) {
+    let listeners = this.listeners;
+    if (eventName) {
+      listeners = listeners.filter(e => e.name === eventName);
+    }
+    listeners.forEach(e => {
+      this._node.removeEventListener(e.name, event => e.cb(event.detail));
+    });
+  }
+}
+
+
+
+
+// ===== Motor teórico (sin DOM) =====
+const TH = (() => {
+  const SH = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const FL = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  const FLAT_MAJ = new Set([5,10,3,8,1,6]);   // F B♭ E♭ A♭ D♭ G♭
+  const FLAT_MIN = new Set([2,7,0,5,10,3]);   // Dm Gm Cm Fm B♭m E♭m
+  const QUAL = {
+    maj:{iv:[0,4,7],s:'',tri:'maj',sev:'maj'}, min:{iv:[0,3,7],s:'m',tri:'min',sev:'min'},
+    dim:{iv:[0,3,6],s:'dim',tri:'dim',sev:'dim'}, aug:{iv:[0,4,8],s:'aug',tri:'aug',sev:'aug'},
+    min6:{iv:[0,3,7,9],s:'m6',tri:'min',sev:'min6'}, maj6:{iv:[0,4,7,9],s:'6',tri:'maj',sev:'maj6'},
+    min7:{iv:[0,3,7,10],s:'m7',tri:'min',sev:'min7'}, minmaj7:{iv:[0,3,7,11],s:'m(maj7)',tri:'min',sev:'minmaj7'},
+    maj7:{iv:[0,4,7,11],s:'maj7',tri:'maj',sev:'maj7'}, '7':{iv:[0,4,7,10],s:'7',tri:'maj',sev:'7'},
+    dim7:{iv:[0,3,6,9],s:'dim7',tri:'dim',sev:'dim7'}, hdim7:{iv:[0,3,6,10],s:'m7♭5',tri:'dim',sev:'hdim7'},
+    sus2:{iv:[0,2,7],s:'sus2',tri:'sus2',sev:'sus2'}, sus4:{iv:[0,5,7],s:'sus4',tri:'sus4',sev:'sus4'}
+  };
+  const mod = n => ((n % 12) + 12) % 12;
+  const useFlats = (tonic, mode) => (mode === 'major' ? FLAT_MAJ : FLAT_MIN).has(mod(tonic));
+  const pretty = s => s.replace(/#/g, '♯').replace(/([A-G])b/g, '$1♭');
+  const note = (pc, flats) => pretty((flats ? FL : SH)[mod(pc)]);
+  const levelQ = (q, level) => level === 'triad' ? QUAL[q].tri : level === 'seventh' ? QUAL[q].sev : q;
+
+  // chord: {root, quality, bass}; shift: semitones; ctx: {flats}
+  const prettySuf = s => s.replace(/#/g, '♯').replace(/b(?=\d)/g, '♭');
+  function name(ch, shift, flats, level) {
+    if (!ch || ch.root == null) return 'N.C.';
+    if (ch.suffix != null && level === 'full') return note(ch.root + shift, flats) + prettySuf(ch.suffix) + (ch.bass != null ? '/' + note(ch.bass + shift, flats) : '');
+    const q = levelQ(ch.quality, level);
+    let s = note(ch.root + shift, flats) + QUAL[q].s;
+    if (ch.bass != null && level !== 'triad') s += '/' + note(ch.bass + shift, flats);
+    return s;
+  }
+  const pcs = (root, q) => QUAL[q].iv.map(i => mod(root + i));
+
+  // ---- digitaciones: cuerdas 6→1 (Mi grave → mi agudo), -1 = apagada ----
+  const OPEN = {
+    '0maj':[-1,3,2,0,1,0], '9maj':[-1,0,2,2,2,0], '7maj':[3,2,0,0,0,3], '4maj':[0,2,2,1,0,0], '2maj':[-1,-1,0,2,3,2],
+    '9min':[-1,0,2,2,1,0], '4min':[0,2,2,0,0,0], '2min':[-1,-1,0,2,3,1],
+    '07':[-1,3,2,3,1,0], '97':[-1,0,2,0,2,0], '77':[3,2,0,0,0,1], '47':[0,2,0,1,0,0], '27':[-1,-1,0,2,1,2], '117':[-1,2,1,2,0,2],
+    '9min7':[-1,0,2,0,1,0], '4min7':[0,2,0,0,0,0], '2min7':[-1,-1,0,2,1,1],
+    '0maj7':[-1,3,2,0,0,0], '9maj7':[-1,0,2,1,2,0], '7maj7':[3,2,0,0,0,2], '4maj7':[0,2,1,1,0,0], '2maj7':[-1,-1,0,2,2,2], '5maj7':[-1,-1,3,2,1,0],
+    '9sus2':[-1,0,2,2,0,0], '2sus2':[-1,-1,0,2,3,0], '9sus4':[-1,0,2,2,3,0], '2sus4':[-1,-1,0,2,3,3], '4sus4':[0,2,2,2,0,0],
+    '2maj6':[-1,-1,0,2,0,2], '9maj6':[-1,0,2,2,2,2], '4min6':[0,2,2,0,2,0], '9min6':[-1,0,2,2,1,2]
+  };
+  // formas móviles relativas a la fundamental (traste f), por cuerda raíz
+  const E_SHAPE = { maj:[0,2,2,1,0,0], min:[0,2,2,0,0,0], '7':[0,2,0,1,0,0], min7:[0,2,0,0,0,0],
+    maj7:[0,null,1,1,0,null], dim7:[0,null,-1,0,-1,null], sus4:[0,2,2,2,0,0], min6:[0,null,-1,0,0,null] };
+  const A_SHAPE = { maj:[null,0,2,2,2,0], min:[null,0,2,2,1,0], '7':[null,0,2,0,2,0], min7:[null,0,2,0,1,0],
+    maj7:[null,0,2,1,2,0], hdim7:[null,0,1,0,1,null], dim7:[null,0,1,-1,1,null], dim:[null,0,1,2,1,null],
+    aug:[null,0,3,2,2,null], sus2:[null,0,2,2,0,0], sus4:[null,0,2,2,3,0], maj6:[null,0,2,2,2,2],
+    min6:[null,0,2,2,1,2], minmaj7:[null,0,2,1,1,0] };
+  const OPEN_PC = [4,9,2,7,11,4]; // E A D G B E
+  function shapeFromTemplate(tpl, fret) {
+    const f = tpl.map(x => x == null ? -1 : x + fret);
+    return f.some(x => x === 0 || x < -1) ? null : f;  // forma móvil: nunca cuerdas al aire
+  }
+  function voicing(root, q) {
+    root = mod(root);
+    const o = OPEN[root + q];
+    if (o) return { frets: o, open: true };
+    const cands = [];
+    if (E_SHAPE[q]) { let f = mod(root - 4); if (f === 0) f = 12; const v = shapeFromTemplate(E_SHAPE[q], f); if (v) cands.push(v); }
+    if (A_SHAPE[q]) { let f = mod(root - 9); if (f === 0) f = 12; const v = shapeFromTemplate(A_SHAPE[q], f); if (v) cands.push(v); }
+    if (!cands.length) return null;
+    const lo = v => Math.max(...v.filter(x => x > 0));
+    cands.sort((a, b) => lo(a) - lo(b));
+    return { frets: cands[0], open: false };
+  }
+  const soundingPcs = frets => frets.map((f, s) => f < 0 ? null : mod(OPEN_PC[s] + f)).filter(x => x != null);
+
+  // ---- capo: minimiza cejillas ponderando por duración ----
+  function bestCapo(chords, shift) {
+    let best = { capo: 0, cost: Infinity };
+    const total = chords.reduce((s, ch) => s + (ch.root == null ? 0 : ch.end - ch.start), 0) || 1;
+    for (let c = 0; c <= 7; c++) {
+      let cost = 0;
+      for (const ch of chords) {
+        if (ch.root == null) continue;
+        const v = voicing(ch.root + shift - c, ch.quality);
+        cost += (ch.end - ch.start) * (v ? (v.open ? 0 : 2) : 3);
+      }
+      cost += c * 0.06 * total; // cada traste de capo debe ahorrar cejillas de verdad (≈ 3 % del tiempo por traste)
+      if (cost < best.cost) best = { capo: c, cost };
+    }
+    return best.capo;
+  }
+  // búsqueda binaria: último índice con arr[i] <= t
+  function idxAt(arr, t, get = x => x) {
+    let lo = 0, hi = arr.length - 1, ans = -1;
+    while (lo <= hi) { const m = (lo + hi) >> 1; if (get(arr[m]) <= t) { ans = m; lo = m + 1; } else hi = m - 1; }
+    return ans;
+  }
+  return { SH, FL, QUAL, mod, useFlats, note, name, prettySuf, pcs, voicing, soundingPcs, bestCapo, idxAt, levelQ, OPEN_PC };
+})();
+
+// ===== Cifra: lectura y alineación con el audio (port de chordlab/chartalign.py) =====
+const CHART = (() => {
+  const NOTE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+  const FAMS = ['maj', 'min', 'dim', 'sus'];
+  const RE = /^([A-G])([#b♯♭]?)([^/\s]*)(?:\/([A-G])([#b♯♭]?))?$/;
+  const SUF_OK = /^(maj|min|m|M|dim|aug|sus|add|º|°|ø|\+|-|\d|\(|\)|b|#|,|\.|7M|M7)*$/;
+  const acc = a => a === '#' || a === '♯' ? 1 : a === 'b' || a === '♭' ? -1 : 0;
+  function famOf(s) {
+    const low = s.toLowerCase();
+    if (/^m(?!aj)/.test(s)) return /b5/.test(low) ? 'dim' : 'min';
+    if (/dim|°|º|ø/.test(s)) return 'dim';
+    if (/sus/.test(low) || /^(4|2)(\(|$)/.test(s) || /^7\(?4/.test(s)) return 'sus';
+    return 'maj';
+  }
+  // cifra → calidad del motor (para digitación y niveles)
+  function qualOf(s, fam) {
+    const low = s.toLowerCase();
+    if (fam === 'dim') return /ø|m7\(?b5|m7b5/.test(low) ? 'hdim7' : /7|°|º/.test(s) && !/^dim$/.test(low) ? 'dim7' : 'dim';
+    if (fam === 'min') return /maj7|7m|m\(maj7\)/.test(low.replace(/^m/, '')) || /^m7M|^m\(7M\)/.test(s) ? 'minmaj7' : /7|9|11|13/.test(s) ? 'min7' : /6/.test(s) ? 'min6' : 'min';
+    if (fam === 'sus') return /2/.test(s) && !/4/.test(s) ? 'sus2' : 'sus4';
+    if (/aug|\+/.test(low)) return 'aug';
+    if (/7M|M7|maj7|maj9|∆/.test(s)) return 'maj7';
+    if (/^6/.test(s)) return 'maj6';
+    if (/7|9|11|13/.test(s)) return '7';
+    return 'maj';
+  }
+  function parseChord(tok) {
+    tok = tok.replace(/^\|+|\|+$/g, '').trim();
+    const m = RE.exec(tok); if (!m) return null;
+    const [, r, a, sufRaw, b, ba] = m;
+    const suf = sufRaw.replace(/♭/g, 'b').replace(/♯/g, '#');
+    if (!SUF_OK.test(suf)) return null;
+    const fam = famOf(suf);
+    return { root: TH.mod(NOTE[r] + acc(a)), fam, quality: qualOf(suf, fam), suffix: suf, bass: b ? TH.mod(NOTE[b] + acc(ba)) : null, text: tok };
+  }
+  const NOISE = /^([|:%x\d\-().[\]]+|intro|refr[aã]o|ponte|solo|final|riff|parte|estrofe|coro|verso|chorus|verse|bridge|outro)$/i;
+  function parse(text) {
+    const lines = [];
+    for (const raw of String(text).split(/\r?\n/)) {
+      const toks = raw.trim().split(/\s+/).filter(Boolean); if (!toks.length) continue;
+      const chords = toks.map(parseChord);
+      const good = chords.filter(Boolean);
+      const noise = toks.filter((t, i) => !chords[i] && !NOISE.test(t));
+      if (good.length && good.length >= noise.length) {
+        const rep = /(\d)\s*x/i.exec(raw); const n = rep ? Math.min(+rep[1], 4) : 1;
+        for (let k = 0; k < n; k++) lines.push(good);
+      }
+    }
+    return lines;
+  }
+  function b64(s) { const bin = atob(s), out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
+  function decodePost(post) {
+    const q = b64(post.p48), nc = b64(post.nc), B = post.beats, sc = post.scale || 255;
+    const L = new Float64Array(B * 48), LN = new Float64Array(B);
+    for (let i = 0; i < B * 48; i++) L[i] = Math.log(q[i] / sc + 1e-4);
+    for (let t = 0; t < B; t++) LN[t] = Math.log(nc[t] / sc + 1e-4);
+    return { L, LN, B, raw: q, sc };
+  }
+  // DP idéntico a chartalign.align (estados: 0 antes, 1..N cifra, N+1 después)
+  function align(P, pos, lines, shift, opt) {
+    const change = opt.change || [1.0, 1.5, 2.5], jump = opt.jump == null ? Infinity : opt.jump;
+    const flat = [].concat(...lines), N = flat.length, B = P.B, NEG = -1e18;
+    const starts = [], ends = []; let k = 1;
+    for (const ln of lines) { starts.push(k); ends.push(k + ln.length - 1); k += ln.length; }
+    const idx = flat.map(c => TH.mod(c.root + shift) * 4 + FAMS.indexOf(c.fam));
+    let D = new Float64Array(N + 2).fill(NEG); D[0] = P.LN[0]; D[1] = P.L[idx[0]];
+    const bk = new Int32Array(B * (N + 2));
+    for (let t = 1; t < B; t++) {
+      const c = pos[t] === 1 ? change[0] : pos[t] === 3 ? change[1] : change[2];
+      const prev = D, nw = new Float64Array(N + 2).fill(NEG), o = t * (N + 2);
+      nw[0] = prev[0] + P.LN[t]; bk[o] = 0;
+      for (let s = 1; s <= N; s++) { const st = prev[s], ad = prev[s - 1] - c; if (st >= ad) { nw[s] = st; bk[o + s] = s; } else { nw[s] = ad; bk[o + s] = s - 1; } }
+      if (jump !== Infinity) {
+        let eb = ends[0]; for (const e of ends) if (prev[e] > prev[eb]) eb = e;
+        const jv = prev[eb] - c - jump;
+        for (const s of starts) if (jv > nw[s] && s !== eb + 1) { nw[s] = jv; bk[o + s] = eb; }
+      }
+      for (let s = 1; s <= N; s++) nw[s] += P.L[t * 48 + idx[s - 1]];
+      const a = prev[N + 1], b = prev[N] - c;
+      if (a >= b) { nw[N + 1] = a; bk[o + N + 1] = N + 1; } else { nw[N + 1] = b; bk[o + N + 1] = N; }
+      nw[N + 1] += P.LN[t];
+      D = nw;
+    }
+    const st = new Int32Array(B); st[B - 1] = D[N] >= D[N + 1] ? N : N + 1;
+    for (let t = B - 1; t > 0; t--) st[t - 1] = bk[t * (N + 2) + st[t]];
+    let score = -Infinity; for (const v of D) if (v > score) score = v;
+    return { st, score, flat, shift };
+  }
+  function best(P, pos, lines, opt) {
+    let b = null;
+    for (let sh = 0; sh < 12; sh++) { const r = align(P, pos, lines, sh, opt); if (!b || r.score > b.score) b = r; }
+    return b;
+  }
+  // Construye la lista de acordes de la canción a partir de la alineación
+  function toChords(song, res, P) {
+    const { st, flat, shift } = res, beats = song.beats, out = [];
+    const end = i => i + 1 < beats.length ? beats[i + 1] : song.meta.duration;
+    let i = 0;
+    while (i < st.length) {
+      let j = i; while (j + 1 < st.length && st[j + 1] === st[i]) j++;
+      const k = st[i];
+      if (k === 0 || k === flat.length + 1) out.push({ start: beats[i], end: end(j), beat: i, beats: j - i + 1, root: null, quality: null, bass: null, tier: null, label: 'N' });
+      else {
+        const c = flat[k - 1], fi = TH.mod(c.root + shift) * 4 + FAMS.indexOf(c.fam);
+        let share = 0;
+        for (let t = i; t <= j; t++) { let mx = 0; for (let f = 0; f < 48; f++) mx = Math.max(mx, P.raw[t * 48 + f]); share += mx ? P.raw[t * 48 + fi] / mx : 0; }
+        share /= (j - i + 1);
+        out.push({ start: beats[i], end: end(j), beat: i, beats: j - i + 1, root: TH.mod(c.root + shift), quality: c.quality, suffix: c.suffix,
+          bass: c.bass == null ? null : TH.mod(c.bass + shift), tier: share >= 0.3 ? 'seguro' : 'probable', p: +share.toFixed(3), fromChart: true, chartText: c.text, alts: [] });
+      }
+      i = j + 1;
+    }
+    return out;
+  }
+  return { parse, parseChord, decodePost, align, best, toChords, FAMS };
+})();
+
+// ===== Motor de audio (sin DOM): SoundTouch para tono y tempo independientes =====
+const AU = (() => {
+  let ctx = null, buffer = null, sh = null, gain = null, playing = false, onEnd = () => {};
+  let semis = 0, rate = 1, lastPos = 0, lastWall = 0;
+  const LAT = 0.12; // s: búfer del ScriptProcessor + latencia de SoundTouch
+  function ensureCtx() {
+    if (!ctx) { const C = window.AudioContext || window.webkitAudioContext; ctx = new C(); gain = ctx.createGain(); gain.connect(ctx.destination); }
+    return ctx;
+  }
+  function decode(arr) {
+    ensureCtx();
+    return new Promise((res, rej) => { const p = ctx.decodeAudioData(arr, res, rej); if (p && p.then) p.then(res, rej); });
+  }
+  function build(at) {
+    sh = new PitchShifter(ctx, buffer, 4096, () => { pause(); seek(0); onEnd(); });
+    sh.pitchSemitones = semis; sh.tempo = rate;
+    sh.on('play', d => { lastPos = d.timePlayed; lastWall = performance.now(); });
+    if (at) sh.percentagePlayed = at / buffer.duration;
+    lastPos = at || 0; lastWall = performance.now();
+  }
+  async function load(arr) { const b = await decode(arr); pause(); buffer = b; sh = null; lastPos = 0; return b.duration; }
+  function loadBuffer(b) { pause(); buffer = b; sh = null; lastPos = 0; return b.duration; }
+  // Ejemplo sintético: renderiza acordes simples para probar sin archivos
+  async function renderDemo(chords, dur) {
+    ensureCtx();
+    const sr = 44100, O = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const oc = new O(2, Math.ceil(dur * sr), sr);
+    const out = oc.createGain(); out.gain.value = 0.18; out.connect(oc.destination);
+    for (const c of chords) {
+      if (c.root == null) continue;
+      const notes = [36 + c.root].concat(TH.QUAL[c.quality].iv.map(i => 60 + ((c.root + i) % 12)));
+      notes.forEach((m, k) => {
+        const o = oc.createOscillator(), g = oc.createGain();
+        o.type = k === 0 ? 'triangle' : 'sawtooth'; o.frequency.value = 440 * Math.pow(2, (m - 69) / 12);
+        const f = oc.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1400;
+        g.gain.setValueAtTime(0, c.start); g.gain.linearRampToValueAtTime(k === 0 ? 0.9 : 0.35, c.start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.05, c.end - 0.02); g.gain.linearRampToValueAtTime(0, c.end);
+        o.connect(f); f.connect(g); g.connect(out); o.start(c.start); o.stop(c.end);
+      });
+    }
+    return loadBuffer(await oc.startRendering());
+  }
+  async function play() { if (!buffer) return; await ensureCtx().resume(); if (!sh) build(0); sh.connect(gain); playing = true; lastWall = performance.now(); }
+  function pause() { if (sh && playing) sh.disconnect(); playing = false; }
+  function seek(t) {
+    if (!buffer) return;
+    t = Math.max(0, Math.min(buffer.duration - 0.05, t));
+    const was = playing; pause(); build(t); if (was) { sh.connect(gain); playing = true; }
+  }
+  function time() {
+    if (!buffer) return 0;
+    if (!playing) return lastPos;
+    return Math.max(0, Math.min(buffer.duration, lastPos + (performance.now() - lastWall) / 1000 * rate - LAT * rate));
+  }
+  return {
+    preview(root, quality) {
+      ensureCtx().resume();
+      const now = ctx.currentTime + 0.02, out = ctx.createGain(); out.gain.value = 0.22; out.connect(ctx.destination);
+      const notes = [40 + TH.mod(root - 4)].concat(TH.QUAL[quality].iv.map(i => 52 + TH.mod(root + i - 4)));
+      notes.forEach((m, k) => {
+        const o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+        o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (m - 69) / 12); f.type = 'lowpass'; f.frequency.value = 2200;
+        const t0 = now + k * 0.045;
+        g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.8, t0 + 0.008); g.gain.exponentialRampToValueAtTime(0.001, t0 + 1.6);
+        o.connect(f); f.connect(g); g.connect(out); o.start(t0); o.stop(t0 + 1.7);
+      });
+    },
+    load, loadBuffer, renderDemo, play, pause, seek, time,
+    get playing() { return playing; }, get duration() { return buffer ? buffer.duration : 0; },
+    setSemis(v) { semis = v; if (sh) sh.pitchSemitones = v; },
+    setRate(v) { const t = time(); rate = v; if (sh) seek(t); },
+    set onEnd(f) { onEnd = f; }
+  };
+})();
+
+// ===== Interfaz =====
+(() => {
+  const $ = id => document.getElementById('toc-' + id);
+  const S = { abbr: false, chartOn: false, song: null, audioFile: null, tr: 0, capo: 0, capoTouched: false, level: 'full', rate: 1, fixes: {}, cur: -1, curBar: -1, raf: 0 };
+  const storeKey = () => 'tocar:' + S.song.meta.title + ':' + Math.round(S.song.meta.duration);
+  const fixKey = () => storeKey() + (S.chartOn ? ':fix-cifra' : ':fix');
+  const chordOf = (c) => S.fixes[c.beat] ? Object.assign({}, c, S.fixes[c.beat]) : c;
+  const key = () => S.song.key;
+  const flatsFor = shift => TH.useFlats(key().tonic + shift, key().mode);
+  const nm = (c, shift) => TH.name(chordOf(c), shift, flatsFor(shift), S.level);
+  const shapeShift = () => S.tr - S.capo;
+
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.remove('toc-hidden'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.add('toc-hidden'), 2200); }
+  function store() { try { localStorage.setItem(fixKey(), JSON.stringify(S.fixes)); } catch (e) {} }
+  function restore() { try { S.fixes = JSON.parse(localStorage.getItem(fixKey()) || '{}') || {}; } catch (e) { S.fixes = {}; } }
+
+  // --- carga ---
+  function ready() { $('startBtn').disabled = !(S.song && S.audioFile); }
+  $('audioIn').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; S.audioFile = f; $('audioSt').textContent = f.name; ready(); });
+  $('songIn').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const j = JSON.parse(await f.text());
+      if (j.format !== 'fretboard-song' || !Array.isArray(j.chords) || !Array.isArray(j.beats)) throw new Error('formato');
+      S.song = j; $('songSt').textContent = f.name;
+    } catch (err) { S.song = null; $('songSt').textContent = 'No es un .song.json válido'; }
+    ready();
+  });
+  function demoSong() {
+    // Ejemplo propio (no es una canción real): ii–V–I–vi en Si♭ con un préstamo y una dominante secundaria
+    const bpm = 96, beat = 60 / bpm, prog = [[0, 'min7'], [5, '7'], [10, 'maj7'], [7, 'min7'], [3, 'maj7'], [8, '7'], [2, '7'], [7, 'min7'], [0, 'min7'], [5, '7'], [10, 'maj6'], [10, 'maj6']];
+    const tiers = ['seguro', 'seguro', 'seguro', 'probable', 'seguro', 'dudoso', 'seguro', 'seguro', 'seguro', 'seguro', 'probable', 'seguro'];
+    const nBeats = prog.length * 4, beats = [], pos = [];
+    for (let i = 0; i < nBeats; i++) { beats.push(+(i * beat).toFixed(3)); pos.push(i % 4 + 1); }
+    const chords = prog.map(([r, q], k) => ({ start: beats[k * 4], end: +((k * 4 + 4) * beat).toFixed(3), beat: k * 4, beats: 4, root: r, quality: q, bass: null, tier: tiers[k], p: tiers[k] === 'seguro' ? 0.94 : tiers[k] === 'probable' ? 0.73 : 0.4,
+      alts: [{ root: (r + 9) % 12, quality: q.startsWith('min') ? 'maj7' : 'min7', label: '', share: 0.1 }, { root: (r + 7) % 12, quality: '7', label: '', share: 0.05 }] }));
+    return { format: 'fretboard-song', version: 1, meta: { title: 'Ejemplo', artist: 'progresión sintética', duration: nBeats * beat, analyzer: { version: 'ejemplo' } },
+      tempo: { bpm, meter: 4 }, key: { tonic: 10, mode: 'major', label: 'Bb', flats: true }, beats, beatPos: pos, chords,
+      confidence: { tiers: { seguro: { precision: 0.938 }, probable: { precision: 0.733 }, dudoso: { precision: 0.345 } } } };
+  }
+  async function start(demo) {
+    $('startBtn').disabled = true; $('startBtn').textContent = 'Preparando audio…';
+    try {
+      if (demo === true) { S.song = demoSong(); await AU.renderDemo(S.song.chords, S.song.meta.duration); }
+      else await AU.load(await S.audioFile.arrayBuffer());
+    }
+    catch (e) { $('startBtn').textContent = 'No pude leer ese audio'; $('startBtn').disabled = false; return; }
+    restore();
+    S.audioChords = S.song.chords;
+    try { const ct = localStorage.getItem(storeKey() + ':cifra'); if (ct) { const o = JSON.parse(ct); S.abbr = !!o.abbr; $('chartIn').value = o.text; applyChart(o.text, true); } } catch (e) {}
+    S.capo = TH.bestCapo(S.song.chords.map(chordOf), S.tr);
+    $('loadView').classList.add('toc-hidden'); $('playView').classList.remove('toc-hidden'); $('transport').classList.remove('toc-hidden'); S.started = true;
+    const m = S.song.meta;
+    $('songTitle').textContent = m.title + (m.artist ? ' · ' + m.artist : '');
+    renderFoot();
+    let v = 'big'; try { v = localStorage.getItem('toc:view') || 'big'; } catch (e) {}
+    buildBars(); renderControls(); setView(v); loop();
+  }
+
+  // --- compases ---
+  function buildBars() {
+    const pos = S.song.beatPos, chords = S.song.chords;
+    const bars = []; let cur = null;
+    pos.forEach((p, i) => { if (p === 1 || !cur) { cur = { start: i, beats: [] }; bars.push(cur); } cur.beats.push(i); });
+    S.bars = bars;
+    const startAt = {}; chords.forEach((c, i) => { startAt[c.beat] = i; });
+    let ci = -1;
+    const html = bars.map((b, bi) => {
+      const cells = []; let seg = null;
+      b.beats.forEach((beat, k) => {
+        if (startAt[beat] != null) { ci = startAt[beat]; seg = { ci, n: 1, cont: false }; cells.push(seg); }
+        else if (k === 0) { seg = { ci, n: 1, cont: true }; cells.push(seg); }
+        else if (seg) seg.n++;
+      });
+      return `<div class="toc-bar" data-bar="${bi}" data-n="${bi + 1}">` + cells.map(s => `<button class="toc-cell" data-tact="seek" data-ci="${s.ci}" data-cont="${s.cont ? 1 : 0}" data-g="${Math.min(s.n,8)}"></button>`).join('') + '</div>';
+    }).join('');
+    $('bars').innerHTML = html;
+    renderBars();
+  }
+  function renderBars() {
+    const shift = S.capo ? shapeShift() : S.tr;
+    document.querySelectorAll('#toc-bars .toc-cell').forEach(el => {
+      const ci = +el.dataset.ci; if (ci < 0) { el.textContent = ''; return; }
+      const c = S.song.chords[ci];
+      el.textContent = el.dataset.cont === '1' ? '·' : nm(c, shift);
+      el.classList.toggle('toc-cont', el.dataset.cont === '1');
+      el.classList.toggle('toc-doubt', !S.fixes[c.beat] && c.tier === 'dudoso' && el.dataset.cont !== '1');
+      el.classList.toggle('toc-fixed', !!S.fixes[c.beat] && el.dataset.cont !== '1');
+      el.setAttribute('aria-label', nm(c, shift) + (c.tier ? ', ' + (S.fixes[c.beat] ? 'corregido' : c.tier) : ''));
+    });
+    markCurrent(true);
+  }
+  function followBar() {
+    if (S.view !== 'general' || !AU.playing) return;
+    const b = document.querySelector(`#toc-bars .toc-bar[data-bar="${S.curBar}"]`);
+    if (b && b !== S.followed) { S.followed = b; b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+  }
+  function setView(v) {
+    S.view = v === 'general' ? 'general' : 'big';
+    try { localStorage.setItem('toc:view', S.view); } catch (e) {}
+    $('bigView').classList.toggle('toc-hidden', S.view !== 'big');
+    $('generalView').classList.toggle('toc-hidden', S.view !== 'general');
+    $('barsCard').classList.toggle('toc-hidden', S.view !== 'general');
+    document.querySelectorAll('#panel-tocar [data-tact="view"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === S.view)));
+    S.followed = null; markCurrent(true); followBar();
+  }
+  function markCurrent(force) {
+    if (S.cur < 0 && !force) return;
+    document.querySelectorAll('#toc-bars .toc-bar').forEach(b => b.classList.toggle('toc-past', S.view === 'general' && +b.dataset.bar < S.curBar));
+    document.querySelectorAll('#toc-bars .toc-cell.toc-cur').forEach(e => e.classList.remove('toc-cur'));
+    const bar = S.curBar >= 0 ? document.querySelector(`#toc-bars .toc-bar[data-bar="${S.curBar}"]`) : null;
+    if (!bar) return;
+    bar.querySelectorAll('.toc-cell').forEach(e => { if (+e.dataset.ci === S.cur) e.classList.add('toc-cur'); });
+  }
+
+  // --- controles ---
+  function renderControls() {
+    const k = key(), sh = S.tr;
+    const kn = s => TH.note(k.tonic + s, flatsFor(s)) + (k.mode === 'minor' ? 'm' : '');
+    $('trOut').innerHTML = sh === 0 ? `Original<small>${kn(0)}</small>` : `${sh > 0 ? '+' : '−'}${Math.abs(sh)}<small>${kn(0)} → ${kn(sh)}</small>`;
+    const sug = TH.bestCapo(S.song.chords.map(chordOf), S.tr);
+    $('capoOut').innerHTML = (S.capo === 0 ? 'Sin capo' : 'Capo ' + S.capo) + `<small>${sug === S.capo ? 'sugerido' : 'sugerido: ' + (sug ? 'capo ' + sug : 'sin capo')}</small>`;
+    $('capoNote').textContent = S.capo ? `Con capo ${S.capo}: los nombres son las formas que tocas; suena en ${kn(sh)}.` : '';
+    document.querySelectorAll('#toc-rateSeg .toc-btn').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.v === S.rate)));
+    document.querySelectorAll('#toc-lvlSeg .toc-btn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === S.level)));
+    $('songMeta').textContent = `${kn(sh)} · ${S.song.tempo.meter}/4 · ${Math.round(S.song.tempo.bpm * S.rate)} bpm`;
+    renderBars(); S.cur = -2; tick(true);
+  }
+
+  // --- diagrama ---
+  function diagram(c, shift) {
+    const svg = $('nowDiagram');
+    if (!c || c.root == null) { svg.innerHTML = ''; return; }
+    const ch = chordOf(c), q = TH.levelQ(ch.quality, S.level), root = TH.mod(ch.root + shift);
+    const v = TH.voicing(root, q);
+    if (!v) { svg.innerHTML = ''; return; }
+    const fr = v.frets.filter(f => f > 0), lo = fr.length ? Math.min(...fr) : 1, base = Math.max(...fr, 0) <= 5 ? 1 : lo;
+    const x = s => 15 + s * 18, y = f => 30 + (f - base + 0.5) * 22;
+    let g = `<rect x="15" y="30" width="90" height="110" fill="none" stroke="var(--fg3)" stroke-width="2"/>`;
+    for (let s = 1; s < 5; s++) g += `<line x1="${x(s)}" y1="30" x2="${x(s)}" y2="140" stroke="var(--fg3)" stroke-width="2"/>`;
+    for (let f = 1; f < 5; f++) g += `<line x1="15" y1="${30 + f * 22}" x2="105" y2="${30 + f * 22}" stroke="var(--fg3)" stroke-width="2"/>`;
+    if (base === 1) g += `<rect x="15" y="26" width="90" height="6" fill="var(--fg3)"/>`;
+    else g += `<text x="2" y="${y(base) + 5}" font-size="14" font-weight="800" fill="var(--fg2)">${base}</text>`;
+    v.frets.forEach((f, s) => {
+      const pc = f < 0 ? null : TH.mod(TH.OPEN_PC[s] + f), isRoot = pc === root;
+      if (f < 0) g += `<text x="${x(s)}" y="20" font-size="15" font-weight="900" text-anchor="middle" fill="var(--fg2)">×</text>`;
+      else if (f === 0) g += `<circle cx="${x(s)}" cy="15" r="6" fill="${isRoot ? 'var(--gold)' : 'none'}" stroke="var(--fg3)" stroke-width="2.5"/>`;
+      else g += `<rect x="${x(s) - 8}" y="${y(f) - 8}" width="16" height="16" fill="${isRoot ? 'var(--gold)' : 'var(--fg)'}" stroke="none" rx="8"/>`;
+    });
+    svg.innerHTML = g;
+    svg.setAttribute('aria-label', 'Digitación de ' + TH.name(Object.assign({}, ch, { bass: null }), shift, flatsFor(shift), S.level));
+  }
+
+  // --- bucle de sincronía ---
+  function bigName(c, shift) {
+    const ch = chordOf(c);
+    if (ch.root == null) return 'N.C.';
+    const fl = flatsFor(shift), q = TH.levelQ(ch.quality, S.level);
+    const r = TH.note(ch.root + shift, fl), rest = TH.QUAL[q].s;
+    const bass = ch.bass != null && S.level !== 'triad' ? `<span class="bass">/${TH.note(ch.bass + shift, fl)}</span>` : '';
+    return `<span class="root">${r}</span>${rest}${bass}`;
+  }
+  function tick(force) {
+    const t = AU.time(), ch = S.song.chords, beats = S.song.beats;
+    const i = TH.idxAt(ch, t, c => c.start), bi = TH.idxAt(beats, t);
+    const bar = S.bars ? TH.idxAt(S.bars, bi, b => b.start) : -1;
+    const shift = S.capo ? shapeShift() : S.tr;
+    if (i !== S.cur || force) {
+      S.cur = i; S.curBar = bar;
+      const c = ch[Math.max(0, i)], n = ch[i + 1];
+      $('nowChord').innerHTML = i < 0 ? '—' : bigName(c, shift);
+      $('nextChord').innerHTML = n ? nm(n, shift) : 'Fin';
+      $('stripNow').textContent = i < 0 ? '—' : nm(c, shift);
+      $('stripNext').textContent = n ? nm(n, shift) : 'Fin';
+      const tier = S.fixes[c.beat] ? 'corregido' : c.tier;
+      const tEl = $('nowTier');
+      tEl.classList.toggle('toc-hidden', i < 0 || !tier || tier === 'seguro');
+      tEl.className = 'toc-tier' + (tier ? ' toc-t-' + tier : '') + (i < 0 || !tier || tier === 'seguro' ? ' toc-hidden' : '');
+      tEl.textContent = tier === 'dudoso' ? 'Dudoso · toca el acorde para corregir' : tier === 'probable' ? 'Probable' : 'Corregido';
+      $('nowCard').classList.toggle('toc-doubt', tier === 'dudoso');
+      diagram(i < 0 ? null : c, shift);
+      markCurrent(true);
+      followBar();
+    } else if (bar !== S.curBar) { S.curBar = bar; markCurrent(true); followBar(); }
+    // tiempos hasta el cambio
+    const n = ch[i + 1];
+    const left = n ? Math.max(0, n.beat - Math.max(bi, 0)) : 0;
+    const shown = Math.min(left, 8);
+    const key = shown + ':' + left;
+    if (key !== S.dotsKey) {
+      S.dotsKey = key;
+      $('dots').innerHTML = Array.from({ length: shown }, (_, k) => `<span class="toc-dot ${shown === 1 ? 'last' : 'on'}"></span>`).join('');
+    }
+    const d = AU.duration || S.song.meta.duration;
+    if (!S.dragging) $('seek').value = Math.round(t / d * 1000);
+    $('time').textContent = fmt(t);
+  }
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  function loop() { tick(false); S.raf = requestAnimationFrame(loop); }
+
+  // --- hoja de corrección ---
+  function openFix(ci) {
+    const c = S.song.chords[ci]; if (!c || c.root == null) return;
+    S.fixCi = ci;
+    const shift = S.capo ? shapeShift() : S.tr;
+    const orig = { root: c.root, quality: c.quality, bass: c.bass };
+    let opts = [{ ...orig, suffix: c.suffix, lbl: c.fromChart ? 'Cifra' : 'Detectado', share: null }].concat((c.alts || []).map(a => ({ root: a.root, quality: a.quality, bass: null, lbl: 'Alternativa', share: a.share })));
+    if (c.fromChart && S.audioChords) {
+      const k = TH.idxAt(S.audioChords, c.start + 0.01, x => x.start), au = S.audioChords[k];
+      if (au && au.root != null) [au].concat((au.alts || []).slice(0, 2)).forEach(x => { if (!opts.some(o => o.root === x.root && o.quality === x.quality)) opts.push({ root: x.root, quality: x.quality, bass: x === au ? au.bass : null, lbl: 'Audio' }); });
+    }
+    opts = opts.slice(0, 5);
+    S.fixOpts = opts;
+    $('sheetInfo').textContent = `En ${fmt(c.start)}. ` + (c.tier ? `Confianza: ${c.tier}${c.p != null ? ' (' + Math.round(c.p * 100) + ' %)' : ''}. ` : '') + 'Elige el acorde que escuchas.';
+    $('opts').innerHTML = opts.map((o, k) => `<div class="toc-opt"><button class="toc-btn" data-tact="pick" data-k="${k}">${TH.name(o, shift, flatsFor(shift), 'full')}<small>${o.lbl}</small></button><button class="toc-btn" data-tact="hear" data-k="${k}" aria-label="Escuchar ${TH.name(o, shift, flatsFor(shift), 'full')}">▶</button></div>`).join('');
+    $('sheetInfo').textContent += ' Toca ▶ para escuchar cada opción y compárala con la grabación.';
+    $('scrim').classList.remove('toc-hidden'); $('sheet').classList.remove('toc-hidden');
+    $('opts').querySelector('.toc-btn').focus();
+  }
+  function closeSheet() { $('scrim').classList.add('toc-hidden'); $('sheet').classList.add('toc-hidden'); $('copyBox').classList.add('toc-hidden'); $('sheetTitle').textContent = 'Corregir acorde'; }
+  function pick(k) {
+    const c = S.song.chords[S.fixCi], o = S.fixOpts[k];
+    if (k === 0) S.fixes[c.beat] = { root: c.root, quality: c.quality, bass: c.bass, suffix: c.suffix, confirmed: true };
+    else S.fixes[c.beat] = { root: o.root, quality: o.quality, bass: o.bass == null ? null : o.bass, suffix: null };
+    store(); closeSheet(); renderBars(); S.cur = -2; tick(true);
+    toast(k === 0 ? 'Acorde confirmado' : 'Acorde corregido');
+  }
+  // --- cifra ---
+  function openChart() {
+    $('abbrBtn').setAttribute('aria-pressed', String(S.abbr)); $('unchartBtn').classList.toggle('toc-hidden', !S.chartOn);
+    $('chartMsg').textContent = S.song.post ? '' : 'Este archivo de acordes es de una versión anterior del analizador: pide uno nuevo para usar la cifra.';
+    $('scrim').classList.remove('toc-hidden'); $('chartSheet').classList.remove('toc-hidden'); $('chartIn').focus();
+  }
+  function closeChart() { $('chartSheet').classList.add('toc-hidden'); $('scrim').classList.add('toc-hidden'); }
+  function applyChart(text, quiet) {
+    if (!S.song.post) { $('chartMsg').textContent = 'Este archivo de acordes no trae los datos del audio para alinear. Reanalízalo con la versión 0.4.'; return false; }
+    const lines = CHART.parse(text);
+    if (!lines.length) { $('chartMsg').textContent = 'No encontré acordes en ese texto. Revisa que los acordes estén escritos como C, Am7, F#m7(b5), G/B…'; return false; }
+    const P = CHART.decodePost(S.song.post);
+    const res = CHART.best(P, S.song.beatPos, lines, S.abbr ? { change: [0.5, 1.0, 2.0], jump: 8 } : {});
+    S.song.chords = CHART.toChords(S.song, res, P);
+    S.chartOn = true; S.chartShift = res.shift; restore();
+    const n = S.song.chords.filter(c => c.root != null), seg = n.filter(c => c.tier === 'seguro').length;
+    const sh = res.shift ? ` La cifra estaba en otro tono: la moví ${res.shift > 6 ? '−' + (12 - res.shift) : '+' + res.shift} para que coincida con la grabación.` : '';
+    $('chartState').textContent = `Cifra alineada: ${[].concat(...lines).length} acordes, ${seg} de ${n.length} cambios seguros.`;
+    try { localStorage.setItem(storeKey() + ':cifra', JSON.stringify({ text, abbr: S.abbr })); } catch (e) {}
+    if (!S.capoTouched) S.capo = TH.bestCapo(S.song.chords.map(chordOf), S.tr);
+    buildBars(); renderControls(); renderFoot();
+    if (!quiet) { closeChart(); toast('Cifra alineada.' + sh); }
+    return true;
+  }
+  function removeChart() {
+    S.song.chords = S.audioChords; S.chartOn = false; restore();
+    try { localStorage.removeItem(storeKey() + ':cifra'); } catch (e) {}
+    $('chartState').textContent = 'Sin cifra: acordes detectados solo por el audio.';
+    buildBars(); renderControls(); renderFoot(); closeChart(); toast('Cifra quitada');
+  }
+  function renderFoot() {
+    const m = S.song.meta, c = S.song.confidence && S.song.confidence.tiers;
+    $('foot').textContent = 'Analizador ' + (m.analyzer ? m.analyzer.version : '?') + '. Precisión medida en un corpus académico de 12 grabaciones: ' +
+      (S.chartOn ? 'con cifra, 85 % de los tiempos con el acorde correcto (94 % en pop, 71 % en jazz); los errores que quedan son sobre todo del momento exacto del cambio.'
+        : (c ? `solo audio, seguro ${Math.round(c.seguro.precision * 100)} %, probable ${Math.round(c.probable.precision * 100)} %, dudoso ${Math.round(c.dudoso.precision * 100)} %.` : ''));
+  }
+
+  function exportSong() {
+    const out = JSON.parse(JSON.stringify(S.song));
+    out.chords.forEach(c => { const f = S.fixes[c.beat]; if (!f) return; Object.assign(c, { root: f.root, quality: f.quality, bass: f.bass, suffix: f.suffix == null ? undefined : f.suffix, tier: 'corregido', p: 1, userFixed: true }); });
+    out.meta.corrected = new Date().toISOString();
+    const txt = JSON.stringify(out), n = Object.keys(S.fixes).length;
+    const box = $('copyBox');
+    const fallback = () => {
+      $('sheetTitle').textContent = 'Acordes corregidos'; $('sheetInfo').textContent = 'Selecciona todo el texto y cópialo. Guárdalo como .song.json.';
+      $('opts').innerHTML = ''; box.value = txt; box.classList.remove('toc-hidden');
+      $('scrim').classList.remove('toc-hidden'); $('sheet').classList.remove('toc-hidden'); box.focus(); box.select();
+    };
+    try {
+      navigator.clipboard.writeText(txt).then(() => toast(n + ' correcciones copiadas'), fallback);
+    } catch (e) { fallback(); }
+  }
+
+  // --- eventos delegados ---
+  let pressT = 0, pressCi = null, longFired = false;
+  document.addEventListener('pointerdown', e => {
+    const cell = e.target.closest('.toc-cell'); if (!cell) return;
+    longFired = false; pressCi = +cell.dataset.ci;
+    pressT = setTimeout(() => { longFired = true; openFix(pressCi); }, 550);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, () => clearTimeout(pressT)));
+  document.addEventListener('contextmenu', e => { if (e.target.closest('.toc-cell')) e.preventDefault(); });
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-tact]'); if (!b) { if (e.target.closest('#toc-nowCard') && S.cur >= 0) openFix(S.cur); return; }
+    const act = b.dataset.tact, v = b.dataset.v;
+    if (act === 'start') return start(false);
+    if (act === 'demo') return start(true);
+    if (act === 'play') { if (AU.playing) { AU.pause(); b.textContent = '▶'; b.setAttribute('aria-label', 'Reproducir'); } else { await AU.play(); b.textContent = '❚❚'; b.setAttribute('aria-label', 'Pausa'); } return; }
+    if (act === 'back') { AU.seek(AU.time() - 5); return; }
+    if (act === 'tr') { S.tr = Math.max(-6, Math.min(6, S.tr + +v)); AU.setSemis(S.tr); if (!S.capoTouched) S.capo = TH.bestCapo(S.song.chords.map(chordOf), S.tr); renderControls(); return; }
+    if (act === 'capo') { S.capo = Math.max(0, Math.min(9, S.capo + +v)); S.capoTouched = true; renderControls(); return; }
+    if (act === 'rate') { S.rate = +v; AU.setRate(S.rate); renderControls(); return; }
+    if (act === 'lvl') { S.level = v; renderControls(); return; }
+    if (act === 'view') return setView(v);
+    if (act === 'seek') { if (longFired) { longFired = false; return; } const c = S.song.chords[+b.dataset.ci]; const bar = b.closest('.toc-bar'); const bb = S.bars[+bar.dataset.bar]; AU.seek(b.dataset.cont === '1' ? S.song.beats[bb.start] : c.start); S.cur = -2; return; }
+    if (act === 'pick') return pick(+b.dataset.k);
+    if (act === 'hear') { const o = S.fixOpts[+b.dataset.k], sh = S.capo ? shapeShift() : S.tr; return AU.preview(o.root + S.tr, TH.levelQ(o.quality, 'full')); }
+    if (act === 'chart') return openChart();
+    if (act === 'closechart') return closeChart();
+    if (act === 'abbr') { S.abbr = !S.abbr; b.setAttribute('aria-pressed', String(S.abbr)); return; }
+    if (act === 'align') return applyChart($('chartIn').value, false);
+    if (act === 'unchart') return removeChart();
+    if (act === 'close') { closeChart(); return closeSheet(); }
+    if (act === 'export') return exportSong();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+  const seek = $('seek');
+  seek.addEventListener('input', () => { S.dragging = true; $('time').textContent = fmt(seek.value / 1000 * (AU.duration || S.song.meta.duration)); });
+  seek.addEventListener('change', () => { S.dragging = false; AU.seek(seek.value / 1000 * AU.duration); S.cur = -2; });
+  AU.onEnd = () => { $('playBtn').textContent = '▶'; };
+  window.__TOCAR = { get started() { return !!S.started; }, pauseIfPlaying() { if (AU.playing) { AU.pause(); $('playBtn').textContent = '▶'; } }, setView,  S, AU, start, openFix, tick, applyChart }; // ganchos de prueba
+})();
+
+})();
+
+(function(){
+  var orig = window.setMode;
+  window.setMode = function(m){
+    var p = document.getElementById('panel-tocar'), tr = document.getElementById('toc-transport');
+    if (m === 'tocar') {
+      document.querySelectorAll('.panel').forEach(function(x){ x.classList.remove('visible'); });
+      p.classList.add('visible');
+      document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.toggle('active', t.getAttribute('data-tocar') === '1'); });
+      if (window.__TOCAR && window.__TOCAR.started) tr.classList.remove('toc-hidden');
+      window.scrollTo(0, 0);
+      return;
+    }
+    p.classList.remove('visible'); tr.classList.add('toc-hidden');
+    if (window.__TOCAR) window.__TOCAR.pauseIfPlaying();
+    return orig.apply(this, arguments);
+  };
+})();
+</script>
 </body>
 </html>
