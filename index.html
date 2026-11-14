@@ -48030,6 +48030,34 @@ window.fmDeleteSection = fmDeleteSection;
 <div id="toc-toast" class="toc-hidden" role="status"></div>
 
 <script id="cl-lib">
+/* chordlab web · optional WebAssembly SIMD kernels (conv3x3, linear). Falls back to plain JS when wasm/SIMD is unavailable
+   or blocked by the page's CSP. Source: wasm/kern.c (clang --target=wasm32 -O3 -msimd128). */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+  const B64 = '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';
+  try {
+    if (typeof WebAssembly === 'undefined') throw 0;
+    const bin = typeof atob !== 'undefined' ? Uint8Array.from(atob(B64), c => c.charCodeAt(0)) : Uint8Array.from(Buffer.from(B64, 'base64'));
+    const mem = new WebAssembly.Memory({ initial: 64 });
+    const inst = new WebAssembly.Instance(new WebAssembly.Module(bin), { env: { memory: mem } });
+    const base = (inst.exports.heap_base() + 15) & ~15;
+    let top = base;
+    const alloc = n => { const p = top; top += ((n * 4 + 15) & ~15); const need = top - mem.buffer.byteLength; if (need > 0) mem.grow(Math.ceil(need / 65536)); return p; };
+    const F = (p, n) => new Float32Array(mem.buffer, p, n);
+    CL.wasm = {
+      reset() { top = base; }, alloc, F,
+      conv3x3: inst.exports.conv3x3,
+      linear(x, T, Din, W, Dout, b) {
+        const s = top, px = alloc(T * Din), pw = alloc(Dout * Din), pb = b ? alloc(Dout) : 0, py = alloc(T * Dout);
+        F(px, T * Din).set(x); F(pw, Dout * Din).set(W); if (b) F(pb, Dout).set(b);
+        inst.exports.linear(px, T, Din, pw, Dout, pb, py);
+        const y = F(py, T * Dout).slice(); top = s; return y;
+      },
+    };
+  } catch (e) { CL.wasm = null; }
+})(typeof self !== 'undefined' ? self : globalThis);
+
 /* chordlab web · BTC (Bi-directional Transformer for Chord recognition, Park et al. ISMIR 2019)
    Pure-JS inference of the kaggle_v1 fine-tune. Input: normalised log-CQT frames (T=108 x 144).
    Output: per-frame softmax over 170 classes (12 roots x 14 qualities + X + N). */
@@ -48070,6 +48098,7 @@ window.fmDeleteSection = fmDeleteSection;
 
   // ---------- primitives (row-major; x: T x Din, W: Dout x Din)
   function linear(x, T, Din, W, Dout, b) {
+    if (CL.wasm) return CL.wasm.linear(x, T, Din, W, Dout, b);
     const y = new Float32Array(T * Dout);
     for (let t = 0; t < T; t++) {
       const xo = t * Din, yo = t * Dout;
@@ -48258,6 +48287,53 @@ window.fmDeleteSection = fmDeleteSection;
       if (oc < nOct - 1) { sig = CL.decimate2(sig); sr /= 2; hop /= 2; }
     }
     return { mag: out, nFr, nBins, freqs };
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+/* librosa-style hybrid CQT: bins whose filter fits in 2*hop use a pseudo-CQT (|STFT| x |filter spectrum|), the rest the
+   multirate CQT above. Used for the Chord-CNN-LSTM input (288 bins, 36 bpo, F#0, hop 512). Gains are per-bin calibrated
+   later against librosa (CNN_OFF table), so only shapes matter here. */
+(function (G) {
+  'use strict';
+  const CL = G.CL;
+  CL.hybridCqt = function (y, o) {
+    const bpo = o.bpo, nBins = o.nBins, sr = o.sr, hop = o.hop, fmin = o.fmin * Math.pow(2, (o.tuning || 0) / bpo);
+    const r = Math.pow(2, 2 / bpo), alpha = (r - 1) / (r + 1), Q = 1 / alpha;
+    const freqs = [], lens = []; for (let k = 0; k < nBins; k++) { freqs.push(fmin * Math.pow(2, k / bpo)); lens.push(Q * sr / freqs[k]); }
+    let kP = nBins; for (let k = 0; k < nBins; k++) if (Math.pow(2, Math.ceil(Math.log2(lens[k]))) < 2 * hop) { kP = k; break; }
+    const nFr = 1 + Math.floor(y.length / hop), out = new Float32Array(nFr * nBins);
+    if (kP > 0) {
+      const full = CL.cqt(y, { sr, hop, fmin: o.fmin, nBins: kP, bpo, tuning: o.tuning });
+      for (let t = 0; t < nFr; t++) for (let k = 0; k < kP; k++) out[t * nBins + k] = full.mag[t * kP + k];
+    }
+    if (kP < nBins) {
+      const N = Math.max(Math.pow(2, Math.ceil(Math.log2(lens[kP]))), Math.pow(2, 1 + Math.ceil(Math.log2(hop)))), nb = N / 2 + 1;
+      // |FFT| of each pseudo filter (wavelet, L1-normalised, scaled by L/N, centred in N)
+      const basis = [];
+      for (let k = kP; k < nBins; k++) {
+        const L = lens[k], idx = []; for (let j = Math.floor(-L / 2); j < Math.floor(L / 2); j++) idx.push(j);
+        const n = idx.length, re = new Float64Array(N), im = new Float64Array(N); let l1 = 0; const wr = [], wi = [];
+        for (let i = 0; i < n; i++) { const w = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / n), ph = 2 * Math.PI * freqs[k] * idx[i] / sr; wr.push(w * Math.cos(ph)); wi.push(w * Math.sin(ph)); l1 += w; }
+        const off = Math.floor((N - n) / 2);
+        for (let i = 0; i < n; i++) { re[off + i] = wr[i] / l1 * L / N; im[off + i] = wi[i] / l1 * L / N; }
+        CL.fft(re, im);
+        const a = new Float64Array(nb); let tot = 0; for (let j = 0; j < nb; j++) { a[j] = Math.hypot(re[j], im[j]); tot += a[j]; }
+        const srt = Array.from(a).sort((p, q) => p - q); let cum = 0, thr = 0; // sparsify: drop the smallest 1 % of the row's mass
+        for (const v of srt) { if (cum + v > 0.01 * tot) break; cum += v; thr = v; }
+        for (let j = 0; j < nb; j++) if (a[j] <= thr) a[j] = 0;
+        basis.push(a);
+      }
+      const win = new Float64Array(N); for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+      const re = new Float64Array(N), im = new Float64Array(N), mag = new Float64Array(nb), sq = Math.sqrt(N);
+      for (let t = 0; t < nFr; t++) {
+        const st = t * hop - N / 2;
+        for (let i = 0; i < N; i++) { const s = st + i; re[i] = s >= 0 && s < y.length ? y[s] * win[i] : 0; im[i] = 0; }
+        CL.fft(re, im);
+        for (let j = 0; j < nb; j++) mag[j] = Math.hypot(re[j], im[j]);
+        for (let k = kP; k < nBins; k++) { const a = basis[k - kP]; let s = 0; for (let j = 0; j < nb; j++) if (a[j]) s += a[j] * mag[j]; out[t * nBins + k] = s / sq; }
+      }
+    }
+    return { mag: out, nFr, nBins, kPseudo: kP };
   };
 })(typeof self !== 'undefined' ? self : globalThis);
 
@@ -48615,6 +48691,11 @@ window.fmDeleteSection = fmDeleteSection;
   };
 
   // ---------------------------------------------------------------- Viterbi (beat level)
+  const W_CNN = 0.6;
+  // log-bonus for diminished family and sixth chords after fusion: the models under-call them (corpus: dim recall 28 % -> ~43 %,
+  // sixths 1 % -> ~20 %, majmin cost < 0.5 pt; predicted dim time ~ reference dim time)
+  const QBIAS = new Float64Array(170);
+  for (let i = 0; i < 168; i++) { const q = BTC_QUALS[i % 14]; if (q === 'dim' || q === 'dim7' || q === 'hdim7') QBIAS[i] = 1.5; if (q === 'maj6' || q === 'min6') QBIAS[i] = 1.5; }
   const VIT = { change_down: 1.2, change_mid: 1.6, change_off: 2.2, kp: 0.6 };
   function keyPrior(tonic, mode, kp) {
     const sc = new Set((mode === 'major' ? MAJOR_SCALE : MINOR_UNION).map(s => (tonic + s) % 12)), pri = new Float64Array(170);
@@ -48779,7 +48860,17 @@ window.fmDeleteSection = fmDeleteSection;
     const met = CL.chooseMeter(r.cands, probs, fps, dur);
     if (met.beats.length < 2) throw new Error('No encontré el pulso de la canción.');
     const key = CL.keyFromProbs(probs, 170), flats = useFlats(key.tonic, key.mode);
-    const bp = beatPool(probs, 170, fps, met.beats, dur);
+    let bp = beatPool(probs, 170, fps, met.beats, dur);
+    if (r.cnn) { // fuse Chord-CNN-LSTM (decomposed outputs -> 170 classes) with BTC: geometric mean, weight W_CNN
+      const pc = beatPool(CL.cnn170(r.cnn, r.cnnT), 170, CL.CNN_FPS, met.beats, dur), B = met.beats.length, f = new Float32Array(B * 170);
+      for (let t = 0; t < B; t++) {
+        let mx = -Infinity; const lg = new Float64Array(170);
+        for (let k = 0; k < 170; k++) { lg[k] = W_CNN * Math.log(pc[t * 170 + k] + 1e-8) + (1 - W_CNN) * Math.log(bp[t * 170 + k] + 1e-8) + QBIAS[k]; if (lg[k] > mx) mx = lg[k]; }
+        let z = 0; for (let k = 0; k < 170; k++) { lg[k] = Math.exp(lg[k] - mx); z += lg[k]; }
+        for (let k = 0; k < 170; k++) f[t * 170 + k] = lg[k] / z;
+      }
+      bp = f;
+    }
     const path = CL.viterbi(bp, 170, met.pos, met.meter, keyPrior(key.tonic, key.mode, VIT.kp));
     const bc = bassChroma(mag, nFr, fps, met.beats, dur);
     let pb = null, confInfo = null;
@@ -48796,7 +48887,7 @@ window.fmDeleteSection = fmDeleteSection;
     const song = {
       format: 'fretboard-song', version: 1,
       meta: { title: inp.title || 'Sin título', artist: inp.artist || null, duration: R(dur, 3), source: { type: 'file', name: inp.fileName || null }, analyzed: new Date().toISOString(),
-        analyzer: { name: 'chordlab', version: VERSION, beats: 'madmom RNNDownBeat (JS, ' + (r.nModels || 3) + ' redes) + DBN', key: 'Krumhansl-Kessler sobre posteriores', chords: 'BTC kaggle_v1 (JS) + Viterbi por tiempo; confianza calibrada LOSO' } },
+        analyzer: { name: 'chordlab', version: VERSION, beats: 'madmom RNNDownBeat (JS, ' + (r.nModels || 3) + ' redes) + DBN', key: 'Krumhansl-Kessler sobre posteriores', chords: (r.cnn ? 'Chord-CNN-LSTM (Music X Lab, 2 redes) + ' : '') + 'BTC kaggle_v1 (JS) + Viterbi por tiempo; confianza calibrada LOSO' } },
       tempo: { bpm: R(60 / ibi, 1), meter: met.meter, meterEvidence: met.info },
       tuning: { semitones: R(tuning, 3), a4: R(440 * Math.pow(2, tuning / 12), 1) },
       key: { tonic: key.tonic, mode: key.mode, label: spell(key.tonic, flats) + (key.mode === 'major' ? '' : 'm'), strength: R(key.strength, 3), flats },
@@ -48815,16 +48906,180 @@ window.fmDeleteSection = fmDeleteSection;
     for (let i = 0; i < st.length; i++) { parts.push(CL.chunkProbs(inp.y22.subarray(st[i], st[i] + 220500), tuning, inp.btc)); await P('acordes', (i + 1) / st.length); }
     const nFr = parts.reduce((a, p) => a + p.nFr, 0), mag = new Float32Array(nFr * 144), probs = new Float32Array(nFr * 170);
     let o = 0; for (const p of parts) { mag.set(p.mag, o * 144); probs.set(p.probs, o * 170); o += p.nFr; }
+    let cnn = null, cnnT = 0;
+    if (inp.cnnW) {
+      cnnT = 1 + Math.floor(inp.y22.length / 512); cnn = new Float32Array(cnnT * 100);
+      const ws = CL.cnnChunks(cnnT, CL.CNN_FPS);
+      for (let i = 0; i < ws.length; i++) { cnn.set(CL.cnnWindow(inp.y22, tuning, inp.cnnW, [0, 1], ws[i]), ws[i].a * 100); await P('acordes2', (i + 1) / ws.length); }
+    }
     const nM = inp.nModels || 3;
     const { act, nFr: aFr } = await CL.mmActivations(inp.y44, inp.mmW, inp.mmMeta, nM, i => P('pulso', i / nM));
     const cands = [];
     for (const m of [3, 4]) { await P('compas', m === 3 ? 0 : 0.5); const r = CL.dbn(act, aFr, m); cands.push({ m, beats: r.beats, pos: r.pos }); }
     await P('final', 0);
-    return CL.assemble({ probs, mag, nFr, tuning, dur, cands, nModels: nM }, inp);
+    return CL.assemble({ probs, mag, nFr, tuning, dur, cands, nModels: nM, cnn, cnnT }, inp);
   };
 })(typeof self !== 'undefined' ? self : globalThis);
 
-(function(G){var CL=G.CL;CL.MM_META={"res":[{"frame":1024,"bands":[[2,3],[3,4],[4,5],[5,6],[6,8],[7,10],[9,13],[11,16],[14,20],[17,26],[21,32],[27,41],[33,51],[42,65],[52,82],[66,103],[83,130],[104,163],[131,206],[164,259],[207,327]],"diff":1},{"frame":2048,"bands":[[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,13],[12,14],[14,16],[15,18],[17,20],[19,23],[21,26],[24,29],[27,32],[30,36],[33,41],[37,46],[42,51],[47,58],[52,65],[59,73],[66,82],[74,92],[83,103],[93,116],[104,130],[117,146],[131,163],[147,183],[164,206],[184,231],[207,259],[232,291],[260,327],[292,367],[328,412],[368,462],[413,519],[463,583],[520,654],[584,734]],"diff":1},{"frame":4096,"bands":[[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],[19,20],[20,22],[21,23],[23,24],[24,26],[25,27],[27,29],[28,31],[30,32],[32,34],[33,36],[35,39],[37,41],[40,43],[42,46],[44,49],[47,51],[50,55],[52,58],[56,61],[59,65],[62,69],[66,73],[70,77],[74,82],[78,87],[83,92],[88,97],[93,103],[98,109],[104,116],[110,122],[117,130],[123,137],[131,146],[138,154],[147,163],[155,173],[164,183],[174,194],[184,206],[195,218],[207,231],[219,245],[232,259],[246,275],[260,291],[276,309],[292,327],[310,346],[328,367],[347,389],[368,412],[390,436],[413,462],[437,490],[463,519],[491,550],[520,583],[551,617],[584,654],[618,693],[655,734],[694,778],[735,824],[779,873],[825,925],[874,980],[926,1038],[981,1100],[1039,1165],[1101,1234],[1166,1308],[1235,1386],[1309,1468],[1387,1555]],"diff":2}],"models":3};CL.CONF={"name":"confidence web 0.1 (LOSO, corpus JAAH+MARL-NYU)","version":"0.1-web","features":["p_cls","p_fam","margin","entropy","frame_agree","tmpl_margin","tmpl","outside","seglen","downbeat"],"mean":[0.6331891429736364,0.7454599385830667,0.6166265905940651,1.2200722176513192,0.8653953087337167,-0.06767632810205734,0.6945346930873578,0.393214796648273,4.584712855099121,0.2632331902718169],"std":[0.258980593250737,0.2602077231184221,0.40118543241652616,0.7467178462239977,0.26150103965741955,0.11273869751920948,0.12465006749478673,0.7144325031828317,2.967779026236835,0.4403878720073063],"coef":[-0.25188439315303285,1.3882356480052678,-0.23317075447674585,-0.6395491154753468,-0.3623191581497863,0.5561112488505063,-0.17865128794461235,0.07378985960752239,0.08478892933913443,-0.03912952260526865],"intercept":1.1499303662262834,"tiers":{"seguro":0.88,"probable":0.6},"measured_LOSO":{"seguro":{"precision":0.922,"coverage":0.39},"probable":{"precision":0.757,"coverage":0.329},"dudoso":{"precision":0.41,"coverage":0.281}},"corpus":"12 obras JAAH + MARL-NYU","target":"root+tercera (mir_eval majmin)"};})(typeof self!=="undefined"?self:globalThis);
+/* chordlab web · Chord-CNN-LSTM (Jiang, Chen, Xia et al., "Large-Vocabulary Chord Transcription via Chord Structure
+   Decomposition", ISMIR 2019; Music X Lab, MIT licence) — pure-JS inference of the released weights (seeds 0 and 1).
+   Input: |hybrid CQT| 288 bins (F#0, 36 bpo, hop 512 @22050), frames x bins. Output per frame: decomposed chord posteriors
+   (triad 73, bass 13, 7th 4, 9th 4, 11th 3, 13th 3), mapped to chordlab's 170 classes by cnn170(). */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+  const SELU_A = 1.6732632423543772, SELU_S = 1.0507009873554805;
+
+  // conv 3x3 (no bias: cancelled by InstanceNorm) + InstanceNorm2d(eps 1e-5) + SELU. x: [Ci][T][Fi]; padF 1 or 0.
+  // Input is copied into a zero-bordered buffer so the inner loop is branch-free; two output channels per pass.
+  function convNormSelu(x, Ci, T, Fi, W, Co, padF) {
+    if (CL.wasm) return convWasm(x, Ci, T, Fi, W, Co, padF);
+    const Fo = padF ? Fi : Fi - 2, Fp = Fi + 2 * padF, Tp = T + 2, xp = new Float32Array(Ci * Tp * Fp);
+    for (let ci = 0; ci < Ci; ci++) for (let t = 0; t < T; t++) xp.set(x.subarray((ci * T + t) * Fi, (ci * T + t + 1) * Fi), (ci * Tp + t + 1) * Fp + padF);
+    const out = new Float32Array(Co * T * Fo), A = new Float32Array(T * Fo), B = new Float32Array(T * Fo);
+    const finish = (acc, co) => {
+      let m = 0; for (let i = 0; i < acc.length; i++) m += acc[i]; m /= acc.length;
+      let v = 0; for (let i = 0; i < acc.length; i++) { const d = acc[i] - m; v += d * d; } v /= acc.length;
+      const inv = 1 / Math.sqrt(v + 1e-5), ob = co * T * Fo;
+      for (let i = 0; i < acc.length; i++) { const z = (acc[i] - m) * inv; out[ob + i] = SELU_S * (z > 0 ? z : SELU_A * (Math.exp(z) - 1)); }
+    };
+    for (let co = 0; co < Co; co += 2) {
+      const two = co + 1 < Co; A.fill(0); if (two) B.fill(0);
+      for (let ci = 0; ci < Ci; ci++) {
+        const wa = (co * Ci + ci) * 9, wb = ((co + 1) * Ci + ci) * 9;
+        const a0 = W[wa], a1 = W[wa + 1], a2 = W[wa + 2], a3 = W[wa + 3], a4 = W[wa + 4], a5 = W[wa + 5], a6 = W[wa + 6], a7 = W[wa + 7], a8 = W[wa + 8];
+        const b0 = two ? W[wb] : 0, b1 = two ? W[wb + 1] : 0, b2 = two ? W[wb + 2] : 0, b3 = two ? W[wb + 3] : 0, b4 = two ? W[wb + 4] : 0, b5 = two ? W[wb + 5] : 0, b6 = two ? W[wb + 6] : 0, b7 = two ? W[wb + 7] : 0, b8 = two ? W[wb + 8] : 0;
+        const xb = ci * Tp * Fp;
+        for (let t = 0; t < T; t++) {
+          const r0 = xb + t * Fp, r1 = r0 + Fp, r2 = r1 + Fp, ao = t * Fo;
+          for (let f = 0; f < Fo; f++) {
+            const x0 = xp[r0 + f], x1 = xp[r0 + f + 1], x2 = xp[r0 + f + 2], x3 = xp[r1 + f], x4 = xp[r1 + f + 1], x5 = xp[r1 + f + 2], x6 = xp[r2 + f], x7 = xp[r2 + f + 1], x8 = xp[r2 + f + 2];
+            A[ao + f] += a0 * x0 + a1 * x1 + a2 * x2 + a3 * x3 + a4 * x4 + a5 * x5 + a6 * x6 + a7 * x7 + a8 * x8;
+            B[ao + f] += b0 * x0 + b1 * x1 + b2 * x2 + b3 * x3 + b4 * x4 + b5 * x5 + b6 * x6 + b7 * x7 + b8 * x8;
+          }
+        }
+      }
+      finish(A, co); if (two) finish(B, co + 1);
+    }
+    return { x: out, F: Fo };
+  }
+  function normSelu(acc, out, ob) {
+    let m = 0; for (let i = 0; i < acc.length; i++) m += acc[i]; m /= acc.length;
+    let v = 0; for (let i = 0; i < acc.length; i++) { const d = acc[i] - m; v += d * d; } v /= acc.length;
+    const inv = 1 / Math.sqrt(v + 1e-5);
+    for (let i = 0; i < acc.length; i++) { const z = (acc[i] - m) * inv; out[ob + i] = SELU_S * (z > 0 ? z : SELU_A * (Math.exp(z) - 1)); }
+  }
+  function convWasm(x, Ci, T, Fi, W, Co, padF) {
+    const K = CL.wasm, Fo = padF ? Fi : Fi - 2, Fp = Fi + 2 * padF, Tp = T + 2;
+    K.reset();
+    const pX = K.alloc(Ci * Tp * Fp), pW = K.alloc(Co * Ci * 9), pO = K.alloc(Co * T * Fo);
+    const xp = K.F(pX, Ci * Tp * Fp); xp.fill(0);
+    for (let ci = 0; ci < Ci; ci++) for (let t = 0; t < T; t++) xp.set(x.subarray((ci * T + t) * Fi, (ci * T + t + 1) * Fi), (ci * Tp + t + 1) * Fp + padF);
+    K.F(pW, Co * Ci * 9).set(W);
+    K.conv3x3(pX, Ci, T, Fp, pW, Co, Fo, pO);
+    const acc = K.F(pO, Co * T * Fo), out = new Float32Array(Co * T * Fo), n = T * Fo;
+    for (let co = 0; co < Co; co++) normSelu(acc.subarray(co * n, (co + 1) * n), out, co * n);
+    K.reset();
+    return { x: out, F: Fo };
+  }
+  function poolF(x, C, T, F, k) {
+    const Fo = Math.floor(F / k), out = new Float32Array(C * T * Fo);
+    for (let c = 0; c < C; c++) for (let t = 0; t < T; t++) {
+      const ib = (c * T + t) * F, ob = (c * T + t) * Fo;
+      for (let f = 0; f < Fo; f++) { let m = x[ib + f * k]; for (let j = 1; j < k; j++) if (x[ib + f * k + j] > m) m = x[ib + f * k + j]; out[ob + f] = m; }
+    }
+    return { x: out, F: Fo };
+  }
+  // PyTorch LSTM (gates i,f,g,o), one direction. x: T x D -> T x H
+  function lstm(x, T, D, Wih, Whh, bih, bhh, H, reverse) {
+    const b = new Float32Array(4 * H); for (let i = 0; i < 4 * H; i++) b[i] = bih[i] + bhh[i];
+    const pre = CL.linear(x, T, D, Wih, 4 * H, b), out = new Float32Array(T * H), h = new Float32Array(H), c = new Float32Array(H), g = new Float32Array(4 * H);
+    const sg = v => 1 / (1 + Math.exp(-v));
+    for (let s = 0; s < T; s++) {
+      const t = reverse ? T - 1 - s : s, po = t * 4 * H;
+      for (let j = 0; j < 4 * H; j++) { let a = pre[po + j]; const wo = j * H; for (let k = 0; k < H; k++) a += Whh[wo + k] * h[k]; g[j] = a; }
+      for (let k = 0; k < H; k++) {
+        const i_ = sg(g[k]), f_ = sg(g[H + k]), gg = Math.tanh(g[2 * H + k]), o_ = sg(g[3 * H + k]);
+        c[k] = f_ * c[k] + i_ * gg; h[k] = o_ * Math.tanh(c[k]); out[t * H + k] = h[k];
+      }
+    }
+    return out;
+  }
+  const GROUPS = [[0, 73], [73, 86], [86, 90], [90, 94], [94, 97], [97, 100]];
+  /* cqt: Float32Array T x 288 (|hybrid CQT|); returns Float32Array T x 100 (per-group softmax) */
+  CL.cnnForward = function (W, seed, cqt, T) {
+    const p = `c${seed}.`, F0 = 252;
+    let x = new Float32Array(T * F0);
+    for (let t = 0; t < T; t++) for (let f = 0; f < F0; f++) x[t * F0 + f] = cqt[t * 288 + 18 + f];
+    let C = 1, F = F0, r;
+    const L = (name, Co, pad) => { r = convNormSelu(x, C, T, F, W[p + name + '.weight'], Co, pad); x = r.x; F = r.F; C = Co; };
+    L('conv1a', 16, 1); L('conv1b', 16, 1); L('conv1c', 16, 1); r = poolF(x, C, T, F, 3); x = r.x; F = r.F;
+    L('conv2a', 32, 1); L('conv2b', 32, 1); L('conv2c', 32, 1); r = poolF(x, C, T, F, 3); x = r.x; F = r.F;
+    L('conv3a', 64, 1); L('conv3b', 64, 1); r = poolF(x, C, T, F, 4); x = r.x; F = r.F;
+    L('conv4a', 80, 0); L('conv4b', 80, 0);
+    const D = C * F, feat = new Float32Array(T * D); // transpose(1,2): (T, C, F)
+    for (let c = 0; c < C; c++) for (let t = 0; t < T; t++) for (let f = 0; f < F; f++) feat[t * D + c * F + f] = x[(c * T + t) * F + f];
+    const H = 96;
+    const a = lstm(feat, T, D, W[p + 'lstm1.weight_ih_l0'], W[p + 'lstm1.weight_hh_l0'], W[p + 'lstm1.bias_ih_l0'], W[p + 'lstm1.bias_hh_l0'], H, false);
+    const b = lstm(feat, T, D, W[p + 'lstm1.weight_ih_l0_reverse'], W[p + 'lstm1.weight_hh_l0_reverse'], W[p + 'lstm1.bias_ih_l0_reverse'], W[p + 'lstm1.bias_hh_l0_reverse'], H, true);
+    const hb = new Float32Array(T * 2 * H);
+    for (let t = 0; t < T; t++) { hb.set(a.subarray(t * H, t * H + H), t * 2 * H); hb.set(b.subarray(t * H, t * H + H), t * 2 * H + H); }
+    const o = CL.linear(hb, T, 2 * H, W[p + 'final_fc1.weight'], 100, W[p + 'final_fc1.bias']);
+    for (let t = 0; t < T; t++) for (const [g0, g1] of GROUPS) {
+      let mx = -Infinity, z = 0; for (let j = g0; j < g1; j++) if (o[t * 100 + j] > mx) mx = o[t * 100 + j];
+      for (let j = g0; j < g1; j++) { o[t * 100 + j] = Math.exp(o[t * 100 + j] - mx); z += o[t * 100 + j]; }
+      for (let j = g0; j < g1; j++) o[t * 100 + j] /= z;
+    }
+    return o;
+  };
+  // per-bin log gain that maps CL.hybridCqt onto librosa.hybrid_cqt (fitted on 3 corpus excerpts; only shape matters)
+  const CNN_OFF = [5.3907,5.3854,5.3801,5.3635,5.3529,5.3489,5.3362,5.3304,5.3225,5.3075,5.3031,5.296,5.2853,5.2755,5.2625,5.2535,5.2485,5.2365,5.2313,5.2188,5.2053,5.1976,5.1895,5.1827,5.1737,5.1621,5.1527,5.1427,5.1335,5.1245,5.1138,5.1047,5.095,5.0856,5.0757,5.0658,5.0585,5.0475,5.0392,5.0301,5.0207,5.0106,5.001,4.9912,4.984,4.9728,4.9639,4.955,4.9451,4.9346,4.9244,4.9134,4.9056,4.8965,4.8869,4.8769,4.8656,4.854,4.8469,4.8383,4.8283,4.8185,4.8088,4.7992,4.7894,4.7807,4.7701,4.7601,4.7507,4.7413,4.731,4.7229,4.7128,4.7023,4.6934,4.6841,4.6754,4.6653,4.6555,4.6453,4.6362,4.6275,4.6179,4.6067,4.5979,4.5862,4.5785,4.5682,4.5573,4.5487,4.5409,4.5278,4.5194,4.5106,4.5025,4.4919,4.4818,4.4714,4.4623,4.4526,4.4421,4.4334,4.4237,4.4138,4.4044,4.3948,4.3858,4.3752,4.3657,4.3564,4.3478,4.3375,4.3284,4.3175,4.3076,4.2984,4.2877,4.2784,4.27,4.2595,4.2496,4.2402,4.2297,4.222,4.2111,4.2016,4.193,4.1841,4.172,4.1639,4.153,4.1463,4.1346,4.1242,4.1161,4.1055,4.094,4.0844,4.0758,4.0654,4.0575,4.0479,4.039,4.0282,4.0176,4.008,3.9986,3.9893,3.9794,3.9674,3.9618,3.9518,3.9411,3.9305,3.923,3.9121,3.9029,3.8928,3.8822,3.8745,3.8628,3.8531,3.8449,3.8355,3.8254,3.8168,3.8065,3.7976,3.7861,3.7747,3.7677,3.7584,3.7473,3.7365,3.7266,3.7179,3.7099,3.7001,3.6892,3.6799,3.6689,3.6599,3.6526,3.6412,3.6309,3.6221,3.6133,3.6025,3.5928,3.5832,3.5753,3.5624,3.5541,3.5452,3.5345,3.525,3.5143,3.5051,3.4959,3.4879,3.4761,3.467,3.4583,3.45,3.4398,3.4296,3.4225,3.4097,3.3992,3.3898,3.3797,3.3693,3.3601,3.3508,3.3418,3.3317,3.3214,3.3106,3.3017,3.2919,3.283,3.2692,3.2609,3.2498,3.2361,3.2297,3.2229,3.2125,3.2037,3.1952,3.1834,3.1749,3.1642,3.1542,3.1477,3.1375,3.1271,3.1195,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0,-0.0];
+  const CNN_FPS = 22050 / 512, CTX = 3, KPAD = 2.5;
+  /* one analysis window: y22 = whole signal; w = {a,b,lo,hi} frame indices; returns Float32Array (b-a) x 100 averaged over seeds */
+  CL.cnnSlice = function (y22, w) {
+    const pad = Math.ceil(KPAD * CNN_FPS), s0 = Math.max(0, w.lo - pad), s1 = w.hi + pad;
+    return { y: y22.subarray(s0 * 512, Math.min(y22.length, s1 * 512)), s0 };
+  };
+  CL.cnnWindow = function (y22, tuning, W, seeds, w, pre) {
+    const { y: sl, s0 } = pre || CL.cnnSlice(y22, w);
+    const q = CL.hybridCqt(sl, { sr: 22050, hop: 512, fmin: 23.124651419477154, nBins: 288, bpo: 36, tuning });
+    const T = w.hi - w.lo, X = new Float32Array(T * 288);
+    for (let t = 0; t < T; t++) { const j = w.lo - s0 + t; if (j >= q.nFr) break; for (let k = 0; k < 288; k++) X[t * 288 + k] = q.mag[j * 288 + k] * Math.exp(CNN_OFF[k]); }
+    const n = w.b - w.a, out = new Float32Array(n * 100);
+    for (const sd of seeds) { const o = CL.cnnForward(W, sd, X, T); for (let i = 0; i < n * 100; i++) out[i] += o[(w.a - w.lo) * 100 + i] / seeds.length; }
+    return out;
+  };
+  CL.CNN_FPS = CNN_FPS;
+  // chunked inference (20 s windows with 3 s context; InstanceNorm statistics per window)
+  CL.cnnChunks = function (T, fps) { const C = Math.floor(20 * fps), X = Math.floor(3 * fps), out = []; for (let a = 0; a < T; a += C) out.push({ a, b: Math.min(T, a + C), lo: Math.max(0, a - X), hi: Math.min(T, a + C + X) }); return out; };
+
+  // decomposed posteriors (averaged over seeds) -> 170-class frame posteriors (chordlab vocabulary; bass marginalised over chord tones)
+  const TRI = { maj: 1, min: 2, sus4: 3, sus2: 4, dim: 5, aug: 6 };
+  const QD = { min: ['min', 0, 0], maj: ['maj', 0, 0], dim: ['dim', 0, 0], aug: ['aug', 0, 0], min6: ['min', 0, 1], maj6: ['maj', 0, 1], min7: ['min', 2, 0],
+    minmaj7: ['min', 1, 0], maj7: ['maj', 1, 0], '7': ['maj', 2, 0], dim7: ['dim', 3, 0], hdim7: ['dim', 2, 0], sus2: ['sus2', 0, 0], sus4: ['sus4', 0, 0] };
+  CL.cnn170 = function (P, T) {
+    const Q = CL.theory.QUAL, out = new Float32Array(T * 170), lg = new Float64Array(100), sc = new Float64Array(170);
+    const cls = [];
+    for (let i = 0; i < 168; i++) { const r = Math.floor(i / 14), q = CL.theory.BTC_QUALS[i % 14], [t, s7, s13] = QD[q]; cls.push([(TRI[t] - 1) * 12 + r + 1, 86 + s7, 97 + s13, Q[q][0].map(iv => 73 + 1 + (r + iv) % 12)]); }
+    for (let f = 0; f < T; f++) {
+      for (let j = 0; j < 100; j++) lg[j] = Math.log(P[f * 100 + j] + 1e-9);
+      let mx = -Infinity;
+      for (let i = 0; i < 168; i++) {
+        const [ti, s7, s13, bs] = cls[i];
+        let m = -Infinity; for (const b of bs) if (lg[b] > m) m = lg[b];
+        let s = 0; for (const b of bs) s += Math.exp(lg[b] - m);
+        sc[i] = lg[ti] + lg[s7] + lg[90] + lg[94] + lg[s13] + m + Math.log(s);
+        if (sc[i] > mx) mx = sc[i];
+      }
+      sc[168] = -1e9; sc[169] = lg[0] + lg[73]; if (sc[169] > mx) mx = sc[169];
+      let z = 0; for (let i = 0; i < 170; i++) { sc[i] = Math.exp(sc[i] - mx); z += sc[i]; }
+      for (let i = 0; i < 170; i++) out[f * 170 + i] = sc[i] / z;
+    }
+    return out;
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+(function(G){var CL=G.CL;CL.MM_META={"res":[{"frame":1024,"bands":[[2,3],[3,4],[4,5],[5,6],[6,8],[7,10],[9,13],[11,16],[14,20],[17,26],[21,32],[27,41],[33,51],[42,65],[52,82],[66,103],[83,130],[104,163],[131,206],[164,259],[207,327]],"diff":1},{"frame":2048,"bands":[[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,13],[12,14],[14,16],[15,18],[17,20],[19,23],[21,26],[24,29],[27,32],[30,36],[33,41],[37,46],[42,51],[47,58],[52,65],[59,73],[66,82],[74,92],[83,103],[93,116],[104,130],[117,146],[131,163],[147,183],[164,206],[184,231],[207,259],[232,291],[260,327],[292,367],[328,412],[368,462],[413,519],[463,583],[520,654],[584,734]],"diff":1},{"frame":4096,"bands":[[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],[19,20],[20,22],[21,23],[23,24],[24,26],[25,27],[27,29],[28,31],[30,32],[32,34],[33,36],[35,39],[37,41],[40,43],[42,46],[44,49],[47,51],[50,55],[52,58],[56,61],[59,65],[62,69],[66,73],[70,77],[74,82],[78,87],[83,92],[88,97],[93,103],[98,109],[104,116],[110,122],[117,130],[123,137],[131,146],[138,154],[147,163],[155,173],[164,183],[174,194],[184,206],[195,218],[207,231],[219,245],[232,259],[246,275],[260,291],[276,309],[292,327],[310,346],[328,367],[347,389],[368,412],[390,436],[413,462],[437,490],[463,519],[491,550],[520,583],[551,617],[584,654],[618,693],[655,734],[694,778],[735,824],[779,873],[825,925],[874,980],[926,1038],[981,1100],[1039,1165],[1101,1234],[1166,1308],[1235,1386],[1309,1468],[1387,1555]],"diff":2}],"models":3};CL.CONF={"name":"confidence web 0.1 (LOSO, corpus JAAH+MARL-NYU)","version":"0.1-web","features":["p_cls","p_fam","margin","entropy","frame_agree","tmpl_margin","tmpl","outside","seglen","downbeat"],"mean":[0.5910343075252098,0.7524355741241012,0.6324028865740376,1.4086761517503292,0.7397788128940467,-0.07113212003316607,0.6910014255377703,0.40808897876643074,5.83174924165824,0.2647118301314459],"std":[0.2653549671342441,0.26323241741724707,0.39321084369453857,0.8512619006316462,0.3908143822773144,0.11517070776309728,0.12465488655442124,0.7307317884027471,4.029868649028789,0.4411796426852497],"coef":[-0.07205150001864512,0.9632257790213788,-0.06747941818040301,-0.771206603396743,-0.0980584466236406,0.2685882459918691,-0.18918933982804176,0.06342470901787532,-0.1272536941113509,-0.02578148086405421],"intercept":1.5270373827259576,"tiers":{"seguro":0.88,"probable":0.6},"measured_LOSO":{"seguro":{"precision":0.927,"coverage":0.508},"probable":{"precision":0.74,"coverage":0.278},"dudoso":{"precision":0.402,"coverage":0.213}},"corpus":"12 obras JAAH + MARL-NYU","target":"root+tercera (mir_eval majmin)"};})(typeof self!=="undefined"?self:globalThis);
 </script>
 <script>
 /* chordlab web · browser engine: decode -> worker pool (chunks of BTC, madmom nets, DBN) -> assemble.
@@ -48832,7 +49087,7 @@ window.fmDeleteSection = fmDeleteSection;
 (function (G) {
   'use strict';
   const CL = G.CL = G.CL || {};
-  const WEIGHTS_URL = 'chordlab-modelos.bin', DB = 'fretboard-tocar', VER = 'kaggle_v1+mm3';
+  const WEIGHTS_URL = G.CL_WEIGHTS_URL || 'chordlab-modelos.bin', DB = 'fretboard-tocar', VER = 'kaggle_v1+mm3+cnn2';
 
   // ---------- IndexedDB helpers (library + weights cache)
   function idb() {
@@ -48905,6 +49160,7 @@ window.fmDeleteSection = fmDeleteSection;
         else if (op === 'mmfeat') { r = CL.mmFeatures(a.y, META, W); tr = [r.feat.buffer]; }
         else if (op === 'mmnet') { r = CL.mmNet(a.feat, a.T, a.dims, W, a.m); tr = [r.buffer]; }
         else if (op === 'dbn') r = CL.dbn(a.act, a.T, a.m);
+        else if (op === 'cnnwin') { r = CL.cnnWindow(null, a.tuning, W, a.seeds, a.w, { y: a.y, s0: a.s0 }); tr = [r.buffer]; }
         postMessage({ id, r }, tr);
       } catch (err) { postMessage({ id, err: String(err && err.message || err) }); }
     };`;
@@ -48941,7 +49197,7 @@ window.fmDeleteSection = fmDeleteSection;
   CL.analyzeFile = async function (file, meta, onProg) {
     const job = current = { cancelled: false, pool: null };
     const t0 = performance.now();
-    const W8 = { pesos: 0.04, audio: 0.04, tono: 0.03, acordes: 0.47, pulso: 0.36, compas: 0.05 }; // stage weights
+    const W8 = { pesos: 0.04, audio: 0.03, tono: 0.02, acordes: 0.2, acordes2: 0.45, pulso: 0.22, compas: 0.04 }; // stage weights
     const done = {}; let last = 0;
     const prog = (stage, f, txt) => {
       done[stage] = Math.max(done[stage] || 0, f);
@@ -48961,11 +49217,16 @@ window.fmDeleteSection = fmDeleteSection;
     if (dur < 8) throw new Error('El audio es demasiado corto.');
     const META = CL.MM_META, nModels = META.models || 3;
     const hc = navigator.hardwareConcurrency || 2, nW = Math.max(1, Math.min(4, hc - 1));
-    const pool = job.pool = makePool(nW, buf, META);
+    let pool = job.pool = makePool(nW, buf, META);
+    if (pool) { // workers may be blocked (CSP) without throwing: verify they answer, else fall back
+      const ok = await Promise.race([pool.ready.then(() => true, () => false), new Promise(r => setTimeout(() => r(false), 10000))]);
+      if (!ok) { pool.close(); pool = job.pool = null; }
+    }
+    chk();
     let res;
     if (!pool) { // main-thread fallback (slower; yields between steps)
       const W = CL.loadWeights(buf), btc = CL.BTC(W), yieldUI = () => new Promise(r => setTimeout(r, 0));
-      res = await CL.analyze({ y22, y44, btc, mmW: W, mmMeta: META, nModels, conf: CL.CONF, ...meta }, async (s, f) => { chk(); prog(s, f, stageText(s)); await yieldUI(); });
+      res = await CL.analyze({ y22, y44, btc, mmW: W, cnnW: W['c0.conv1a.weight'] ? W : null, mmMeta: META, nModels, conf: CL.CONF, ...meta }, async (s, f) => { chk(); prog(s, f, stageText(s)); await yieldUI(); });
       current = null; return res;
     }
     try {
@@ -48976,6 +49237,9 @@ window.fmDeleteSection = fmDeleteSection;
       const featP = pool.run('mmfeat', { y: y44 });
       const starts = CL.chunkStarts(y22.length); let nDone = 0;
       const chunkP = Promise.all(starts.map(s => pool.run('chunk', { y: y22.slice(s, s + 220500), tuning }).then(r => { nDone++; prog('acordes', nDone / starts.length, 'Escuchando los acordes…'); return r; })));
+      // Chord-CNN-LSTM windows (20 s + context), 2 seeds each
+      const cT = 1 + Math.floor(y22.length / 512), wins = CL.cnnChunks(cT, CL.CNN_FPS); let cDone = 0;
+      const cnnP = Promise.all(wins.map(w => { const s = CL.cnnSlice(y22, w), y = s.y.slice(); return pool.run('cnnwin', { y, s0: s.s0, tuning, seeds: [0, 1], w }, [y.buffer]).then(r => { cDone++; prog('acordes2', cDone / wins.length, 'Afinando los acordes…'); return r; }); }));
       const netP = featP.then(F => { prog('pulso', 0.15, 'Buscando el pulso…'); let k = 0; return Promise.all([...Array(nModels).keys()].map(m => pool.run('mmnet', { feat: F.feat, T: F.nFr, dims: F.dims, m }, null, true).then(a => { k++; prog('pulso', 0.15 + 0.85 * k / nModels, 'Buscando el pulso…'); return a; }))).then(acts => ({ acts, T: F.nFr })); });
       const { acts, T } = await netP; chk();
       const act = new Float32Array(T * 2);
@@ -48983,16 +49247,18 @@ window.fmDeleteSection = fmDeleteSection;
       prog('compas', 0.1, 'Contando el compás…');
       const dbnP = Promise.all([3, 4].map(m => pool.run('dbn', { act, T, m }, null, true).then(r => ({ m, beats: r.beats, pos: r.pos }))));
       const parts = await chunkP; chk();
+      const cparts = await cnnP; chk();
+      const cnn = new Float32Array(cT * 100); wins.forEach((w, i) => cnn.set(cparts[i], w.a * 100));
       const cands = await dbnP; chk();
       prog('compas', 1, 'Armando la hoja…');
       const nFr = parts.reduce((a, p) => a + p.nFr, 0), mag = new Float32Array(nFr * 144), probs = new Float32Array(nFr * 170);
       let o = 0; for (const p of parts) { mag.set(p.mag, o * 144); probs.set(p.probs, o * 170); o += p.nFr; }
-      res = CL.assemble({ probs, mag, nFr, tuning, dur, cands, nModels }, Object.assign({ conf: CL.CONF }, meta));
+      res = CL.assemble({ probs, mag, nFr, tuning, dur, cands, nModels, cnn, cnnT: cT }, Object.assign({ conf: CL.CONF }, meta));
       res.meta.analysisSeconds = Math.round((performance.now() - t0) / 100) / 10;
       return res;
     } finally { pool.close(); if (current === job) current = null; }
   };
-  function stageText(s) { return { tono: 'Midiendo la afinación…', acordes: 'Escuchando los acordes…', pulso: 'Buscando el pulso…', compas: 'Contando el compás…', final: 'Armando la hoja…' }[s] || ''; }
+  function stageText(s) { return { tono: 'Midiendo la afinación…', acordes: 'Escuchando los acordes…', acordes2: 'Afinando los acordes…', pulso: 'Buscando el pulso…', compas: 'Contando el compás…', final: 'Armando la hoja…' }[s] || ''; }
 })(typeof self !== 'undefined' ? self : globalThis);
 </script>
 <script>
