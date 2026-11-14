@@ -3492,6 +3492,32 @@ header{
 #toc-transport .toc-btn{min-height:44px;min-width:44px;padding:0 12px;border:1px solid var(--ink5);background:var(--ink3);color:var(--fg);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border-radius:var(--r2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation}
 #toc-transport .toc-btn.toc-primary{background:var(--gold);border-color:var(--gold);color:#1a1405;box-shadow:var(--glow-gold);border-radius:50%}
 
+/* carga: análisis en el dispositivo + biblioteca */
+#panel-tocar .toc-fields{display:grid;gap:8px}
+#panel-tocar .toc-in{min-height:44px;padding:0 12px;background:var(--ink2);border:1px solid var(--ink5);border-radius:var(--r2);color:var(--fg);font-family:'Inter',sans-serif;font-size:16px;width:100%;box-sizing:border-box}
+#panel-tocar .toc-in:focus{outline:none;border-color:var(--gold)}
+#panel-tocar .toc-prog{display:grid;gap:8px}
+#panel-tocar .toc-progbar{height:8px;background:var(--ink3);border:1px solid var(--ink4);border-radius:99px;overflow:hidden}
+#panel-tocar .toc-progbar i{display:block;height:100%;width:0;background:var(--gold);box-shadow:var(--glow-gold);transition:width .3s}
+#panel-tocar .toc-progrow{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--fg2)}
+#panel-tocar .toc-how summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--fg2);min-height:32px;display:flex;align-items:center}
+#panel-tocar .toc-how ol{margin:6px 0 8px 18px;padding:0;font-size:12px;line-height:1.55;color:var(--fg2)}
+#panel-tocar .toc-how p{font-size:12px;line-height:1.55;color:var(--fg2);margin:0}
+#panel-tocar .toc-how b{color:var(--fg)}
+#panel-tocar .toc-lib{display:grid;gap:6px}
+#panel-tocar .toc-libitem{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch;background:var(--ink2);border:1px solid var(--ink4);border-radius:var(--r2);overflow:hidden}
+#panel-tocar .toc-libopen{border:0;background:transparent;color:var(--fg);text-align:left;padding:10px 12px;cursor:pointer;min-height:52px;min-width:0;font-family:'Inter',sans-serif}
+#panel-tocar .toc-libopen .t{display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-tocar .toc-libopen .m{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--fg3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panel-tocar .toc-libdel{border:0;border-left:1px solid var(--ink4);background:transparent;color:var(--fg3);width:48px;font-size:18px;cursor:pointer}
+#panel-tocar .toc-libdel:hover{color:var(--coral)}
+#panel-tocar .toc-songhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#panel-tocar .toc-songhead .toc-btn{flex:none;font-size:12px;min-height:40px}
+#panel-tocar .toc-msg{font-size:12px;color:var(--coral);margin:0}
+
+/* v210 + Tocar: menús retirados (ANÁLISIS, PROGRESSIONS); se ocultan sin tocar el orden que usa setMode */
+.nav-tab[onclick*="'progressions'"],.nav-tab[onclick*="'improv'"]{display:none!important}
+
 </style>
 </head>
 <body>
@@ -4076,23 +4102,59 @@ header{
      PANEL: ANÁLISIS & IMPROVISACIÓN (v97)
 ══════════════════════════════════════════ -->
 <div class="panel" id="panel-tocar">
-  <div class="card">
+  <div class="card" id="toc-head">
     <h2>Tocar</h2>
-    <div class="toc-sub">Carga una canción y sus acordes, y tócala con el disco: el acorde que suena, el que sigue, el tono y el capo que te queden cómodos.</div>
+    <div class="toc-sub">Elige una canción de tu dispositivo: la app saca sus acordes y te los muestra mientras suena, con el que sigue, en el tono y con el capo que te queden cómodos.</div>
   </div>
 
-  <div class="card toc-stack" id="toc-loadView">
-    <span class="toc-lbl">Canción</span>
-    <label class="toc-btn toc-file"><span>Audio</span><span class="toc-st" id="toc-audioSt">MP3, M4A o WAV</span><input type="file" id="toc-audioIn" accept="audio/*,.mp3,.m4a,.wav"></label>
-    <label class="toc-btn toc-file"><span>Acordes</span><span class="toc-st" id="toc-songSt">.song.json</span><input type="file" id="toc-songIn" accept=".json,application/json"></label>
-    <button class="toc-btn toc-primary" data-tact="start" id="toc-startBtn" disabled>Empezar</button>
-    <button class="toc-btn" data-tact="demo">Probar con un ejemplo</button>
-    <div class="toc-foot">El audio se queda en tu dispositivo.</div>
+  <div id="toc-loadView">
+    <div class="card toc-stack">
+      <span class="toc-lbl">Nueva canción</span>
+      <label class="toc-btn toc-file"><span>Audio</span><span class="toc-st" id="toc-audioSt">MP3, M4A o WAV</span><input type="file" id="toc-audioIn" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac"></label>
+      <div class="toc-fields toc-hidden" id="toc-fields">
+        <input class="toc-in" id="toc-fTitle" placeholder="Título" aria-label="Título" autocomplete="off">
+        <input class="toc-in" id="toc-fArtist" placeholder="Artista (opcional)" aria-label="Artista" autocomplete="off">
+      </div>
+      <button class="toc-btn toc-primary" data-tact="analyze" id="toc-anaBtn" disabled>Sacar acordes</button>
+      <div class="toc-prog toc-hidden" id="toc-prog" role="status" aria-live="polite">
+        <div class="toc-progbar"><i id="toc-progFill"></i></div>
+        <div class="toc-progrow"><span id="toc-progTxt">Preparando…</span><span class="toc-mono" id="toc-progEta"></span></div>
+        <button class="toc-btn" data-tact="cancel">Cancelar</button>
+      </div>
+      <p class="toc-msg toc-hidden" id="toc-anaMsg"></p>
+      <details class="toc-how">
+        <summary>Cómo funciona</summary>
+        <ol>
+          <li>Elige el archivo de audio de la canción que tengas en este dispositivo (MP3, M4A, WAV…).</li>
+          <li>Toca <b>Sacar acordes</b>. El análisis corre aquí mismo, sin subir nada a internet: tarda alrededor de un minuto por canción en computadora y algo más en teléfono. La primera vez descarga los modelos (3.7 MB).</li>
+          <li>La canción queda en <b>Tus canciones</b>: la próxima vez se abre al instante.</li>
+        </ol>
+        <p>Cada acorde trae su confianza, medida en un corpus académico de 12 grabaciones: <b>seguro</b> acierta 92 % de las veces, <b>probable</b> 76 % y <b>dudoso</b> 41 %. Si pegas la cifra de la canción, el acierto sube a 85 %. Mantén pulsado un compás para corregir un acorde.</p>
+      </details>
+    </div>
+
+    <div class="card toc-stack" id="toc-libCard">
+      <span class="toc-lbl">Tus canciones</span>
+      <div class="toc-lib" id="toc-lib"></div>
+      <div class="toc-sub" id="toc-libEmpty">Aquí aparecerán las canciones que analices. Se guardan en este dispositivo.</div>
+    </div>
+
+    <div class="card">
+      <details class="toc-how">
+        <summary>Más opciones</summary>
+        <div class="toc-stack" style="margin-top:10px">
+          <button class="toc-btn" data-tact="demo">Probar con un ejemplo</button>
+          <div class="toc-sub">¿Ya tienes los acordes en un archivo .song.json (del analizador de escritorio o exportado antes)? Elige primero el audio arriba y luego el archivo:</div>
+          <label class="toc-btn toc-file"><span>Acordes</span><span class="toc-st" id="toc-songSt">.song.json</span><input type="file" id="toc-songIn" accept=".json,application/json"></label>
+          <button class="toc-btn" data-tact="start" id="toc-startBtn" disabled>Abrir con ese archivo</button>
+        </div>
+      </details>
+    </div>
   </div>
 
   <div id="toc-playView" class="toc-hidden">
     <div class="card toc-songbar">
-      <div><div class="toc-title" id="toc-songTitle">—</div><div class="toc-meta" id="toc-songMeta"></div></div>
+      <div class="toc-songhead"><div style="min-width:0"><div class="toc-title" id="toc-songTitle">—</div><div class="toc-meta" id="toc-songMeta"></div></div><button class="toc-btn" data-tact="back2lib" aria-label="Otra canción">Otra canción</button></div>
       <div class="toc-seg" role="group" aria-label="Vista durante la reproducción">
         <button class="toc-btn" data-tact="view" data-v="big" aria-pressed="true">Acorde grande</button>
         <button class="toc-btn" data-tact="view" data-v="general" aria-pressed="false">Vista general</button>
@@ -4144,7 +4206,7 @@ header{
     <div class="card toc-stack">
       <span class="ctrl-lbl">Cifra</span>
       <div class="toc-chartstate" id="toc-chartState">Sin cifra: acordes detectados solo por el audio.</div>
-      <div class="toc-pills"><button class="toc-btn" data-tact="chart">Pegar cifra</button><button class="toc-btn" data-tact="export">Copiar acordes</button></div>
+      <div class="toc-pills"><button class="toc-btn" data-tact="chart">Pegar cifra</button><button class="toc-btn" data-tact="export">Copiar acordes</button><button class="toc-btn" data-tact="download">Descargar .song.json</button></div>
     </div>
     <div class="toc-foot" id="toc-foot"></div>
   </div>
@@ -47967,6 +48029,972 @@ window.fmDeleteSection = fmDeleteSection;
 </section>
 <div id="toc-toast" class="toc-hidden" role="status"></div>
 
+<script id="cl-lib">
+/* chordlab web · BTC (Bi-directional Transformer for Chord recognition, Park et al. ISMIR 2019)
+   Pure-JS inference of the kaggle_v1 fine-tune. Input: normalised log-CQT frames (T=108 x 144).
+   Output: per-frame softmax over 170 classes (12 roots x 14 qualities + X + N). */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+
+  // ---------- weight container ('CLW1' | u32 hdrlen | JSON | data)
+  CL.loadWeights = function (buf) {
+    const u8 = new Uint8Array(buf);
+    if (String.fromCharCode(u8[0], u8[1], u8[2], u8[3]) !== 'CLW1') throw new Error('weights: bad magic');
+    const hl = new DataView(buf).getUint32(4, true);
+    const hdr = JSON.parse(new TextDecoder().decode(u8.subarray(8, 8 + hl)));
+    const base = 8 + hl, W = {};
+    for (const e of hdr) {
+      const n = e.shape.reduce((a, b) => a * b, 1);
+      let a;
+      if (e.dt === 'f32') a = new Float32Array(buf.slice(base + e.off, base + e.off + 4 * n));
+      else if (e.dt === 'f16') a = f16(new Uint16Array(buf.slice(base + e.off, base + e.off + 2 * n)));
+      else {
+        const rows = e.shape[0], per = n / rows;
+        const q = new Int8Array(buf, base + e.off, n), s = new Float32Array(buf.slice(base + e.soff, base + e.soff + 4 * rows));
+        a = new Float32Array(n);
+        for (let r = 0; r < rows; r++) { const sc = s[r], o = r * per; for (let i = 0; i < per; i++) a[o + i] = q[o + i] * sc; }
+      }
+      a.shape = e.shape; W[e.n] = a;
+    }
+    return W;
+  };
+  function f16(h) {
+    const out = new Float32Array(h.length);
+    for (let i = 0; i < h.length; i++) {
+      const x = h[i], s = x & 0x8000 ? -1 : 1, e = (x >> 10) & 31, m = x & 1023;
+      out[i] = e === 0 ? s * m * 5.960464477539063e-8 : e === 31 ? (m ? NaN : s * Infinity) : s * (1 + m / 1024) * Math.pow(2, e - 15);
+    }
+    return out;
+  }
+
+  // ---------- primitives (row-major; x: T x Din, W: Dout x Din)
+  function linear(x, T, Din, W, Dout, b) {
+    const y = new Float32Array(T * Dout);
+    for (let t = 0; t < T; t++) {
+      const xo = t * Din, yo = t * Dout;
+      let o = 0;
+      for (; o + 3 < Dout; o += 4) {
+        const w0 = o * Din, w1 = w0 + Din, w2 = w1 + Din, w3 = w2 + Din;
+        let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+        for (let i = 0; i < Din; i++) { const v = x[xo + i]; s0 += v * W[w0 + i]; s1 += v * W[w1 + i]; s2 += v * W[w2 + i]; s3 += v * W[w3 + i]; }
+        if (b) { s0 += b[o]; s1 += b[o + 1]; s2 += b[o + 2]; s3 += b[o + 3]; }
+        y[yo + o] = s0; y[yo + o + 1] = s1; y[yo + o + 2] = s2; y[yo + o + 3] = s3;
+      }
+      for (; o < Dout; o++) { const wo = o * Din; let s = b ? b[o] : 0; for (let i = 0; i < Din; i++) s += x[xo + i] * W[wo + i]; y[yo + o] = s; }
+    }
+    return y;
+  }
+  CL.linear = linear;
+  function layerNorm(x, T, D, g, b) { // BTC LayerNorm: unbiased std, eps added to std
+    const y = new Float32Array(T * D);
+    for (let t = 0; t < T; t++) {
+      const o = t * D; let m = 0;
+      for (let i = 0; i < D; i++) m += x[o + i];
+      m /= D; let v = 0;
+      for (let i = 0; i < D; i++) { const d = x[o + i] - m; v += d * d; }
+      const sd = Math.sqrt(v / (D - 1)) + 1e-6;
+      for (let i = 0; i < D; i++) y[o + i] = g[i] * (x[o + i] - m) / sd + b[i];
+    }
+    return y;
+  }
+  // Conv1d k=3, zero pad 1/1, then ReLU, as one matmul over [x(t-1) | x(t) | x(t+1)]; W re-laid out to (Dout, 3*Din)
+  function convRelu(x, T, D, Wc, b) {
+    const xp = new Float32Array(T * 3 * D);
+    for (let t = 0; t < T; t++) for (let k = 0; k < 3; k++) { const tt = t + k - 1; if (tt >= 0 && tt < T) xp.set(x.subarray(tt * D, tt * D + D), t * 3 * D + k * D); }
+    const y = linear(xp, T, 3 * D, Wc, D, b);
+    for (let i = 0; i < y.length; i++) if (y[i] < 0) y[i] = 0;
+    return y;
+  }
+  function mha(xn, T, D, P, dir) { // dir 1: attend j<=i ; -1: attend j>=i
+    const H = 4, dh = D / H, sc = 1 / Math.sqrt(dh);
+    const q = linear(xn, T, D, P.q, D), k = linear(xn, T, D, P.k, D), v = linear(xn, T, D, P.v, D);
+    const ctx = new Float32Array(T * D), w = new Float32Array(T);
+    for (let h = 0; h < H; h++) {
+      const ho = h * dh;
+      for (let i = 0; i < T; i++) {
+        const j0 = dir > 0 ? 0 : i, j1 = dir > 0 ? i : T - 1;
+        let mx = -Infinity;
+        for (let j = j0; j <= j1; j++) {
+          let s = 0; const qo = i * D + ho, ko = j * D + ho;
+          for (let d = 0; d < dh; d++) s += q[qo + d] * k[ko + d];
+          s *= sc; w[j] = s; if (s > mx) mx = s;
+        }
+        let z = 0;
+        for (let j = j0; j <= j1; j++) { w[j] = Math.exp(w[j] - mx); z += w[j]; }
+        const co = i * D + ho;
+        for (let j = j0; j <= j1; j++) {
+          const a = w[j] / z, vo = j * D + ho;
+          for (let d = 0; d < dh; d++) ctx[co + d] += a * v[vo + d];
+        }
+      }
+    }
+    return linear(ctx, T, D, P.o, D);
+  }
+  function block(x, T, D, P, dir) {
+    let xn = layerNorm(x, T, D, P.lnA_g, P.lnA_b);
+    const y = mha(xn, T, D, P, dir);
+    const x1 = new Float32Array(T * D);
+    for (let i = 0; i < x1.length; i++) x1[i] = x[i] + y[i];
+    xn = layerNorm(x1, T, D, P.lnF_g, P.lnF_b);
+    const f = convRelu(convRelu(xn, T, D, P.c0, P.c0b), T, D, P.c1, P.c1b);
+    for (let i = 0; i < x1.length; i++) x1[i] += f[i];
+    return x1;
+  }
+  function timing(T, D) {
+    const n = D / 2, inc = Math.log(1e4) / (n - 1), s = new Float32Array(T * D);
+    for (let t = 0; t < T; t++) for (let i = 0; i < n; i++) {
+      const a = t * Math.exp(-i * inc); s[t * D + i] = Math.sin(a); s[t * D + n + i] = Math.cos(a);
+    }
+    return s;
+  }
+
+  // ---------- model
+  CL.BTC = function (W) {
+    const D = 128, T = 108, F = 144, K = 170, NL = 8;
+    const kern = w => { const a = new Float32Array(D * 3 * D); for (let o = 0; o < D; o++) for (let k = 0; k < 3; k++) for (let i = 0; i < D; i++) a[o * 3 * D + k * D + i] = w[(o * D + i) * 3 + k]; return a; };
+    const blk = p => ({ q: W[p + 'mha.query_linear.weight'], k: W[p + 'mha.key_linear.weight'], v: W[p + 'mha.value_linear.weight'], o: W[p + 'mha.output_linear.weight'],
+      lnA_g: W[p + 'layer_norm_mha.gamma'], lnA_b: W[p + 'layer_norm_mha.beta'], lnF_g: W[p + 'layer_norm_ffn.gamma'], lnF_b: W[p + 'layer_norm_ffn.beta'],
+      c0: kern(W[p + 'ffn0.weight']), c0b: W[p + 'ffn0.bias'], c1: kern(W[p + 'ffn1.weight']), c1b: W[p + 'ffn1.bias'] });
+    const layers = [];
+    for (let l = 0; l < NL; l++) layers.push({ f: blk(`L${l}.fwd.`), b: blk(`L${l}.bwd.`), W: W[`L${l}.linear.weight`], bb: W[`L${l}.linear.bias`] });
+    const sig = timing(T, D);
+    const M = { T, F, K, mean: W.mean[0], std: W.std[0] };
+    // x: Float32Array T*F normalised features -> Float32Array T*K probabilities
+    M.forward = function (x) {
+      let h = linear(x, T, F, W['embedding_proj.weight'], D);
+      for (let i = 0; i < h.length; i++) h[i] += sig[i];
+      for (const L of layers) {
+        const a = block(h, T, D, L.f, 1), b = block(h, T, D, L.b, -1);
+        const cat = new Float32Array(T * 2 * D);
+        for (let t = 0; t < T; t++) { cat.set(a.subarray(t * D, t * D + D), t * 2 * D); cat.set(b.subarray(t * D, t * D + D), t * 2 * D + D); }
+        h = linear(cat, T, 2 * D, L.W, D, L.bb);
+      }
+      h = layerNorm(h, T, D, W['layer_norm.gamma'], W['layer_norm.beta']);
+      const lg = linear(h, T, D, W['output_projection.weight'], K, W['output_projection.bias']);
+      for (let t = 0; t < T; t++) {
+        const o = t * K; let mx = -Infinity, z = 0;
+        for (let c = 0; c < K; c++) if (lg[o + c] > mx) mx = lg[o + c];
+        for (let c = 0; c < K; c++) { lg[o + c] = Math.exp(lg[o + c] - mx); z += lg[o + c]; }
+        for (let c = 0; c < K; c++) lg[o + c] /= z;
+      }
+      return lg;
+    };
+    return M;
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+/* chordlab web · constant-Q transform (multirate, direct kernels), modelled on librosa.cqt:
+   hann-windowed complex exponentials, length Q*sr/f (Q from librosa's relative bandwidth), L1-normalised,
+   one octave at a time with 2x zero-phase decimation between octaves. Per-bin gains are calibrated
+   against librosa offline (cqt_cal) so log-features match what the model was trained on. */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+
+  // zero-phase lowpass FIR for 2x decimation (Kaiser-windowed sinc, cutoff 0.23*sr)
+  const DEC = (function () {
+    const N = 95, h = new Float32Array(N), M = (N - 1) / 2, fc = 0.23, beta = 8.0;
+    const I0 = x => { let s = 1, t = 1; for (let k = 1; k < 30; k++) { t *= (x / 2 / k) ** 2; s += t; } return s; };
+    let z = 0;
+    for (let n = 0; n < N; n++) {
+      const m = n - M, sinc = m === 0 ? 2 * fc : Math.sin(2 * Math.PI * fc * m) / (Math.PI * m);
+      const w = I0(beta * Math.sqrt(1 - (m / M) ** 2)) / I0(beta);
+      h[n] = sinc * w; z += h[n];
+    }
+    for (let n = 0; n < N; n++) h[n] /= z;
+    return h;
+  })();
+  CL.decimate2 = function (y) {
+    const N = DEC.length, M = (N - 1) >> 1, out = new Float32Array(Math.ceil(y.length / 2));
+    for (let i = 0; i < out.length; i++) {
+      const c = 2 * i; let s = 0;
+      const n0 = Math.max(0, M - c), n1 = Math.min(N, y.length - c + M);
+      for (let n = n0; n < n1; n++) s += DEC[n] * y[c + n - M];
+      out[i] = s;
+    }
+    return out;
+  };
+
+  // kernels for one octave at rate sr: {re, im, off} with off = -floor(L/2) style offset (librosa: arange(-L//2, L//2))
+  function kernels(freqs, sr, Q) {
+    return freqs.map(f => {
+      const L = Q * sr / f; // python: arange((-ilen)//2, ilen//2) with float ilen
+      const n = []; for (let k = Math.floor(-L / 2); k < Math.floor(L / 2); k++) n.push(k);
+      const len = n.length, re = new Float32Array(len), im = new Float32Array(len);
+      let l1 = 0;
+      for (let i = 0; i < len; i++) {
+        const w = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / len); // periodic hann (scipy fftbins=True)
+        const ph = 2 * Math.PI * f * n[i] / sr;
+        re[i] = w * Math.cos(ph); im[i] = w * Math.sin(ph);
+        l1 += Math.abs(w);
+      }
+      for (let i = 0; i < len; i++) { re[i] /= l1; im[i] /= l1; }
+      return { re, im, off: n[0], L };
+    });
+  }
+
+  /* y: Float32Array at sr; returns Float32Array frames x nBins magnitudes (frame-major) and nFrames.
+     opts: {sr, hop, fmin, nBins, bpo, tuning (in bins)} */
+  CL.cqt = function (y, o) {
+    const bpo = o.bpo, nBins = o.nBins, fmin = o.fmin * Math.pow(2, (o.tuning || 0) / bpo);
+    const freqs = []; for (let k = 0; k < nBins; k++) freqs.push(fmin * Math.pow(2, k / bpo));
+    const r = Math.pow(2, 2 / bpo), alpha = (r - 1) / (r + 1), Q = 1 / alpha;
+    const nOct = Math.ceil(nBins / bpo), nFr = 1 + Math.floor(y.length / o.hop);
+    const out = new Float32Array(nFr * nBins);
+    let sig = y, sr = o.sr, hop = o.hop;
+    for (let oc = 0; oc < nOct; oc++) {
+      const hi = nBins - oc * bpo, lo = Math.max(0, hi - bpo);
+      const K = kernels(freqs.slice(lo, hi), sr, Q);
+      for (let t = 0; t < nFr; t++) {
+        const c = t * hop;
+        for (let j = 0; j < K.length; j++) {
+          const { re, im, off } = K[j]; let sr_ = 0, si = 0;
+          const s0 = c + off, i0 = Math.max(0, -s0), i1 = Math.min(re.length, sig.length - s0);
+          for (let i = i0; i < i1; i++) { const v = sig[s0 + i]; sr_ += v * re[i]; si += v * im[i]; }
+          out[t * nBins + lo + j] = Math.sqrt(sr_ * sr_ + si * si);
+        }
+      }
+      if (oc < nOct - 1) { sig = CL.decimate2(sig); sr /= 2; hop /= 2; }
+    }
+    return { mag: out, nFr, nBins, freqs };
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+/* chordlab web · beats & downbeats — JS port of madmom's RNNDownBeatProcessor (Böck, Krebs & Widmer 2016)
+   + DBNDownBeatTrackingProcessor (Krebs et al. bar-pointer HMM). Input: mono float signal at 44.1 kHz.
+   Weights/filterbanks exported from madmom 0.17 (models CC BY-NC-SA 4.0: non-commercial use). */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+
+  // ---------- radix-2 FFT (in place, re/im)
+  const fftCache = {};
+  function fftPlan(N) {
+    if (fftCache[N]) return fftCache[N];
+    const rev = new Uint32Array(N), lg = Math.log2(N);
+    for (let i = 0; i < N; i++) { let r = 0, x = i; for (let b = 0; b < lg; b++) { r = (r << 1) | (x & 1); x >>= 1; } rev[i] = r; }
+    const cos = new Float64Array(N / 2), sin = new Float64Array(N / 2);
+    for (let i = 0; i < N / 2; i++) { cos[i] = Math.cos(2 * Math.PI * i / N); sin[i] = -Math.sin(2 * Math.PI * i / N); }
+    return (fftCache[N] = { rev, cos, sin });
+  }
+  CL.fft = function (re, im) {
+    const N = re.length, { rev, cos, sin } = fftPlan(N);
+    for (let i = 0; i < N; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (let size = 2; size <= N; size <<= 1) {
+      const half = size >> 1, step = N / size;
+      for (let i = 0; i < N; i += size) for (let j = 0, k = 0; j < half; j++, k += step) {
+        const a = i + j, b = a + half, tr = re[b] * cos[k] - im[b] * sin[k], ti = re[b] * sin[k] + im[b] * cos[k];
+        re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+      }
+    }
+  };
+
+  // ---------- madmom multi-resolution log-filtered spectrogram + positive diff -> (frames x 314)
+  CL.mmFeatures = function (x, meta, W) {
+    const hop = 441, nFr = Math.ceil(x.length / hop), dims = meta.res.reduce((a, r) => a + 2 * r.bands.length, 0);
+    const out = new Float32Array(nFr * dims);
+    let col = 0;
+    for (const r of meta.res) {
+      const N = r.frame, nb = r.bands.length, fb = W['fb' + N], nbin = N / 2;
+      const offs = []; let acc = 0; for (const [k0, k1] of r.bands) { offs.push(acc); acc += k1 - k0; } // sparse triangular filters
+      const win = new Float64Array(N); for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)); // np.hanning
+      const re = new Float64Array(N), im = new Float64Array(N), mag = new Float64Array(nbin);
+      const spec = new Float32Array(nFr * nb);
+      const magB = new Float64Array(nbin);
+      const bandsOut = (mg, t) => {
+        for (let b = 0; b < nb; b++) {
+          const [k0, k1] = r.bands[b], o = offs[b] - k0; let s = 0;
+          for (let k = k0; k < k1; k++) s += mg[k] * fb[o + k];
+          spec[t * nb + b] = Math.log10(s + 1);
+        }
+      };
+      for (let t = 0; t < nFr; t += 2) { // two real frames per complex FFT: a in re, b in im
+        const sa = Math.floor(t * hop) - (N >> 1), sb = Math.floor((t + 1) * hop) - (N >> 1), hasB = t + 1 < nFr;
+        for (let i = 0; i < N; i++) {
+          const p = sa + i, q = sb + i;
+          re[i] = p >= 0 && p < x.length ? x[p] * win[i] : 0;
+          im[i] = hasB && q >= 0 && q < x.length ? x[q] * win[i] : 0;
+        }
+        CL.fft(re, im);
+        for (let k = 0; k < nbin; k++) {
+          const k2 = (N - k) % N, xr = re[k], xi = im[k], yr = re[k2], yi = im[k2];
+          const ar = (xr + yr) / 2, ai = (xi - yi) / 2, br = (xi + yi) / 2, bi = (yr - xr) / 2;
+          mag[k] = Math.sqrt(ar * ar + ai * ai); magB[k] = Math.sqrt(br * br + bi * bi);
+        }
+        bandsOut(mag, t); if (hasB) bandsOut(magB, t + 1);
+      }
+      for (let t = 0; t < nFr; t++) for (let b = 0; b < nb; b++) {
+        const v = spec[t * nb + b];
+        out[t * dims + col + b] = v;
+        const d = t >= r.diff ? v - spec[(t - r.diff) * nb + b] : 0;
+        out[t * dims + col + nb + b] = d > 0 ? d : 0;
+      }
+      col += 2 * nb;
+    }
+    return { feat: out, nFr, dims };
+  };
+
+  // ---------- peephole LSTM (madmom layout), one direction
+  const sig = v => 1 / (1 + Math.exp(-v));
+  function lstm(x, T, Din, P, reverse) {
+    const H = 25, out = new Float32Array(T * H);
+    const gates = ['i', 'f', 'c', 'o'].map(g => P[g]);
+    // input projections for all frames: (T x 4H), one matmul with the 4 gate matrices stacked
+    if (!P._W) {
+      P._W = new Float32Array(4 * H * Din); P._b = new Float32Array(4 * H);
+      for (let g = 0; g < 4; g++) { P._W.set(gates[g].W, g * H * Din); P._b.set(gates[g].b, g * H); }
+    }
+    const pre = CL.linear(x, T, Din, P._W, 4 * H, P._b);
+    const prev = new Float32Array(H), state = new Float32Array(H), ig = new Float32Array(H), fg = new Float32Array(H), cc = new Float32Array(H);
+    const rec = (g, h) => { const R = gates[g].R, o = h * H; let s = 0; for (let j = 0; j < H; j++) s += prev[j] * R[o + j]; return s; };
+    for (let s = 0; s < T; s++) {
+      const t = reverse ? T - 1 - s : s, po = t * 4 * H;
+      for (let h = 0; h < H; h++) {
+        ig[h] = sig(pre[po + h] + state[h] * gates[0].p[h] + rec(0, h));
+        fg[h] = sig(pre[po + H + h] + state[h] * gates[1].p[h] + rec(1, h));
+        cc[h] = Math.tanh(pre[po + 2 * H + h] + rec(2, h));
+      }
+      for (let h = 0; h < H; h++) state[h] = cc[h] * ig[h] + state[h] * fg[h];
+      const o = t * H;
+      for (let h = 0; h < H; h++) out[o + h] = Math.tanh(state[h]) * sig(pre[po + 3 * H + h] + state[h] * gates[3].p[h] + rec(3, h));
+      prev.set(out.subarray(o, o + H));
+    }
+    return out;
+  }
+  // one BLSTM network -> (T x 3) softmax [non-beat, beat, downbeat]
+  CL.mmNet = function (feat, T, dims, W, m) {
+    let x = feat, D = dims;
+    const gp = (l, d, g) => { const p = `m${m}.l${l}.${d}.${g}`; return { W: W[p + '.W'], R: W[p + '.R'], b: W[p + '.b'], p: W[p + '.p'] }; };
+    for (let l = 0; l < 3; l++) {
+      const P = d => { const key = `_P${m}.${l}.${d}`; return W[key] || (W[key] = { i: gp(l, d, 'i'), f: gp(l, d, 'f'), c: gp(l, d, 'c'), o: gp(l, d, 'o') }); };
+      const a = lstm(x, T, D, P('f'), false), b = lstm(x, T, D, P('b'), true);
+      const y = new Float32Array(T * 50);
+      for (let t = 0; t < T; t++) { y.set(a.subarray(t * 25, t * 25 + 25), t * 50); y.set(b.subarray(t * 25, t * 25 + 25), t * 50 + 25); }
+      x = y; D = 50;
+    }
+    const Wo = W[`m${m}.out.W`], bo = W[`m${m}.out.b`], out = new Float32Array(T * 3);
+    for (let t = 0; t < T; t++) {
+      const z = [0, 1, 2].map(c => { let s = bo[c]; for (let i = 0; i < 50; i++) s += x[t * 50 + i] * Wo[c * 50 + i]; return s; });
+      const mx = Math.max(...z), e = z.map(v => Math.exp(v - mx)), sm = e[0] + e[1] + e[2];
+      for (let c = 0; c < 3; c++) out[t * 3 + c] = e[c] / sm;
+    }
+    return out;
+  };
+
+  // ---------- DBN bar-pointer HMM (madmom BarStateSpace / BarTransitionModel / RNNDownBeatTrackingObservationModel)
+  function beatIntervals(minI, maxI, num) {
+    let iv = []; for (let i = Math.round(minI); i <= Math.round(maxI); i++) iv.push(i);
+    if (num < iv.length) {
+      let n = num; iv = [];
+      while (iv.length < num) {
+        const s = new Set(), a = Math.log2(minI), b = Math.log2(maxI);
+        for (let k = 0; k < n; k++) s.add(Math.round(Math.pow(2, a + (b - a) * k / (n - 1))));
+        iv = [...s].sort((p, q) => p - q); n++;
+      }
+    }
+    return iv;
+  }
+  // act: Float32Array T*2 [beat, downbeat]; returns {beats: [frame], pos: [1..m], logp}
+  CL.dbn = function (act, T, m, o) {
+    o = Object.assign({ fps: 100, minBpm: 55, maxBpm: 215, numTempi: 60, lambda: 100, obsLambda: 16, threshold: 0.05 }, o || {});
+    // threshold_activations
+    let first = 0, last = 0, any = false;
+    for (let t = 0; t < T; t++) if (act[2 * t] >= o.threshold || act[2 * t + 1] >= o.threshold) { if (!any) first = t; any = true; last = t + 1; }
+    if (!any) return { beats: [], pos: [], logp: -Infinity };
+    const A = act.subarray(2 * first, 2 * last), TT = last - first;
+    const iv = beatIntervals(60 * o.fps / o.maxBpm, 60 * o.fps / o.minBpm, o.numTempi), NI = iv.length;
+    const perBeat = iv.reduce((a, b) => a + b, 0), S = perBeat * m;
+    const firstS = [], lastS = [], posS = new Float32Array(S), intS = new Int32Array(S), isFirst = new Int32Array(S).fill(-1);
+    let idx = 0;
+    for (let b = 0; b < m; b++) for (let i = 0; i < NI; i++) {
+      firstS.push(idx); for (let k = 0; k < iv[i]; k++) { posS[idx + k] = b + k / iv[i]; intS[idx + k] = iv[i]; }
+      isFirst[idx] = b * NI + i; idx += iv[i]; lastS.push(idx - 1);
+    }
+    // tempo transition (same for every beat): from interval i (last state of previous beat) to interval j
+    const lt = []; // lt[j] = [[i, logp], ...]
+    const eps = 2.220446049250313e-16;
+    const prob = iv.map(fi => { const r = iv.map(tj => { const p = Math.exp(-o.lambda * Math.abs(tj / fi - 1)); return p <= eps ? 0 : p; }); const z = r.reduce((a, b) => a + b, 0); return r.map(p => p / z); });
+    for (let j = 0; j < NI; j++) { lt.push([]); for (let i = 0; i < NI; i++) if (prob[i][j] > 0) lt[j].push([i, Math.log(prob[i][j])]); }
+    // observation pointers: 0 none, 1 beat, 2 downbeat
+    const border = 1 / o.obsLambda, ptr = new Uint8Array(S);
+    for (let s = 0; s < S; s++) ptr[s] = posS[s] < border ? 2 : (posS[s] % 1 < border ? 1 : 0);
+    let cur = new Float64Array(S).fill(-Math.log(S)), nxt = new Float64Array(S);
+    const NF = m * NI, bp = new Uint16Array(TT * NF); // back-pointers only for beat-entry states
+    const ld = new Float64Array(3);
+    const hot = []; for (let s = 0; s < S; s++) if (ptr[s] && isFirst[s] < 0) hot.push(s);
+    const HOT = Int32Array.from(hot), HP = Uint8Array.from(hot.map(s => ptr[s]));
+    const FS = Int32Array.from(firstS), LTi = lt.map(a => Int32Array.from(a.map(e => e[0]))), LTp = lt.map(a => Float64Array.from(a.map(e => e[1])));
+    for (let t = 0; t < TT; t++) {
+      const b0 = A[2 * t], b1 = A[2 * t + 1];
+      ld[0] = Math.log((1 - b0 - b1) / (o.obsLambda - 1)); ld[1] = Math.log(b0); ld[2] = Math.log(b1);
+      // within-beat states: single predecessor s-1 (probability 1)
+      nxt.set(cur.subarray(0, S - 1), 1);
+      const l0 = ld[0];
+      for (let s = 1; s < S; s++) nxt[s] += l0;
+      for (let h = 0; h < HOT.length; h++) nxt[HOT[h]] += ld[HP[h]] - l0;
+      // beat-entry states: tempo transitions from the last states of the previous beat
+      for (let f = 0; f < NF; f++) {
+        const s = FS[f], beat = (f / NI) | 0, j = f % NI, pb = (beat + m - 1) % m, ii = LTi[j], pp = LTp[j];
+        let best = -Infinity, arg = 0;
+        for (let q = 0; q < ii.length; q++) { const v = cur[lastS[pb * NI + ii[q]]] + pp[q]; if (v > best) { best = v; arg = ii[q]; } }
+        nxt[s] = best + ld[ptr[s]]; bp[t * NF + f] = arg;
+      }
+      const tmp = cur; cur = nxt; nxt = tmp;
+    }
+    let s = 0; for (let k = 1; k < S; k++) if (cur[k] > cur[s]) s = k;
+    const logp = cur[s], path = new Int32Array(TT);
+    for (let t = TT - 1; t >= 0; t--) {
+      path[t] = s; const f = isFirst[s];
+      if (t === 0) break;
+      if (f < 0) s = s - 1; else { const beat = (f / NI) | 0, pb = (beat + m - 1) % m; s = lastS[pb * NI + bp[t * NF + f]]; }
+    }
+    // correct=True: peak of activations inside each beat range
+    const beats = [], pos = [];
+    let t = 0;
+    while (t < TT) {
+      if (ptr[path[t]] >= 1) {
+        let r = t; while (r < TT && ptr[path[r]] >= 1) r++;
+        let pk = t, mv = -1; for (let k = t; k < r; k++) for (let c = 0; c < 2; c++) if (A[2 * k + c] > mv) { mv = A[2 * k + c]; pk = k; }
+        beats.push(pk); pos.push(Math.floor(posS[path[pk]]) + 1); t = r;
+      } else t++;
+    }
+    return { beats: beats.map(b => (b + first) / o.fps), pos, logp };
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+/* chordlab web · analysis pipeline (port of chordlab analyzer.py v0.5 for the browser)
+   audio -> tuning -> CQT -> BTC posteriors -> madmom beats/downbeats (3/4 vs 4/4 by harmonic share)
+   -> key (Krumhansl-Kessler on chord posteriors) -> beat-pooled key/metre-aware Viterbi -> bass -> song.json */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+  const VERSION = '0.6.0-web';
+
+  // ---------------------------------------------------------------- theory (mirrors analyzer.py)
+  const PC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const PC_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+  const BTC_QUALS = ['min', 'maj', 'dim', 'aug', 'min6', 'maj6', 'min7', 'minmaj7', 'maj7', '7', 'dim7', 'hdim7', 'sus2', 'sus4'];
+  const QUAL = {
+    maj: [[0, 4, 7], '', 'maj', 'maj'], min: [[0, 3, 7], 'm', 'min', 'min'], dim: [[0, 3, 6], 'dim', 'dim', 'dim'],
+    aug: [[0, 4, 8], 'aug', 'aug', 'aug'], min6: [[0, 3, 7, 9], 'm6', 'min', 'min6'], maj6: [[0, 4, 7, 9], '6', 'maj', 'maj6'],
+    min7: [[0, 3, 7, 10], 'm7', 'min', 'min7'], minmaj7: [[0, 3, 7, 11], 'm(maj7)', 'min', 'minmaj7'],
+    maj7: [[0, 4, 7, 11], 'maj7', 'maj', 'maj7'], '7': [[0, 4, 7, 10], '7', 'maj', '7'], dim7: [[0, 3, 6, 9], 'dim7', 'dim', 'dim7'],
+    hdim7: [[0, 3, 6, 10], 'm7b5', 'dim', 'hdim7'], sus2: [[0, 2, 7], 'sus2', 'sus2', 'sus2'], sus4: [[0, 5, 7], 'sus4', 'sus4', 'sus4'],
+  };
+  const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11], MINOR_UNION = [0, 2, 3, 5, 7, 8, 10, 11];
+  const FLAT_MAJOR = new Set([5, 10, 3, 8, 1, 6]), FLAT_MINOR = new Set([2, 7, 0, 5, 10, 3]);
+  const FAM = q => (['maj', 'maj6', 'maj7', '7', 'aug'].includes(q) ? 'maj' : ['min', 'min6', 'min7', 'minmaj7'].includes(q) ? 'min' : ['dim', 'dim7', 'hdim7'].includes(q) ? 'dim' : 'sus');
+  const FAMS = ['maj', 'min', 'dim', 'sus'];
+  const useFlats = (t, m) => (m === 'major' ? FLAT_MAJOR : FLAT_MINOR).has(t);
+  const spell = (pc, fl) => (fl ? PC_FLAT : PC_SHARP)[((pc % 12) + 12) % 12];
+  const idx2chord = i => (i >= 168 ? null : [Math.floor(i / 14), BTC_QUALS[i % 14]]);
+  const pcs = (r, q) => new Set(QUAL[q][0].map(iv => (r + iv) % 12));
+  const label = (r, q, fl, lvl) => spell(r, fl) + QUAL[lvl === 'triad' ? QUAL[q][2] : lvl === 'seventh' ? QUAL[q][3] : q][1];
+  const CLS_FAM = new Int32Array(170).fill(-1);
+  for (let i = 0; i < 168; i++) { const [r, q] = idx2chord(i); CLS_FAM[i] = r * 4 + FAMS.indexOf(FAM(q)); }
+  CL.theory = { PC_SHARP, PC_FLAT, BTC_QUALS, QUAL, FAM, idx2chord, label, spell, useFlats };
+
+  // ---------------------------------------------------------------- tuning (librosa.estimate_tuning, bins_per_octave=36)
+  CL.estimateTuning = function (y, sr) {
+    const N = 2048, hop = 512, nFr = 1 + Math.floor(y.length / hop), nb = N / 2 + 1;
+    const win = new Float64Array(N); for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+    const re = new Float64Array(N), im = new Float64Array(N), S = new Float64Array(nb);
+    const k0 = Math.ceil(150 * N / sr), k1 = Math.ceil(4000 * N / sr); // fmin <= f < fmax
+    const P = [], M = [];
+    for (let t = 0; t < nFr; t++) {
+      const st = t * hop - N / 2;
+      for (let i = 0; i < N; i++) { const s = st + i; re[i] = s >= 0 && s < y.length ? y[s] * win[i] : 0; im[i] = 0; }
+      CL.fft(re, im);
+      let mx = 0;
+      for (let k = 0; k < nb; k++) { S[k] = Math.hypot(re[k], im[k]); if (S[k] > mx) mx = S[k]; }
+      const ref = 0.1 * mx;
+      const v = k => (S[k] > ref ? S[k] : 0);
+      for (let k = Math.max(1, k0); k < Math.min(k1, nb - 1); k++) {
+        const c = v(k); if (!(c > v(k - 1) && c >= v(k + 1))) continue;
+        const a = S[k + 1] + S[k - 1] - 2 * S[k], b = (S[k + 1] - S[k - 1]) / 2;
+        const sh = Math.abs(a) < 1e-30 ? 0 : -b / a;
+        P.push((k + sh) * sr / N); M.push(S[k] + 0.5 * b * sh);
+      }
+    }
+    if (!P.length) return 0;
+    const sorted = M.slice().sort((p, q) => p - q), n = sorted.length;
+    const thr = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+    const bins = 101, counts = new Int32Array(bins - 1);
+    for (let i = 0; i < P.length; i++) {
+      if (!(M[i] >= thr) || P[i] <= 0) continue;
+      let r = (36 * Math.log2(P[i] / (440 / 16))) % 1; if (r < 0) r += 1; if (r >= 0.5) r -= 1;
+      let b = Math.floor((r + 0.5) * 100); if (b >= bins - 1) b = bins - 2; if (b < 0) b = 0;
+      counts[b]++;
+    }
+    let bi = 0; for (let b = 1; b < counts.length; b++) if (counts[b] > counts[bi]) bi = b;
+    return -0.5 + bi / 100;
+  };
+
+  // ---------------------------------------------------------------- CQT features + BTC
+  const C1 = 32.70319566257483, CQ_C = -0.02423;
+  CL.cqtFeatures = function (y, tuning) {
+    const seg = 220500, parts = [];
+    for (let s = 0; s < y.length; s += seg) {
+      const ch = y.subarray(s, Math.min(y.length, s + seg)); if (ch.length < 2048) continue;
+      parts.push(CL.cqt(ch, { sr: 22050, hop: 2048, fmin: C1, nBins: 144, bpo: 24, tuning }));
+    }
+    let n = 0; parts.forEach(p => (n += p.nFr));
+    const mag = new Float32Array(n * 144); let o = 0;
+    const r = Math.pow(2, 2 / 24), Q = (r + 1) / (r - 1), fm = C1 * Math.pow(2, tuning / 24);
+    const gain = new Float32Array(144); for (let k = 0; k < 144; k++) gain[k] = Math.sqrt(Q * 22050 / (fm * Math.pow(2, k / 24))) * Math.exp(CQ_C);
+    for (const p of parts) { for (let i = 0; i < p.mag.length; i++) mag[o + i] = p.mag[i] * gain[i % 144]; o += p.mag.length; }
+    return { mag, nFr: n };
+  };
+  CL.btcProbs = async function (mag, nFr, model, onChunk) {
+    const T = model.T, K = model.K, nb = Math.ceil(nFr / T), probs = new Float32Array(nFr * K);
+    for (let b = 0; b < nb; b++) {
+      const x = new Float32Array(T * 144);
+      for (let t = 0; t < T; t++) { const f = b * T + t; if (f >= nFr) break; for (let k = 0; k < 144; k++) x[t * 144 + k] = (Math.log(mag[f * 144 + k] + 1e-6) - model.mean) / model.std; }
+      for (let t = nFr - b * T; t < T; t++) for (let k = 0; k < 144; k++) x[t * 144 + k] = 0; // zero pad after normalisation (as numpy pad)
+      const p = model.forward(x);
+      const m = Math.min(T, nFr - b * T); probs.set(p.subarray(0, m * K), b * T * K);
+      if (onChunk) await onChunk(b + 1, nb);
+    }
+    return probs;
+  };
+
+  // ---------------------------------------------------------------- beats
+  CL.mmActivations = async function (x44, mmW, mmMeta, nModels, onStep) {
+    const { feat, nFr, dims } = CL.mmFeatures(x44, mmMeta, mmW);
+    if (onStep) await onStep(0);
+    const act = new Float32Array(nFr * 2);
+    for (let m = 0; m < nModels; m++) {
+      const a = CL.mmNet(feat, nFr, dims, mmW, m);
+      for (let t = 0; t < nFr; t++) { act[2 * t] += a[3 * t + 1] / nModels; act[2 * t + 1] += a[3 * t + 2] / nModels; }
+      if (onStep) await onStep(m + 1);
+    }
+    return { act, nFr };
+  };
+  function beatPool(probs, K, fps, beats, dur) {
+    const B = beats.length, out = new Float32Array(B * K), nF = probs.length / K;
+    let med = 0.5; if (B > 1) { const d = []; for (let i = 1; i < B; i++) d.push(beats[i] - beats[i - 1]); d.sort((a, b) => a - b); med = d.length % 2 ? d[(d.length - 1) / 2] : (d[d.length / 2 - 1] + d[d.length / 2]) / 2; }
+    for (let i = 0; i < B; i++) {
+      const a = beats[i], b = i + 1 < B ? beats[i + 1] : Math.min(dur, beats[B - 1] + med);
+      const i0 = Math.floor(a * fps), i1 = Math.max(i0 + 1, Math.floor(b * fps));
+      let n = 0;
+      for (let f = i0; f < Math.min(i1, nF); f++) { n++; for (let k = 0; k < K; k++) out[i * K + k] += probs[f * K + k]; }
+      if (n) for (let k = 0; k < K; k++) out[i * K + k] /= n; else for (let k = 0; k < K; k++) out[i * K + k] = 1 / K;
+    }
+    return out;
+  }
+  CL.beatPool = beatPool;
+  function argmaxRows(P, K) { const n = P.length / K, a = new Int32Array(n); for (let i = 0; i < n; i++) { let b = 0; for (let k = 1; k < K; k++) if (P[i * K + k] > P[i * K + b]) b = k; a[i] = b; } return a; }
+  CL.chooseMeter = function (cands, probs, fps, dur) {
+    let best = null; const scores = {};
+    for (const c of cands) {
+      const am = argmaxRows(beatPool(probs, 170, fps, c.beats, dur), 170);
+      let ch = 0, dn = 0;
+      for (let i = 1; i < am.length; i++) if (am[i] !== am[i - 1]) { ch++; if (c.pos[i] === 1) dn++; }
+      const share = ch ? dn / ch : 0, score = share * c.m;
+      scores[c.m] = +score.toFixed(3);
+      if (!best || score > best.score) best = Object.assign({ score, share }, c);
+    }
+    return { beats: best.beats, pos: best.pos, meter: best.m, info: { downbeatShare: +best.share.toFixed(3), scores } };
+  };
+
+  // ---------------------------------------------------------------- key from chord posteriors (Krumhansl-Kessler)
+  const KS_MAJ = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
+  const KS_MIN = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+  CL.keyFromProbs = function (probs, K) {
+    const n = probs.length / K, ch = new Float64Array(12), tot = new Float64Array(168);
+    for (let f = 0; f < n; f++) for (let i = 0; i < 168; i++) tot[i] += probs[f * K + i];
+    for (let i = 0; i < 168; i++) { const [r, q] = idx2chord(i); for (const pc of pcs(r, q)) ch[pc] += tot[i]; }
+    const corr = (a, b) => { const ma = a.reduce((s, v) => s + v) / 12, mb = b.reduce((s, v) => s + v) / 12; let sab = 0, sa = 0, sb = 0; for (let i = 0; i < 12; i++) { sab += (a[i] - ma) * (b[i] - mb); sa += (a[i] - ma) ** 2; sb += (b[i] - mb) ** 2; } return sab / Math.sqrt(sa * sb); };
+    let best = null;
+    for (let t = 0; t < 12; t++) for (const [mode, prof] of [['major', KS_MAJ], ['minor', KS_MIN]]) {
+      const rolled = prof.map((_, i) => prof[((i - t) % 12 + 12) % 12]);
+      const c = corr(rolled, ch); if (!best || c > best[0]) best = [c, t, mode];
+    }
+    return { tonic: best[1], mode: best[2], strength: best[0] };
+  };
+
+  // ---------------------------------------------------------------- Viterbi (beat level)
+  const VIT = { change_down: 1.2, change_mid: 1.6, change_off: 2.2, kp: 0.6 };
+  function keyPrior(tonic, mode, kp) {
+    const sc = new Set((mode === 'major' ? MAJOR_SCALE : MINOR_UNION).map(s => (tonic + s) % 12)), pri = new Float64Array(170);
+    for (let i = 0; i < 168; i++) { const [r, q] = idx2chord(i); let out = 0; for (const p of pcs(r, q)) if (!sc.has(p)) out++; pri[i] = -0.6 * out * kp; }
+    pri[168] = -6 * kp; pri[169] = -1 * kp;
+    return pri;
+  }
+  CL.keyPrior = keyPrior;
+  CL.viterbi = function (bp, K, pos, meter, prior, v) {
+    v = v || VIT;
+    const B = bp.length / K, D = new Float64Array(K), D2 = new Float64Array(K), back = new Int32Array(B * K), em = new Float64Array(K);
+    const emis = t => { for (let k = 0; k < K; k++) em[k] = Math.log(bp[t * K + k] + 1e-8) + prior[k]; };
+    emis(0); D.set(em);
+    for (let t = 1; t < B; t++) {
+      const p = pos[t], c = p === 1 ? v.change_down : (meter === 4 && p === 3 ? v.change_mid : v.change_off);
+      let bpv = 0; for (let k = 1; k < K; k++) if (D[k] > D[bpv]) bpv = k;
+      const chg = D[bpv] - c; emis(t);
+      for (let k = 0; k < K; k++) { const st = D[k]; if (st >= chg) { D2[k] = st + em[k]; back[t * K + k] = k; } else { D2[k] = chg + em[k]; back[t * K + k] = bpv; } }
+      D.set(D2);
+    }
+    const path = new Int32Array(B); let e = 0; for (let k = 1; k < K; k++) if (D[k] > D[e]) e = k; path[B - 1] = e;
+    for (let t = B - 1; t > 0; t--) path[t - 1] = back[t * K + path[t]];
+    return path;
+  };
+
+  // ---------------------------------------------------------------- bass chroma (low CQT bins E1..D#3) & chroma for templates
+  function bassChroma(mag, nFr, fps, beats, dur) {
+    const B = beats.length, out = [];
+    for (let i = 0; i < B; i++) {
+      const a = beats[i], b = i + 1 < B ? beats[i + 1] : dur, i0 = Math.floor(a * fps), i1 = Math.max(i0 + 1, Math.floor(b * fps));
+      const v = new Float64Array(12); let n = 0;
+      for (let f = i0; f < Math.min(i1, nFr); f++) {
+        n++;
+        for (let s = 0; s < 24; s++) { const c = 8 + 2 * s; const m = Math.max(mag[f * 144 + c - 1], mag[f * 144 + c], mag[f * 144 + c + 1]); v[(s + 4) % 12] += m; }
+      }
+      let z = 0; for (let k = 0; k < 12; k++) { v[k] /= Math.max(1, n); z += v[k]; }
+      for (let k = 0; k < 12; k++) v[k] /= z + 1e-9;
+      out.push(v);
+    }
+    return out;
+  }
+  function pickBass(r, q, segBC, ratio) {
+    const v = new Float64Array(12); for (const x of segBC) for (let k = 0; k < 12; k++) v[k] += x[k] / segBC.length;
+    let b = 0; for (let k = 1; k < 12; k++) if (v[k] > v[b]) b = k;
+    if (b === r) return null;
+    return pcs(r, q).has(b) && v[b] > (ratio || 1.6) * v[r] ? b : null;
+  }
+  // 12-bin chroma per CQT frame (24 bpo: semitone-centred bins, octaves C1..C7)
+  function chromaFrames(mag, nFr) {
+    const C = new Float32Array(nFr * 12);
+    for (let f = 0; f < nFr; f++) for (let k = 0; k < 144; k += 2) C[f * 12 + ((k / 2) % 12)] += mag[f * 144 + k];
+    return C;
+  }
+  const TEMPLATES = [];
+  for (let r = 0; r < 12; r++) for (const q of Object.keys(QUAL)) {
+    const v = new Float64Array(12); QUAL[q][0].forEach((iv, k) => { v[(r + iv) % 12] = k < 3 ? 1 : 0.7; }); v[r] += 0.3;
+    const n = Math.hypot(...v); for (let k = 0; k < 12; k++) v[k] /= n; TEMPLATES.push([r, q, v]);
+  }
+  function templateCheck(chroma, fps, nFr, a, b, root, q) {
+    const i0 = Math.floor(a * fps), i1 = Math.max(i0 + 1, Math.floor(b * fps)), v = new Float64Array(12); let n = 0;
+    for (let f = i0; f < Math.min(i1, nFr); f++) { n++; for (let k = 0; k < 12; k++) v[k] += chroma[f * 12 + k]; }
+    const z = Math.hypot(...v) + 1e-9; for (let k = 0; k < 12; k++) v[k] /= z;
+    const sc = TEMPLATES.map(([r, qq, t]) => [t.reduce((s, x, k) => s + x * v[k], 0), r, qq]).sort((x, y) => y[0] - x[0]);
+    const mine = Math.max(...sc.filter(s => s[1] === root && s[2] === q).map(s => s[0]));
+    const comp = sc.find(s => !(s[1] === root && FAM(s[2]) === FAM(q)));
+    return [mine, comp[0]];
+  }
+
+  // ---------------------------------------------------------------- confidence (logistic model fitted offline, LOSO)
+  CL.confFeatures = ['p_cls', 'p_fam', 'margin', 'entropy', 'frame_agree', 'tmpl_margin', 'tmpl', 'outside', 'seglen', 'downbeat'];
+  function beatRows(d, bp, path, chroma) {
+    const K = 170, B = path.length, edges = d.beats.concat([d.dur]);
+    const sc = new Set((d.key.mode === 'major' ? MAJOR_SCALE : MINOR_UNION).map(s => (d.key.tonic + s) % 12));
+    const am = argmaxRows(d.probs, K), nF = am.length;
+    const seglen = new Int32Array(B); for (let i = 0; i < B;) { let j = i; while (j + 1 < B && path[j + 1] === path[i]) j++; for (let k = i; k <= j; k++) seglen[k] = j - i + 1; i = j + 1; }
+    const rows = [];
+    for (let t = 0; t < B; t++) {
+      const k = path[t]; if (k >= 168) { rows.push(null); continue; }
+      const [r, q] = idx2chord(k), kk = CLS_FAM[k];
+      const F48 = new Float64Array(48); for (let c = 0; c < 168; c++) F48[CLS_FAM[c]] += bp[t * K + c];
+      const pf = F48[kk]; let other = 0; for (let j = 0; j < 48; j++) if (j !== kk && F48[j] > other) other = F48[j];
+      const a = edges[t], b = edges[t + 1], i0 = Math.floor(a * d.fps), i1 = Math.max(i0 + 1, Math.floor(b * d.fps));
+      let ag = 0, n = 0; for (let f = i0; f < Math.min(i1, nF); f++) { n++; if (am[f] < 168 && CLS_FAM[am[f]] === kk) ag++; }
+      let ent = 0; for (let c = 0; c < K; c++) { const p = bp[t * K + c]; ent -= p * Math.log(p + 1e-12); }
+      const [mine, comp] = templateCheck(chroma, d.fps, nF, a, b, r, q);
+      let out = 0; for (const p of pcs(r, q)) if (!sc.has(p)) out++;
+      rows.push([bp[t * K + k], pf, pf - other, ent, n ? ag / n : 0, mine - comp, mine, out, Math.min(seglen[t], 16), d.pos[t] === 1 ? 1 : 0]);
+    }
+    return rows;
+  }
+  CL.beatRows = beatRows;
+  function predict(rows, M) {
+    return rows.map(x => { if (!x) return null; let z = M.intercept; for (let i = 0; i < x.length; i++) z += (x[i] - M.mean[i]) / M.std[i] * M.coef[i]; return 1 / (1 + Math.exp(-z)); });
+  }
+  const tierOf = (p, M) => (p == null ? null : p >= M.tiers.seguro ? 'seguro' : p >= M.tiers.probable ? 'probable' : 'dudoso');
+
+  // ---------------------------------------------------------------- segments
+  function buildSegments(path, bp, beats, dur, flats, bc, pb, M) {
+    const K = 170, B = path.length, segs = [];
+    for (let i = 0; i < B;) {
+      let j = i; while (j + 1 < B && path[j + 1] === path[i]) j++;
+      const idx = path[i], agg = new Float64Array(K); let conf = 0;
+      for (let t = i; t <= j; t++) { conf += bp[t * K + idx]; for (let c = 0; c < K; c++) agg[c] += bp[t * K + c]; }
+      conf /= j - i + 1;
+      const start = beats[i], end = j + 1 < B ? beats[j + 1] : dur, c = idx2chord(idx);
+      const R = x => Math.round(x * 1000) / 1000;
+      let seg;
+      if (!c) seg = { start: R(start), end: R(end), beat: i, beats: j - i + 1, label: 'N', root: null, quality: null, conf: R(conf) };
+      else {
+        let [r, q] = c; let bass = pickBass(r, q, bc.slice(i, j + 1));
+        if (bass != null && ((bass - r) % 12 + 12) % 12 === 9 && (q === 'min6' || q === 'maj6')) { r = bass; q = q === 'min6' ? 'hdim7' : 'min7'; bass = null; }
+        const sl = bass != null ? '/' + spell(bass, flats) : '';
+        seg = { start: R(start), end: R(end), beat: i, beats: j - i + 1, root: r, quality: q, bass, label: label(r, q, flats) + sl, seventh: label(r, q, flats, 'seventh') + sl, triad: label(r, q, flats, 'triad'), conf: R(conf) };
+        if (M && pb) {
+          const ps = pb.slice(i, j + 1).filter(p => p != null);
+          if (ps.length) {
+            const p = ps.reduce((s, v) => s + v, 0) / ps.length; seg.p = R(p); seg.tier = tierOf(p, M);
+            const tot = agg.reduce((s, v, k) => (k < 168 ? s + v : s), 0) + agg[168] + agg[169];
+            const order = [...Array(168).keys()].sort((x, y) => agg[y] - agg[x]), best = new Map();
+            for (const cc of order) {
+              const [rr, qq] = idx2chord(cc), key = rr + FAM(qq);
+              if ((rr === seg.root && FAM(qq) === FAM(seg.quality)) || best.has(key)) continue;
+              best.set(key, { root: rr, quality: qq, label: label(rr, qq, flats), share: R(agg[cc] / tot) });
+              if (best.size === 3) break;
+            }
+            seg.alts = [...best.values()];
+          }
+        }
+      }
+      const alt = new Float64Array(agg); alt[idx] = -1; let ai = 0; for (let k = 1; k < K; k++) if (alt[k] > alt[ai]) ai = k;
+      const a = idx2chord(ai); if (a) seg.alt = label(a[0], a[1], flats);
+      segs.push(seg); i = j + 1;
+    }
+    return segs;
+  }
+  function b64(u8) { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return (typeof btoa !== 'undefined' ? btoa(s) : Buffer.from(s, 'binary').toString('base64')); }
+  function exportPost(bp, B) {
+    const q = new Uint8Array(B * 48), nc = new Uint8Array(B);
+    for (let t = 0; t < B; t++) {
+      const f = new Float64Array(48); for (let c = 0; c < 168; c++) f[CLS_FAM[c]] += bp[t * 170 + c];
+      for (let j = 0; j < 48; j++) q[t * 48 + j] = Math.max(0, Math.min(255, Math.round(f[j] * 255)));
+      nc[t] = Math.max(0, Math.min(255, Math.round(bp[t * 170 + 169] * 255)));
+    }
+    return { fams: 'root*4+[maj,min,dim,sus]', scale: 255, beats: B, p48: b64(q), nc: b64(nc) };
+  }
+
+  // one 10-s chunk (220500 samples @22050) -> gained CQT magnitudes + BTC posteriors (independent: runs in any worker)
+  CL.chunkProbs = function (ych, tuning, model) {
+    const c = CL.cqt(ych, { sr: 22050, hop: 2048, fmin: C1, nBins: 144, bpo: 24, tuning });
+    const r = Math.pow(2, 2 / 24), Q = (r + 1) / (r - 1), fm = C1 * Math.pow(2, tuning / 24);
+    for (let i = 0; i < c.mag.length; i++) { const k = i % 144; c.mag[i] *= Math.sqrt(Q * 22050 / (fm * Math.pow(2, k / 24))) * Math.exp(CQ_C); }
+    const T = model.T, x = new Float32Array(T * 144);
+    for (let t = 0; t < Math.min(T, c.nFr); t++) for (let k = 0; k < 144; k++) x[t * 144 + k] = (Math.log(c.mag[t * 144 + k] + 1e-6) - model.mean) / model.std;
+    const p = model.forward(x);
+    return { mag: c.mag, nFr: c.nFr, probs: p.slice(0, c.nFr * model.K) };
+  };
+  CL.chunkStarts = function (n) { const a = []; for (let s = 0; s < n; s += 220500) if (n - s >= 2048) a.push(s); return a; };
+
+  /* Final assembly (cheap, main thread). r: {probs, mag, nFr, tuning, dur, cands:[{m,beats,pos}], nModels}; inp: {conf, title, artist, fileName, keepRows, debug} */
+  CL.assemble = function (r, inp) {
+    const { probs, mag, nFr, tuning, dur } = r, fps = 108 / 10;
+    const met = CL.chooseMeter(r.cands, probs, fps, dur);
+    if (met.beats.length < 2) throw new Error('No encontré el pulso de la canción.');
+    const key = CL.keyFromProbs(probs, 170), flats = useFlats(key.tonic, key.mode);
+    const bp = beatPool(probs, 170, fps, met.beats, dur);
+    const path = CL.viterbi(bp, 170, met.pos, met.meter, keyPrior(key.tonic, key.mode, VIT.kp));
+    const bc = bassChroma(mag, nFr, fps, met.beats, dur);
+    let pb = null, confInfo = null;
+    const d = { probs, fps, dur, beats: met.beats, pos: met.pos, meter: met.meter, key };
+    if (inp.conf || inp.keepRows) {
+      const rows = beatRows(d, bp, path, chromaFrames(mag, nFr));
+      if (inp.conf) { pb = predict(rows, inp.conf); confInfo = { model: inp.conf.name || 'confidence web', tiers: inp.conf.measured_LOSO }; }
+      d.rows = rows;
+    }
+    const segs = buildSegments(path, bp, met.beats, dur, flats, bc, pb, inp.conf);
+    const ib = []; for (let i = 1; i < met.beats.length; i++) ib.push(met.beats[i] - met.beats[i - 1]); ib.sort((a, b) => a - b);
+    const ibi = ib[Math.floor(ib.length / 2)];
+    const R = (x, n) => Math.round(x * 10 ** n) / 10 ** n;
+    const song = {
+      format: 'fretboard-song', version: 1,
+      meta: { title: inp.title || 'Sin título', artist: inp.artist || null, duration: R(dur, 3), source: { type: 'file', name: inp.fileName || null }, analyzed: new Date().toISOString(),
+        analyzer: { name: 'chordlab', version: VERSION, beats: 'madmom RNNDownBeat (JS, ' + (r.nModels || 3) + ' redes) + DBN', key: 'Krumhansl-Kessler sobre posteriores', chords: 'BTC kaggle_v1 (JS) + Viterbi por tiempo; confianza calibrada LOSO' } },
+      tempo: { bpm: R(60 / ibi, 1), meter: met.meter, meterEvidence: met.info },
+      tuning: { semitones: R(tuning, 3), a4: R(440 * Math.pow(2, tuning / 12), 1) },
+      key: { tonic: key.tonic, mode: key.mode, label: spell(key.tonic, flats) + (key.mode === 'major' ? '' : 'm'), strength: R(key.strength, 3), flats },
+      beats: met.beats.map(b => R(b, 3)), beatPos: met.pos.slice(), chords: segs, confidence: confInfo,
+      post: exportPost(bp, met.beats.length), sections: [], lyrics: null,
+    };
+    if (inp.debug) song._debug = { d, bp, path };
+    return song;
+  };
+
+  // serial reference pipeline (node tests / fallback without workers)
+  CL.analyze = async function (inp, progress) {
+    const P = progress || (async () => {}), dur = inp.y22.length / 22050;
+    await P('tono', 0); const tuning = CL.estimateTuning(inp.y22, 22050);
+    const st = CL.chunkStarts(inp.y22.length), parts = [];
+    for (let i = 0; i < st.length; i++) { parts.push(CL.chunkProbs(inp.y22.subarray(st[i], st[i] + 220500), tuning, inp.btc)); await P('acordes', (i + 1) / st.length); }
+    const nFr = parts.reduce((a, p) => a + p.nFr, 0), mag = new Float32Array(nFr * 144), probs = new Float32Array(nFr * 170);
+    let o = 0; for (const p of parts) { mag.set(p.mag, o * 144); probs.set(p.probs, o * 170); o += p.nFr; }
+    const nM = inp.nModels || 3;
+    const { act, nFr: aFr } = await CL.mmActivations(inp.y44, inp.mmW, inp.mmMeta, nM, i => P('pulso', i / nM));
+    const cands = [];
+    for (const m of [3, 4]) { await P('compas', m === 3 ? 0 : 0.5); const r = CL.dbn(act, aFr, m); cands.push({ m, beats: r.beats, pos: r.pos }); }
+    await P('final', 0);
+    return CL.assemble({ probs, mag, nFr, tuning, dur, cands, nModels: nM }, inp);
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+(function(G){var CL=G.CL;CL.MM_META={"res":[{"frame":1024,"bands":[[2,3],[3,4],[4,5],[5,6],[6,8],[7,10],[9,13],[11,16],[14,20],[17,26],[21,32],[27,41],[33,51],[42,65],[52,82],[66,103],[83,130],[104,163],[131,206],[164,259],[207,327]],"diff":1},{"frame":2048,"bands":[[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,13],[12,14],[14,16],[15,18],[17,20],[19,23],[21,26],[24,29],[27,32],[30,36],[33,41],[37,46],[42,51],[47,58],[52,65],[59,73],[66,82],[74,92],[83,103],[93,116],[104,130],[117,146],[131,163],[147,183],[164,206],[184,231],[207,259],[232,291],[260,327],[292,367],[328,412],[368,462],[413,519],[463,583],[520,654],[584,734]],"diff":1},{"frame":4096,"bands":[[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],[19,20],[20,22],[21,23],[23,24],[24,26],[25,27],[27,29],[28,31],[30,32],[32,34],[33,36],[35,39],[37,41],[40,43],[42,46],[44,49],[47,51],[50,55],[52,58],[56,61],[59,65],[62,69],[66,73],[70,77],[74,82],[78,87],[83,92],[88,97],[93,103],[98,109],[104,116],[110,122],[117,130],[123,137],[131,146],[138,154],[147,163],[155,173],[164,183],[174,194],[184,206],[195,218],[207,231],[219,245],[232,259],[246,275],[260,291],[276,309],[292,327],[310,346],[328,367],[347,389],[368,412],[390,436],[413,462],[437,490],[463,519],[491,550],[520,583],[551,617],[584,654],[618,693],[655,734],[694,778],[735,824],[779,873],[825,925],[874,980],[926,1038],[981,1100],[1039,1165],[1101,1234],[1166,1308],[1235,1386],[1309,1468],[1387,1555]],"diff":2}],"models":3};CL.CONF={"name":"confidence web 0.1 (LOSO, corpus JAAH+MARL-NYU)","version":"0.1-web","features":["p_cls","p_fam","margin","entropy","frame_agree","tmpl_margin","tmpl","outside","seglen","downbeat"],"mean":[0.6331891429736364,0.7454599385830667,0.6166265905940651,1.2200722176513192,0.8653953087337167,-0.06767632810205734,0.6945346930873578,0.393214796648273,4.584712855099121,0.2632331902718169],"std":[0.258980593250737,0.2602077231184221,0.40118543241652616,0.7467178462239977,0.26150103965741955,0.11273869751920948,0.12465006749478673,0.7144325031828317,2.967779026236835,0.4403878720073063],"coef":[-0.25188439315303285,1.3882356480052678,-0.23317075447674585,-0.6395491154753468,-0.3623191581497863,0.5561112488505063,-0.17865128794461235,0.07378985960752239,0.08478892933913443,-0.03912952260526865],"intercept":1.1499303662262834,"tiers":{"seguro":0.88,"probable":0.6},"measured_LOSO":{"seguro":{"precision":0.922,"coverage":0.39},"probable":{"precision":0.757,"coverage":0.329},"dudoso":{"precision":0.41,"coverage":0.281}},"corpus":"12 obras JAAH + MARL-NYU","target":"root+tercera (mir_eval majmin)"};})(typeof self!=="undefined"?self:globalThis);
+</script>
+<script>
+/* chordlab web · browser engine: decode -> worker pool (chunks of BTC, madmom nets, DBN) -> assemble.
+   Needs the library scripts (cl_btc, cl_cqt, cl_beats, cl_analyze) in <script id="cl-lib"> so workers can reuse the source. */
+(function (G) {
+  'use strict';
+  const CL = G.CL = G.CL || {};
+  const WEIGHTS_URL = 'chordlab-modelos.bin', DB = 'fretboard-tocar', VER = 'kaggle_v1+mm3';
+
+  // ---------- IndexedDB helpers (library + weights cache)
+  function idb() {
+    return new Promise((res, rej) => {
+      if (!G.indexedDB) return rej(new Error('sin IndexedDB'));
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains('songs')) d.createObjectStore('songs', { keyPath: 'id' }); if (!d.objectStoreNames.contains('blobs')) d.createObjectStore('blobs'); };
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  }
+  async function tx(store, mode, fn) {
+    const d = await idb();
+    return new Promise((res, rej) => { const t = d.transaction(store, mode), s = t.objectStore(store); const q = fn(s); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); });
+  }
+  CL.lib = {
+    async list() { try { const all = await tx('songs', 'readonly', s => s.getAll()); return (all || []).map(({ id, title, artist, fileName, created, key, bpm, duration }) => ({ id, title, artist, fileName, created, key, bpm, duration })).sort((a, b) => (b.created || '').localeCompare(a.created || '')); } catch (e) { return []; } },
+    async get(id) { return tx('songs', 'readonly', s => s.get(id)); },
+    async put(rec) { return tx('songs', 'readwrite', s => s.put(rec)); },
+    async del(id) { return tx('songs', 'readwrite', s => s.delete(id)); },
+  };
+
+  // ---------- weights (fetched once, cached in IndexedDB)
+  let weightsP = null;
+  CL.getWeights = function (onProg) {
+    if (weightsP) return weightsP;
+    weightsP = (async () => {
+      try { const c = await tx('blobs', 'readonly', s => s.get('weights:' + VER)); if (c && c.byteLength) return c; } catch (e) {}
+      const r = await fetch(WEIGHTS_URL, { cache: 'force-cache' });
+      if (!r.ok) throw new Error('No pude descargar los modelos (' + r.status + ').');
+      let buf;
+      const len = +r.headers.get('content-length') || 0;
+      if (r.body && r.body.getReader && len) {
+        const rd = r.body.getReader(), u8 = new Uint8Array(len); let got = 0;
+        for (;;) { const { done, value } = await rd.read(); if (done) break; u8.set(value, got); got += value.length; if (onProg) onProg(got / len); }
+        buf = u8.buffer;
+      } else buf = await r.arrayBuffer();
+      try { await tx('blobs', 'readwrite', s => s.put(buf, 'weights:' + VER)); } catch (e) {}
+      return buf;
+    })();
+    weightsP.catch(() => { weightsP = null; });
+    return weightsP;
+  };
+
+  // ---------- audio: decode + mono downmix + resample (OfflineAudioContext mixes stereo to mono as (L+R)/2)
+  async function decodeTo(arr, rates) {
+    const AC = G.AudioContext || G.webkitAudioContext, OAC = G.OfflineAudioContext || G.webkitOfflineAudioContext;
+    const ctx = new AC();
+    const buf = await new Promise((res, rej) => { const p = ctx.decodeAudioData(arr, res, rej); if (p && p.then) p.then(res, rej); });
+    try { ctx.close(); } catch (e) {}
+    const out = {};
+    for (const sr of rates) {
+      const n = Math.ceil(buf.duration * sr), oc = new OAC(1, n, sr), src = oc.createBufferSource();
+      src.buffer = buf; src.connect(oc.destination); src.start(0);
+      out[sr] = (await oc.startRendering()).getChannelData(0);
+    }
+    out.duration = buf.duration;
+    return out;
+  }
+
+  // ---------- worker pool
+  const WORKER_MAIN = `
+    let W = null, btc = null, META = null;
+    onmessage = e => {
+      const { id, op, a } = e.data;
+      try {
+        let r, tr = [];
+        if (op === 'init') { W = CL.loadWeights(a.buf); btc = CL.BTC(W); META = a.meta; r = true; }
+        else if (op === 'tuning') r = CL.estimateTuning(a.y, 22050);
+        else if (op === 'chunk') { r = CL.chunkProbs(a.y, a.tuning, btc); tr = [r.mag.buffer, r.probs.buffer]; }
+        else if (op === 'mmfeat') { r = CL.mmFeatures(a.y, META, W); tr = [r.feat.buffer]; }
+        else if (op === 'mmnet') { r = CL.mmNet(a.feat, a.T, a.dims, W, a.m); tr = [r.buffer]; }
+        else if (op === 'dbn') r = CL.dbn(a.act, a.T, a.m);
+        postMessage({ id, r }, tr);
+      } catch (err) { postMessage({ id, err: String(err && err.message || err) }); }
+    };`;
+  function makePool(n, buf, meta) {
+    const src = (document.getElementById('cl-lib') || {}).textContent;
+    if (!src || !G.Worker) return null;
+    let url; try { url = URL.createObjectURL(new Blob([src, WORKER_MAIN], { type: 'text/javascript' })); } catch (e) { return null; }
+    const ws = [], wait = new Map(); let seq = 0;
+    for (let i = 0; i < n; i++) {
+      let w; try { w = new Worker(url); } catch (e) { break; }
+      w.onmessage = e => { const p = wait.get(e.data.id); if (!p) return; wait.delete(e.data.id); w.busy = false; e.data.err ? p.rej(new Error(e.data.err)) : p.res(e.data.r); pump(); };
+      w.onerror = e => { e.preventDefault && e.preventDefault(); for (const [id, p] of wait) if (p.w === w) { wait.delete(id); p.rej(new Error(e.message || 'worker')); } };
+      ws.push(w);
+    }
+    if (!ws.length) return null;
+    const q = [];
+    function pump() {
+      for (const w of ws) {
+        if (w.busy || !q.length) continue;
+        const j = q.shift(); w.busy = true; const id = ++seq; wait.set(id, Object.assign(j, { w }));
+        w.postMessage({ id, op: j.op, a: j.a }, j.tr || []);
+      }
+    }
+    const run = (op, a, tr, front) => new Promise((res, rej) => { (front ? q.unshift : q.push).call(q, { op, a, tr, res, rej }); pump(); });
+    // init every worker with its own copy of the weights
+    const inits = ws.map(w => new Promise((res, rej) => { const id = ++seq; wait.set(id, { res, rej, w }); w.busy = true; w.postMessage({ id, op: 'init', a: { buf: buf.slice(0), meta } }); }));
+    return { n: ws.length, run, ready: Promise.all(inits), close() { ws.forEach(w => w.terminate()); URL.revokeObjectURL(url); q.length = 0; for (const p of wait.values()) p.rej(new Error('cancelado')); wait.clear(); } };
+  }
+
+  let current = null;
+  CL.cancel = function () { if (current) { current.cancelled = true; if (current.pool) current.pool.close(); } };
+
+  /* file: File/Blob; meta: {title, artist, fileName}; onProg(fraction 0..1, text) */
+  CL.analyzeFile = async function (file, meta, onProg) {
+    const job = current = { cancelled: false, pool: null };
+    const t0 = performance.now();
+    const W8 = { pesos: 0.04, audio: 0.04, tono: 0.03, acordes: 0.47, pulso: 0.36, compas: 0.05 }; // stage weights
+    const done = {}; let last = 0;
+    const prog = (stage, f, txt) => {
+      done[stage] = Math.max(done[stage] || 0, f);
+      const tot = Object.keys(W8).reduce((s, k) => s + W8[k] * (done[k] || 0), 0);
+      if (tot < last) return; last = tot;
+      const el = (performance.now() - t0) / 1000, eta = tot > 0.12 ? el / tot - el : null;
+      onProg && onProg(Math.min(0.995, tot), txt, eta);
+    };
+    const chk = () => { if (job.cancelled) throw new Error('cancelado'); };
+    prog('pesos', 0, 'Descargando modelos (solo la primera vez)…');
+    const buf = await CL.getWeights(f => prog('pesos', f, 'Descargando modelos (solo la primera vez)…')); chk();
+    prog('pesos', 1, 'Leyendo el audio…');
+    const arr = await file.arrayBuffer();
+    const au = await decodeTo(arr, [22050, 44100]); chk();
+    prog('audio', 1, 'Midiendo la afinación…');
+    const y22 = au[22050], y44 = au[44100], dur = y22.length / 22050;
+    if (dur < 8) throw new Error('El audio es demasiado corto.');
+    const META = CL.MM_META, nModels = META.models || 3;
+    const hc = navigator.hardwareConcurrency || 2, nW = Math.max(1, Math.min(4, hc - 1));
+    const pool = job.pool = makePool(nW, buf, META);
+    let res;
+    if (!pool) { // main-thread fallback (slower; yields between steps)
+      const W = CL.loadWeights(buf), btc = CL.BTC(W), yieldUI = () => new Promise(r => setTimeout(r, 0));
+      res = await CL.analyze({ y22, y44, btc, mmW: W, mmMeta: META, nModels, conf: CL.CONF, ...meta }, async (s, f) => { chk(); prog(s, f, stageText(s)); await yieldUI(); });
+      current = null; return res;
+    }
+    try {
+      await pool.ready; chk();
+      const tuning = await pool.run('tuning', { y: y22 }); chk();
+      prog('tono', 1, 'Escuchando los acordes…');
+      // madmom features first (longest chain), chunks fill the other workers
+      const featP = pool.run('mmfeat', { y: y44 });
+      const starts = CL.chunkStarts(y22.length); let nDone = 0;
+      const chunkP = Promise.all(starts.map(s => pool.run('chunk', { y: y22.slice(s, s + 220500), tuning }).then(r => { nDone++; prog('acordes', nDone / starts.length, 'Escuchando los acordes…'); return r; })));
+      const netP = featP.then(F => { prog('pulso', 0.15, 'Buscando el pulso…'); let k = 0; return Promise.all([...Array(nModels).keys()].map(m => pool.run('mmnet', { feat: F.feat, T: F.nFr, dims: F.dims, m }, null, true).then(a => { k++; prog('pulso', 0.15 + 0.85 * k / nModels, 'Buscando el pulso…'); return a; }))).then(acts => ({ acts, T: F.nFr })); });
+      const { acts, T } = await netP; chk();
+      const act = new Float32Array(T * 2);
+      for (const a of acts) for (let t = 0; t < T; t++) { act[2 * t] += a[3 * t + 1] / nModels; act[2 * t + 1] += a[3 * t + 2] / nModels; }
+      prog('compas', 0.1, 'Contando el compás…');
+      const dbnP = Promise.all([3, 4].map(m => pool.run('dbn', { act, T, m }, null, true).then(r => ({ m, beats: r.beats, pos: r.pos }))));
+      const parts = await chunkP; chk();
+      const cands = await dbnP; chk();
+      prog('compas', 1, 'Armando la hoja…');
+      const nFr = parts.reduce((a, p) => a + p.nFr, 0), mag = new Float32Array(nFr * 144), probs = new Float32Array(nFr * 170);
+      let o = 0; for (const p of parts) { mag.set(p.mag, o * 144); probs.set(p.probs, o * 170); o += p.nFr; }
+      res = CL.assemble({ probs, mag, nFr, tuning, dur, cands, nModels }, Object.assign({ conf: CL.CONF }, meta));
+      res.meta.analysisSeconds = Math.round((performance.now() - t0) / 100) / 10;
+      return res;
+    } finally { pool.close(); if (current === job) current = null; }
+  };
+  function stageText(s) { return { tono: 'Midiendo la afinación…', acordes: 'Escuchando los acordes…', pulso: 'Buscando el pulso…', compas: 'Contando el compás…', final: 'Armando la hoja…' }[s] || ''; }
+})(typeof self !== 'undefined' ? self : globalThis);
+</script>
 <script>
 (function(){
 "use strict";
@@ -49060,8 +50088,15 @@ const AU = (() => {
   function restore() { try { S.fixes = JSON.parse(localStorage.getItem(fixKey()) || '{}') || {}; } catch (e) { S.fixes = {}; } }
 
   // --- carga ---
-  function ready() { $('startBtn').disabled = !(S.song && S.audioFile); }
-  $('audioIn').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; S.audioFile = f; $('audioSt').textContent = f.name; ready(); });
+  function ready() { $('startBtn').disabled = !(S.song && S.audioFile); $('anaBtn').disabled = !S.audioFile || S.busy; }
+  function titleFromFile(n) { return n.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').replace(/^\d+[\s.-]+/, '').trim(); }
+  $('audioIn').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    S.audioFile = f; S.song = null; $('songSt').textContent = '.song.json'; $('audioSt').textContent = f.name;
+    const t = titleFromFile(f.name), parts = t.split(' - ');
+    $('fTitle').value = parts.length > 1 ? parts.slice(1).join(' - ') : t; $('fArtist').value = parts.length > 1 ? parts[0] : '';
+    $('fields').classList.remove('toc-hidden'); $('anaMsg').classList.add('toc-hidden'); ready();
+  });
   $('songIn').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
     try {
@@ -49071,6 +50106,67 @@ const AU = (() => {
     } catch (err) { S.song = null; $('songSt').textContent = 'No es un .song.json válido'; }
     ready();
   });
+  const fmtEta = s => s == null ? '' : s < 60 ? '≈ ' + Math.max(1, Math.round(s)) + ' s' : '≈ ' + Math.round(s / 60) + ' min';
+  async function analyze() {
+    if (!window.CL || !CL.analyzeFile) { toast('El analizador no está disponible'); return; }
+    const f = S.audioFile; S.busy = true; ready();
+    $('anaBtn').classList.add('toc-hidden'); $('prog').classList.remove('toc-hidden'); $('anaMsg').classList.add('toc-hidden');
+    $('progFill').style.width = '0%'; $('progTxt').textContent = 'Preparando…'; $('progEta').textContent = '';
+    const meta = { title: $('fTitle').value.trim() || titleFromFile(f.name), artist: $('fArtist').value.trim() || null, fileName: f.name };
+    try {
+      const song = await CL.analyzeFile(f, meta, (p, txt, eta) => { $('progFill').style.width = (p * 100).toFixed(1) + '%'; if (txt) $('progTxt').textContent = txt; $('progEta').textContent = fmtEta(eta); });
+      $('progFill').style.width = '100%';
+      const rec = { id: 's' + Date.now().toString(36), title: meta.title, artist: meta.artist, fileName: f.name, created: new Date().toISOString(),
+        key: song.key.label, bpm: song.tempo.bpm, duration: song.meta.duration, song, audio: f };
+      let saved = true;
+      try { await CL.lib.put(rec); } catch (e1) { try { delete rec.audio; await CL.lib.put(rec); saved = 'sin audio'; } catch (e2) { saved = false; } }
+      S.song = song; S.libId = rec.id;
+      await start(false);
+      toast(saved === true ? 'Guardada en Tus canciones' : saved ? 'Guardada sin el audio (poco espacio)' : 'No se pudo guardar en este dispositivo');
+    } catch (e) {
+      const m = String(e && e.message || e);
+      if (m !== 'cancelado') { $('anaMsg').textContent = /decod|EncodingError|Unable|unsupported/i.test(m) ? 'No pude leer ese audio. Prueba con un MP3 o WAV.' : 'No se pudo analizar: ' + m; $('anaMsg').classList.remove('toc-hidden'); }
+    } finally {
+      S.busy = false; $('prog').classList.add('toc-hidden'); $('anaBtn').classList.remove('toc-hidden'); ready();
+    }
+  }
+  async function renderLib() {
+    const list = window.CL && CL.lib ? await CL.lib.list() : [];
+    const box = $('lib'); box.innerHTML = '';
+    $('libEmpty').classList.toggle('toc-hidden', list.length > 0);
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    for (const r of list) {
+      const d = document.createElement('div'); d.className = 'toc-libitem';
+      d.innerHTML = `<button class="toc-libopen" data-tact="libopen" data-id="${esc(r.id)}"><span class="t">${esc(r.title)}</span><span class="m">${esc([r.artist, r.key, r.bpm ? Math.round(r.bpm) + ' bpm' : '', r.duration ? fmt(r.duration) : ''].filter(Boolean).join(' · '))}</span></button><button class="toc-libdel" data-tact="libdel" data-id="${esc(r.id)}" aria-label="Borrar ${esc(r.title)}">×</button>`;
+      box.appendChild(d);
+    }
+  }
+  async function openLib(id) {
+    const r = await CL.lib.get(id); if (!r) return renderLib();
+    if (!r.audio) { S.song = r.song; S.audioFile = null; $('songSt').textContent = 'de Tus canciones'; toast('Elige el audio de esta canción y toca «Abrir con ese archivo»'); ready(); return; }
+    S.song = r.song; S.audioFile = r.audio; S.libId = id; return start(false);
+  }
+  async function delLib(id, btn) {
+    if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = '¿Borrar?'; btn.style.width = '84px'; btn.style.fontSize = '12px'; setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ''; btn.textContent = '×'; btn.style.width = ''; btn.style.fontSize = ''; } }, 3000); return; }
+    await CL.lib.del(id); renderLib(); toast('Canción borrada');
+  }
+  function backToLib() {
+    AU.pause(); $('playBtn').textContent = '▶'; cancelAnimationFrame(S.raf);
+    $('playView').classList.add('toc-hidden'); $('transport').classList.add('toc-hidden'); $('loadView').classList.remove('toc-hidden'); $('head').classList.remove('toc-hidden');
+    S.started = false; S.chartOn = false; $('chartState').textContent = 'Sin cifra: acordes detectados solo por el audio.'; $('unchartBtn').classList.add('toc-hidden'); $('chartIn').value = ''; S.tr = 0; S.capoTouched = false; AU.setSemis(0);
+    S.audioFile = null; S.song = null; $('audioIn').value = ''; $('songIn').value = ''; $('audioSt').textContent = 'MP3, M4A o WAV'; $('songSt').textContent = '.song.json'; $('fields').classList.add('toc-hidden'); ready();
+    renderLib(); window.scrollTo(0, 0);
+  }
+  function downloadSong() {
+    try {
+      const out = JSON.parse(JSON.stringify(S.song));
+      out.chords.forEach(c => { const f = S.fixes[c.beat]; if (f) Object.assign(c, { root: f.root, quality: f.quality, bass: f.bass, tier: 'corregido', p: 1, userFixed: true }); });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: 'application/json' }));
+      a.download = (S.song.meta.title || 'cancion').replace(/[\\/:*?"<>|]+/g, '_') + '.song.json'; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    } catch (e) { exportSong(); }
+  }
+  setTimeout(renderLib, 0);
   function demoSong() {
     // Ejemplo propio (no es una canción real): ii–V–I–vi en Si♭ con un préstamo y una dominante secundaria
     const bpm = 96, beat = 60 / bpm, prog = [[0, 'min7'], [5, '7'], [10, 'maj7'], [7, 'min7'], [3, 'maj7'], [8, '7'], [2, '7'], [7, 'min7'], [0, 'min7'], [5, '7'], [10, 'maj6'], [10, 'maj6']];
@@ -49084,17 +50180,17 @@ const AU = (() => {
       confidence: { tiers: { seguro: { precision: 0.938 }, probable: { precision: 0.733 }, dudoso: { precision: 0.345 } } } };
   }
   async function start(demo) {
-    $('startBtn').disabled = true; $('startBtn').textContent = 'Preparando audio…';
+    $('startBtn').disabled = true;
     try {
       if (demo === true) { S.song = demoSong(); await AU.renderDemo(S.song.chords, S.song.meta.duration); }
       else await AU.load(await S.audioFile.arrayBuffer());
     }
-    catch (e) { $('startBtn').textContent = 'No pude leer ese audio'; $('startBtn').disabled = false; return; }
-    restore();
+    catch (e) { toast('No pude leer ese audio'); ready(); return; }
+    restore(); S.cur = -2; S.curBar = -1;
     S.audioChords = S.song.chords;
     try { const ct = localStorage.getItem(storeKey() + ':cifra'); if (ct) { const o = JSON.parse(ct); S.abbr = !!o.abbr; $('chartIn').value = o.text; applyChart(o.text, true); } } catch (e) {}
     S.capo = TH.bestCapo(S.song.chords.map(chordOf), S.tr);
-    $('loadView').classList.add('toc-hidden'); $('playView').classList.remove('toc-hidden'); $('transport').classList.remove('toc-hidden'); S.started = true;
+    $('loadView').classList.add('toc-hidden'); $('head').classList.add('toc-hidden'); $('playView').classList.remove('toc-hidden'); $('transport').classList.remove('toc-hidden'); S.started = true;
     const m = S.song.meta;
     $('songTitle').textContent = m.title + (m.artist ? ' · ' + m.artist : '');
     renderFoot();
@@ -49337,6 +50433,12 @@ const AU = (() => {
     const act = b.dataset.tact, v = b.dataset.v;
     if (act === 'start') return start(false);
     if (act === 'demo') return start(true);
+    if (act === 'analyze') return analyze();
+    if (act === 'cancel') { if (window.CL) CL.cancel(); return; }
+    if (act === 'libopen') return openLib(b.dataset.id);
+    if (act === 'libdel') return delLib(b.dataset.id, b);
+    if (act === 'back2lib') return backToLib();
+    if (act === 'download') return downloadSong();
     if (act === 'play') { if (AU.playing) { AU.pause(); b.textContent = '▶'; b.setAttribute('aria-label', 'Reproducir'); } else { await AU.play(); b.textContent = '❚❚'; b.setAttribute('aria-label', 'Pausa'); } return; }
     if (act === 'back') { AU.seek(AU.time() - 5); return; }
     if (act === 'tr') { S.tr = Math.max(-6, Math.min(6, S.tr + +v)); AU.setSemis(S.tr); if (!S.capoTouched) S.capo = TH.bestCapo(S.song.chords.map(chordOf), S.tr); renderControls(); return; }
