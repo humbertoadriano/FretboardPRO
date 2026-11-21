@@ -4351,6 +4351,72 @@ button[onclick="compCompareConfirmPreview()"]{background:var(--gold)!important;b
 #jam-onboarding div[style*="font-weight:700"]{font-size:17px!important;color:var(--fg)!important;letter-spacing:0!important;}
 #jam-onboarding button{font-size:14px!important;min-height:40px;border-radius:20px!important;padding:0 16px!important;}
 
+/* ══ v211 · Tocar: Modo tocar + Otras digitaciones + volver a la canción ══ */
+#panel-tocar .toc-headacts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+#panel-tocar #toc-stageBtn svg,#toc-stageBar svg,#toc-retChip svg,#panel-tocar .toc-vplink svg{width:18px;height:18px;flex:none}
+#panel-tocar #toc-stageBtn{min-height:44px}
+#panel-tocar #toc-stageBtn svg{color:var(--gold)}
+@media (max-width:640px){
+  #panel-tocar .toc-songhead{flex-wrap:wrap}
+  #panel-tocar .toc-songhead > div:first-child{flex:1 1 100%}
+  #panel-tocar .toc-headacts{flex:1 1 100%;justify-content:stretch}
+  #panel-tocar .toc-headacts .toc-btn{flex:1 1 0;justify-content:center}
+}
+#panel-tocar .toc-vplink{margin-top:10px;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border:1px solid var(--ink5);
+  background:transparent;color:var(--fg2);border-radius:20px;font:600 13px 'Inter',sans-serif;cursor:pointer}
+#panel-tocar .toc-vplink:hover,#panel-tocar .toc-vplink:focus-visible{color:var(--gold);border-color:var(--gold)}
+#panel-tocar #toc-nowDiagram{cursor:pointer}
+
+/* hoja de digitaciones */
+#toc-vpScrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:950}
+#toc-vpScrim.toc-hidden,#toc-vpSheet.toc-hidden{display:none!important}
+#toc-vpSheet .toc-vpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+#toc-vpSheet .toc-vpopt{display:grid;justify-items:center;gap:4px;padding:8px 4px 6px;background:var(--ink3);border:1px solid var(--ink5);border-radius:var(--r2);
+  color:var(--fg2);cursor:pointer;min-height:44px}
+#toc-vpSheet .toc-vpopt[aria-selected="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);color:var(--gold)}
+#toc-vpSheet .toc-vpopt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#toc-vpSheet .toc-vpsvg{width:76px;height:82px}
+#toc-vpSheet .toc-vplbl{font:600 12px 'Inter',sans-serif;text-align:center;line-height:1.25}
+#toc-vpSheet .toc-vpacts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#toc-vpSheet .toc-vpacts .toc-btn[hidden]{display:none}
+
+/* volver a la canción (en el Explorador) */
+#toc-retChip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:880;
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px 0 10px;border-radius:22px;border:1px solid var(--gold);
+  background:var(--ink2);color:var(--gold);font:700 14px 'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+#toc-retChip[hidden]{display:none}
+@media (min-width:641px){#toc-retChip{bottom:24px}}
+
+/* Modo tocar */
+#toc-stageBar{display:none}
+body.toc-stage header,body.toc-stage #guitar-bar,body.toc-stage #comp-drawer,body.toc-stage #toc-head,body.toc-stage #toc-loadView,
+body.toc-stage #toc-playView > :not(#toc-bigView):not(#toc-stageBar){display:none!important}
+body.toc-stage #toc-stageBar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:12px}
+body.toc-stage #toc-stageBar .toc-stitle{font:700 15px 'Inter',sans-serif;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.toc-stage #toc-stageBar .toc-sbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--ink5);background:var(--ink3);
+  color:var(--fg);border-radius:22px;font:600 14px 'Inter',sans-serif;cursor:pointer}
+body.toc-stage #toc-stageNote{grid-column:1/-1;min-height:40px;border:1px dashed var(--gold);background:transparent;color:var(--gold);border-radius:var(--r2);
+  font:600 13px 'Inter',sans-serif;cursor:pointer}
+body.toc-stage #toc-stageNote[hidden]{display:none}
+body.toc-stage #panel-tocar{padding-top:max(12px,env(safe-area-inset-top,0px))}
+body.toc-stage #panel-tocar .toc-big{font-size:clamp(76px,24vw,180px)}
+body.toc-stage #panel-tocar .toc-nextname{font-size:clamp(28px,8vw,56px)}
+body.toc-stage #panel-tocar #toc-nowDiagram{max-width:820px}
+body.toc-stage #panel-tocar .toc-vplink{display:none}
+@media (orientation:landscape) and (min-width:640px){
+  body.toc-stage #panel-tocar .toc-now{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)!important;align-items:center}
+  body.toc-stage #panel-tocar #toc-nowDiagram{justify-self:end}
+  body.toc-stage #panel-tocar .toc-big{font-size:clamp(64px,13vw,170px)}
+}
+
+/* inversiones en «Corregir acorde» */
+.toc-sheet .toc-invrow{display:grid;gap:8px;padding-top:4px;border-top:1px solid var(--ink4)}
+.toc-sheet .toc-invlbl{font:700 12px 'Inter',sans-serif;color:var(--fg2);padding-top:10px}
+.toc-sheet .toc-invopts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.toc-sheet .toc-invbtn{flex-direction:column;align-items:flex-start!important;gap:2px!important;padding:8px 12px!important;min-height:52px}
+.toc-sheet .toc-invbtn span{font-family:'JetBrains Mono',monospace;font-size:15px}
+.toc-sheet .toc-invbtn small{font:500 11px 'Inter',sans-serif;color:var(--fg3)}
+
 </style>
 </head>
 <body>
@@ -51026,7 +51092,7 @@ const TH = (() => {
     if (ch.suffix != null && level === 'full') return note(ch.root + shift, flats) + prettySuf(ch.suffix) + (ch.bass != null ? '/' + note(ch.bass + shift, flats) : '');
     const q = levelQ(ch.quality, level);
     let s = note(ch.root + shift, flats) + QUAL[q].s;
-    if (ch.bass != null && level !== 'triad') s += '/' + note(ch.bass + shift, flats);
+    if (ch.bass != null) s += '/' + note(ch.bass + shift, flats);
     return s;
   }
   const pcs = (root, q) => QUAL[q].iv.map(i => mod(root + i));
@@ -51486,11 +51552,12 @@ const AU = (() => {
     const svg = $('nowDiagram');
     if (!c || c.root == null) { svg.innerHTML = ''; return; }
     const ch = chordOf(c), q = TH.levelQ(ch.quality, S.level), root = TH.mod(ch.root + shift);
-    const v = TH.voicing(root, q);
+    let pk = null; try { pk = window.__tocPick ? window.__tocPick(root, q, ch, shift) : null; } catch (e) {}
+    const v = pk || TH.voicing(root, q);
     if (!v) { svg.innerHTML = ''; return; }
     if (window.__tocBoard) {
       try {
-        const cs = Object.assign({}, ch, { bass: null });
+        const cs = Object.assign({}, ch, { bass: pk && pk.bass != null ? ch.bass : null });
         window.__tocBoard(svg, { frets: v.frets, root: root, formula: TH.QUAL[q].iv, rootName: TH.note(root, flatsFor(shift)),
           capo: S.capo, soundName: TH.note(TH.mod(root + S.capo), flatsFor(S.tr)),
           shapeChord: TH.name(cs, shift, flatsFor(shift), S.level), soundChord: TH.name(cs, S.tr, flatsFor(S.tr), S.level) });
@@ -51521,7 +51588,7 @@ const AU = (() => {
     if (ch.root == null) return 'N.C.';
     const fl = flatsFor(shift), q = TH.levelQ(ch.quality, S.level);
     const r = TH.note(ch.root + shift, fl), rest = TH.QUAL[q].s;
-    const bass = ch.bass != null && S.level !== 'triad' ? `<span class="bass">/${TH.note(ch.bass + shift, fl)}</span>` : '';
+    const bass = ch.bass != null ? `<span class="bass">/${TH.note(ch.bass + shift, fl)}</span>` : '';
     return `<span class="root">${r}</span>${rest}${bass}`;
   }
   function tick(force) {
@@ -51685,7 +51752,8 @@ const AU = (() => {
   seek.addEventListener('input', () => { S.dragging = true; $('time').textContent = fmt(seek.value / 1000 * (AU.duration || S.song.meta.duration)); });
   seek.addEventListener('change', () => { S.dragging = false; AU.seek(seek.value / 1000 * AU.duration); S.cur = -2; });
   AU.onEnd = () => { $('playBtn').textContent = '▶'; };
-  window.__TOCAR = { get started() { return !!S.started; }, pauseIfPlaying() { if (AU.playing) { AU.pause(); $('playBtn').textContent = '▶'; } }, setView,  S, AU, start, openFix, tick, applyChart }; // ganchos de prueba
+  window.__TOCAR = { get started() { return !!S.started; }, pauseIfPlaying() { if (AU.playing) { AU.pause(); $('playBtn').textContent = '▶'; } }, setView,  S, AU, start, openFix, tick, applyChart,
+    TH, chordOf, flatsFor, shapeShift, storeKey, store, renderBars, closeSheet, redraw() { S.cur = -2; tick(true); } }; // ganchos de prueba
 })();
 
 })();
@@ -53151,6 +53219,289 @@ const AU = (() => {
     postAn();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+// ══ v211 · Tocar: Modo tocar (escenario, pantalla encendida) + Otras digitaciones + salto al Explorador ══
+(function(){
+  'use strict';
+  var T = function(){ return window.__TOCAR; };
+  var $ = function(id){ return document.getElementById(id); };
+  // calidad de Tocar → tipo del catálogo del Explorador
+  var Q2ID = { maj:'maj', min:'min', dim:'dim', aug:'aug', min6:'min6', maj6:'6', min7:'min7', minmaj7:'mMaj7',
+    maj7:'maj7', '7':'7', dim7:'dim7', hdim7:'m7b5', sus2:'sus2', sus4:'sus4' };
+  var TUN = [4, 9, 14, 19, 23, 28];
+
+  // ── Digitación elegida (por canción y por forma) ──
+  function vpKey(){ try { return 'toc:vp:' + T().storeKey(); } catch(e){ return null; } }
+  function loadPicks(){ var k = vpKey(); if (!k) return {}; try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch(e){ return {}; } }
+  function savePicks(o){ var k = vpKey(); if (!k) return; try { localStorage.setItem(k, JSON.stringify(o)); } catch(e){} }
+  function pickId(root, q, bass){ return root + ':' + q + (bass != null ? '/' + bass : ''); }
+  function pcsOf(frets){ var s = {}; frets.forEach(function(f, i){ if (f >= 0) s[(TUN[i] + f) % 12] = 1; }); return s; }
+  function lowest(frets){ for (var i = 0; i < 6; i++) if (frets[i] >= 0) return (TUN[i] + frets[i]) % 12; return null; }
+  function minFret(v){ var f = v.filter(function(x){ return !x.mute && x.fret > 0; }).map(function(x){ return x.fret; }); return f.length ? Math.min.apply(null, f) : 0; }
+  function toFrets(v){ return v.map(function(x){ return x.mute ? -1 : x.fret; }); }
+  function fromFrets(fr){ return fr.map(function(f, s){ return f < 0 ? { mute: true, fret: -1, note: null } : { mute: false, fret: f, note: CHR[(TUN[s] + f) % 12] }; }); }
+  function same(a, b){ return a && b && a.length === b.length && a.every(function(x, i){ return x === b[i]; }); }
+  function sounding(v){ return v.filter(function(x){ return !x.mute; }).length; }
+  // Digitaciones posibles para una forma (con bajo: inversión o acorde con barra, el bajo en la cuerda más grave)
+  var cache = {};
+  function options(root, q, bass, capo){
+    var k = root + ':' + q + ':' + bass + ':' + capo; if (cache[k]) return cache[k];
+    var t = T(), id = Q2ID[q] || 'maj', rootN = CHR[root], maxF = 15 - (capo | 0), list = [], def = null;
+    var ok = function(v){ var mx = Math.max.apply(null, v.map(function(x){ return x.mute ? 0 : x.fret; })); return sounding(v) >= 3 && mx <= maxF; };
+    if (bass != null && typeof getSlashVoicings === 'function'){
+      list = getSlashVoicings(rootN, id, CHR[bass], 'standard').filter(ok)
+        .filter(function(v){ return lowest(toFrets(v)) === bass; });
+      // la más cómoda: posición baja, más cuerdas sonando, menor extensión
+      var score = function(v){ var f = v.filter(function(x){ return !x.mute && x.fret > 0; }).map(function(x){ return x.fret; });
+        var span = f.length ? Math.max.apply(null, f) - Math.min.apply(null, f) : 0; return minFret(v) * 1.0 + span * 0.8 - sounding(v) * 0.6; };
+      list.sort(function(a, b){ return score(a) - score(b); });
+      def = list.length ? toFrets(list[0]) : null;
+    } else if (typeof buildAllVoicings === 'function'){
+      list = buildAllVoicings(rootN, id, 'standard').filter(ok);
+      var dv = t.TH.voicing(root, q); def = dv && dv.frets;
+      if (def){ list = list.filter(function(v){ return !same(toFrets(v), def); }); list.unshift(fromFrets(def)); }
+    }
+    return (cache[k] = { list: list.slice(0, 18), def: def, id: id });
+  }
+  window.__tocPick = function(root, q, ch, shift){
+    var t = T(); if (!t) return null;
+    var bass = ch && ch.bass != null ? t.TH.mod(ch.bass + shift) : null; if (bass === root) bass = null;
+    var iv = t.TH.QUAL[q] && t.TH.QUAL[q].iv; if (!iv) return null;
+    var p = loadPicks()[pickId(root, q, bass)];
+    if (p && p.length === 6){
+      // solo si suena el acorde pedido (protege de datos viejos)
+      var got = pcsOf(p), good = iv.every(function(x, i){ return (i === 2 && iv.length === 4) || got[(root + x) % 12]; }) && (bass == null || lowest(p) === bass);
+      if (good) return { frets: p.slice(), open: false, bass: bass };
+    }
+    if (bass == null) return null;
+    var o = options(root, q, bass, t.S.capo);
+    return o.def ? { frets: o.def.slice(), open: false, bass: bass } : null;
+  };
+
+  // ── Datos del acorde actual ──
+  function current(){
+    var t = T(); if (!t || !t.S.song) return null;
+    var S = t.S, ch = S.song.chords, i = S.cur; if (i == null || i < 0 || !ch[i] || ch[i].root == null) return null;
+    var c = t.chordOf(ch[i]), q = t.TH.levelQ(c.quality, S.level);
+    var shapeSh = S.capo ? t.shapeShift() : S.tr;
+    var shapeRoot = t.TH.mod(c.root + shapeSh), soundRoot = t.TH.mod(c.root + S.tr);
+    var shapeBass = c.bass != null ? t.TH.mod(c.bass + shapeSh) : null; if (shapeBass === shapeRoot) shapeBass = null;
+    var cs = Object.assign({}, c, { bass: shapeBass == null ? null : c.bass });
+    return { t: t, S: S, c: c, q: q, shapeRoot: shapeRoot, soundRoot: soundRoot, shapeBass: shapeBass,
+      shapeName: t.TH.name(cs, shapeSh, t.flatsFor(shapeSh), S.level), soundName: t.TH.name(cs, S.tr, t.flatsFor(S.tr), S.level),
+      soundFull: t.TH.name(c, S.tr, t.flatsFor(S.tr), 'full'), bassSound: c.bass != null ? t.TH.mod(c.bass + S.tr) : null };
+  }
+  // ── Hoja «Otras digitaciones» ──
+  function ensureSheet(){
+    if ($('toc-vpSheet')) return;
+    var sc = document.createElement('div'); sc.id = 'toc-vpScrim'; sc.className = 'toc-hidden';
+    var sh = document.createElement('section'); sh.id = 'toc-vpSheet'; sh.className = 'toc-sheet toc-hidden';
+    sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', 'toc-vpTitle');
+    sh.innerHTML = '<div class="toc-in"><h3 id="toc-vpTitle">Otras digitaciones</h3><p id="toc-vpInfo"></p>' +
+      '<div class="toc-vpgrid" id="toc-vpGrid" role="listbox" aria-label="Digitaciones"></div>' +
+      '<div class="toc-vpacts"><button class="toc-btn" type="button" id="toc-vpReset">Usar la de siempre</button>' +
+      '<button class="toc-btn" type="button" id="toc-vpExp">Abrir en el Explorador</button>' +
+      '<button class="toc-btn toc-primary" type="button" id="toc-vpClose">Listo</button></div></div>';
+    document.body.appendChild(sc); document.body.appendChild(sh);
+    sc.addEventListener('click', closeSheet);
+    $('toc-vpClose').addEventListener('click', closeSheet);
+    $('toc-vpReset').addEventListener('click', function(){ var d = current(); if (!d) return; var o = loadPicks(); delete o[pickId(d.shapeRoot, d.q, d.shapeBass)]; savePicks(o); d.t.redraw(); fillSheet(); });
+    $('toc-vpExp').addEventListener('click', function(){ closeSheet(); openExplorer(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('toc-vpSheet').classList.contains('toc-hidden')) closeSheet(); });
+  }
+  function fillSheet(){
+    var d = current(), G = $('toc-vpGrid'), I = $('toc-vpInfo'); if (!G) return;
+    if (!d){ G.innerHTML = ''; I.textContent = 'No hay un acorde sonando.'; return; }
+    var o = options(d.shapeRoot, d.q, d.shapeBass, d.S.capo), rootN = CHR[d.shapeRoot];
+    var ac = (ALL_CHORDS.find(function(x){ return x.id === o.id; }) || { f: [0,4,7] });
+    var list = o.list, defF = o.def, pid = pickId(d.shapeRoot, d.q, d.shapeBass);
+    var chosen = loadPicks()[pid] || defF;
+    document.getElementById('toc-vpTitle').textContent = 'Digitaciones de ' + d.soundName;
+    I.textContent = d.S.capo ? ('Con capo en el traste ' + d.S.capo + ' se tocan con la forma de ' + d.shapeName + '. Los números son trastes desde el capo.') :
+      'Elige la que te quede más cómoda; se usa en toda esta canción cada vez que aparezca ' + d.soundName + '.';
+    $('toc-vpReset').hidden = !loadPicks()[pid];
+    G.innerHTML = '';
+    list.forEach(function(v, k){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'toc-vpopt'; b.setAttribute('role', 'option');
+      var fr = toFrets(v), on = same(fr, chosen), mf = minFret(v);
+      b.setAttribute('aria-selected', String(on)); b.dataset.k = k;
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'toc-vpsvg'); svg.setAttribute('aria-hidden', 'true');
+      try { renderMiniBox(svg, v, rootN, ac.f); } catch(e){}
+      var lb = document.createElement('span'); lb.className = 'toc-vplbl';
+      lb.textContent = (k === 0 && defF ? (d.shapeBass != null ? 'Sugerida' : 'La de siempre') : (mf <= 1 && v.some(function(x){ return !x.mute && x.fret === 0; }) ? 'Al aire' : 'Traste ' + mf));
+      b.appendChild(svg); b.appendChild(lb);
+      b.setAttribute('aria-label', 'Digitación ' + lb.textContent + ': ' + fr.map(function(f){ return f < 0 ? 'x' : f; }).join(' '));
+      b.addEventListener('click', function(){
+        var pk = loadPicks(); if (same(fr, defF)) delete pk[pid]; else pk[pid] = fr;
+        savePicks(pk); d.t.redraw(); fillSheet();
+      });
+      G.appendChild(b);
+    });
+  }
+  function openSheet(){
+    ensureSheet(); fillSheet();
+    $('toc-vpScrim').classList.remove('toc-hidden'); $('toc-vpSheet').classList.remove('toc-hidden');
+    var sel = $('toc-vpGrid').querySelector('[aria-selected="true"]') || $('toc-vpGrid').querySelector('button'); if (sel) sel.focus();
+  }
+  function closeSheet(){ var a = $('toc-vpScrim'), b = $('toc-vpSheet'); if (a) a.classList.add('toc-hidden'); if (b) b.classList.add('toc-hidden'); }
+
+  // ── Abrir el acorde en el Explorador y volver a la canción ──
+  function openExplorer(){
+    var d = current(); if (!d || typeof loadExplorer !== 'function') return;
+    var id = Q2ID[d.q] || 'maj', bass = d.bassSound != null && d.bassSound !== d.soundRoot ? CHR[d.bassSound] : null;
+    if (stageOn) exitStage();
+    loadExplorer(CHR[d.soundRoot], id, bass);
+    try { buildRoot(); buildCats(); buildTypes(); renderExplorer(); } catch(e){}
+    retFrom = true; setMode('explorer'); showChip();
+    window.scrollTo(0, 0);
+  }
+  var retFrom = false;
+  function chip(){
+    var c = $('toc-retChip'); if (c) return c;
+    c = document.createElement('button'); c.id = 'toc-retChip'; c.type = 'button'; c.hidden = true;
+    c.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Volver a la canción</span>';
+    c.addEventListener('click', function(){ retFrom = false; c.hidden = true; setMode('tocar'); });
+    document.body.appendChild(c); return c;
+  }
+  function showChip(){ chip().hidden = false; }
+  (function wrapMode(){
+    var o = window.setMode; if (typeof o !== 'function') return;
+    window.setMode = function(m){
+      if (m !== 'tocar' && stageOn) exitStage();
+      var r = o.apply(this, arguments);
+      var c = $('toc-retChip'); if (c && (m === 'tocar' || m !== 'explorer')){ c.hidden = true; if (m === 'tocar') retFrom = false; }
+      if (c && m === 'explorer' && retFrom) c.hidden = false;
+      return r;
+    };
+  })();
+
+  // ── Modo tocar: vista de escenario, pantalla siempre encendida ──
+  var stageOn = false, prevView = 'big', fsOwn = false, lastActive = Date.now(), stageWake = false, IDLE = 30 * 60 * 1000;
+  function wake(on){
+    if (typeof window._acquireWakeLock !== 'function') return;
+    stageWake = on; if (on) window._acquireWakeLock('stage'); else window._releaseWakeLock('stage');
+    var n = $('toc-stageNote'); if (n) n.hidden = on || !stageOn;
+  }
+  function stageBar(){
+    var b = $('toc-stageBar'); if (b) return b;
+    b = document.createElement('div'); b.id = 'toc-stageBar';
+    b.innerHTML = '<div class="toc-stitle" id="toc-stageTitle"></div><button type="button" class="toc-sbtn" id="toc-stageExit" aria-label="Salir del modo tocar">' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span>Salir</span></button>' +
+      '<button type="button" id="toc-stageNote" hidden>La pantalla puede apagarse · toca para mantenerla encendida</button>';
+    var pv = $('toc-playView'); pv.insertBefore(b, pv.firstChild);
+    $('toc-stageExit').addEventListener('click', exitStage);
+    $('toc-stageNote').addEventListener('click', function(){ lastActive = Date.now(); wake(true); });
+    return b;
+  }
+  function enterStage(){
+    var t = T(); if (!t || !t.started) return;
+    stageBar(); stageOn = true; lastActive = Date.now();
+    prevView = t.S.view || 'big'; if (prevView !== 'big') t.setView('big');
+    $('toc-stageTitle').textContent = $('toc-songTitle') ? $('toc-songTitle').textContent : '';
+    document.body.classList.add('toc-stage');
+    wake(true);
+    var el = document.documentElement, rq = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (rq && !(document.fullscreenElement || document.webkitFullscreenElement)){
+      try { var p = rq.call(el, { navigationUI: 'hide' }); fsOwn = true; if (p && p.catch) p.catch(function(){ fsOwn = false; }); } catch(e){ fsOwn = false; }
+    }
+    try { localStorage.setItem('toc:stage', '1'); } catch(e){}
+    var b = $('toc-stageBtn'); if (b) b.setAttribute('aria-pressed', 'true');
+    window.scrollTo(0, 0);
+    t.redraw();
+  }
+  function exitStage(){
+    if (!stageOn) return;
+    stageOn = false; document.body.classList.remove('toc-stage'); wake(false);
+    var t = T(); if (t && prevView !== 'big') t.setView(prevView);
+    if (fsOwn && (document.fullscreenElement || document.webkitFullscreenElement)){
+      var ex = document.exitFullscreen || document.webkitExitFullscreen; try { var p = ex.call(document); if (p && p.catch) p.catch(function(){}); } catch(e){}
+    }
+    fsOwn = false;
+    try { localStorage.removeItem('toc:stage'); } catch(e){}
+    var b = $('toc-stageBtn'); if (b) b.setAttribute('aria-pressed', 'false');
+    if (t) t.redraw();
+  }
+  function onFs(){ if (stageOn && fsOwn && !(document.fullscreenElement || document.webkitFullscreenElement)) exitStage(); }
+  document.addEventListener('fullscreenchange', onFs); document.addEventListener('webkitfullscreenchange', onFs);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && stageOn && !(($('toc-vpSheet') && !$('toc-vpSheet').classList.contains('toc-hidden')))) exitStage(); });
+  // en pausa larga se suelta la pantalla para no gastar batería; cualquier toque la recupera
+  setInterval(function(){
+    if (!stageOn) return;
+    var t = T(); if (t && t.AU && t.AU.playing) lastActive = Date.now();
+    if (stageWake && Date.now() - lastActive > IDLE) wake(false);
+  }, 15000);
+  ['pointerdown', 'keydown'].forEach(function(ev){
+    document.addEventListener(ev, function(){ if (!stageOn) return; lastActive = Date.now(); if (!stageWake) wake(true); }, true);
+  });
+  // al volver a la app, el sistema suelta el bloqueo: lo recupera el código base (visibilitychange) si hay quien lo pida
+
+  // ── Botones en la canción ──
+  function addButtons(){
+    var head = document.querySelector('#toc-playView .toc-songhead'); if (!head || $('toc-stageBtn')) return;
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'toc-stageBtn'; b.className = 'toc-btn';
+    b.setAttribute('aria-pressed', 'false'); b.title = 'Vista grande para tocar, con la pantalla siempre encendida';
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Modo tocar</span>';
+    b.addEventListener('click', function(){ stageOn ? exitStage() : enterStage(); });
+    var other = head.querySelector('[data-tact="back2lib"]');
+    var wrap = document.createElement('div'); wrap.className = 'toc-headacts';
+    head.insertBefore(wrap, other); wrap.appendChild(b); wrap.appendChild(other);
+    // «Otras digitaciones» bajo el nombre del acorde
+    var left = document.querySelector('#toc-nowCard > div');
+    if (left && !$('toc-vpBtn')){
+      var v = document.createElement('button'); v.type = 'button'; v.id = 'toc-vpBtn'; v.className = 'toc-vplink';
+      v.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 8.5h14M5 13h14M10 3.5v17M14.5 3.5v17" stroke="currentColor" stroke-width="1.3"/></svg><span>Otras digitaciones</span>';
+      left.appendChild(v);
+    }
+  }
+  // el diagrama y el enlace abren la hoja (no la corrección del acorde)
+  document.addEventListener('click', function(e){
+    var hit = e.target.closest && (e.target.closest('#toc-vpBtn') || e.target.closest('#toc-nowDiagram'));
+    if (!hit) return;
+    var t = T(); if (!t || !t.started || t.S.cur < 0) return;
+    e.stopPropagation(); e.preventDefault(); openSheet();
+  }, true);
+  // volver a la biblioteca cierra el modo
+  document.addEventListener('click', function(e){ if (stageOn && e.target.closest && e.target.closest('[data-tact="back2lib"]')) exitStage(); }, true);
+
+  // ── Inversiones en la hoja «Corregir acorde»: el mismo acorde con otra nota en el bajo ──
+  var ORD = { 3:'3.ª', 4:'3.ª', 6:'5.ª', 7:'5.ª', 8:'5.ª', 9:'6.ª', 10:'7.ª', 11:'7.ª', 2:'2.ª', 5:'4.ª' };
+  function invRow(){
+    var t = T(), sh = $('toc-sheet'); if (!t || !sh || sh.classList.contains('toc-hidden')) return;
+    var old = $('toc-invRow'); if (old) old.remove();
+    var opts = $('toc-opts'); if (!opts || !opts.children.length || ($('toc-sheetTitle') && $('toc-sheetTitle').textContent !== 'Corregir acorde')) return; // la hoja también sirve para «Copiar acordes»
+    var S = t.S, c0 = S.song.chords[S.fixCi]; if (!c0 || c0.root == null) return;
+    var c = t.chordOf(c0), q = t.TH.levelQ(c.quality, 'full'), iv = t.TH.QUAL[q].iv, fl = t.flatsFor(S.tr);
+    var row = document.createElement('div'); row.id = 'toc-invRow'; row.className = 'toc-invrow';
+    var h = document.createElement('div'); h.className = 'toc-invlbl'; h.textContent = 'Nota en el bajo';
+    var wrap = document.createElement('div'); wrap.className = 'toc-invopts'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 'Nota en el bajo');
+    [null].concat(iv.slice(1)).forEach(function(x){
+      var bass = x == null ? null : t.TH.mod(c.root + x);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'toc-btn toc-invbtn';
+      var ch = Object.assign({}, c, { bass: bass });
+      b.innerHTML = '<span>' + t.TH.name(ch, S.tr, fl, 'full') + '</span><small>' + (x == null ? 'Fundamental' : 'Con la ' + (ORD[x] || '') + ' en el bajo') + '</small>';
+      var cur = (c.bass == null ? null : c.bass) === bass; b.setAttribute('aria-pressed', String(cur));
+      b.addEventListener('click', function(){
+        S.fixes[c0.beat] = { root: c.root, quality: c.quality, bass: bass, suffix: (c.suffix != null && bass === (c.bass == null ? null : c.bass)) ? c.suffix : null };
+        t.store(); t.closeSheet(); t.renderBars(); t.redraw();
+      });
+      wrap.appendChild(b);
+    });
+    row.appendChild(h); row.appendChild(wrap);
+    opts.parentNode.insertBefore(row, opts.nextSibling);
+  }
+  function watchFix(){
+    var sh = $('toc-sheet'); if (!sh) return;
+    new MutationObserver(function(){ if (!sh.classList.contains('toc-hidden')) setTimeout(invRow, 0); }).observe(sh, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function init(){
+    addButtons();
+    watchFix();
+    var pv = $('toc-playView'); if (pv) new MutationObserver(function(){ if (!$('toc-stageBtn')) addButtons(); }).observe(pv, { childList: true, subtree: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.__tocStage = { enter: enterStage, exit: exitStage, get on(){ return stageOn; }, openSheet: openSheet, openExplorer: openExplorer };
 })();
 
 </script>
