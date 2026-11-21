@@ -4417,6 +4417,11 @@ body.toc-stage #panel-tocar .toc-vplink{display:none}
 .toc-sheet .toc-invbtn span{font-family:'JetBrains Mono',monospace;font-size:15px}
 .toc-sheet .toc-invbtn small{font:500 11px 'Inter',sans-serif;color:var(--fg3)}
 
+/* Diapasón fijo: la etiqueta de confianza y el nombre ocupan siempre el mismo alto */
+#panel-tocar #toc-nowTier{display:block;width:max-content;box-sizing:border-box;height:28px;line-height:18px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+#panel-tocar #toc-nowTier.toc-hidden{display:block!important;visibility:hidden}
+#panel-tocar #toc-nowChord{white-space:nowrap;overflow:hidden;display:flex;align-items:flex-end}
+
 </style>
 </head>
 <body>
@@ -53371,6 +53376,7 @@ const AU = (() => {
       if (m !== 'tocar' && stageOn) exitStage();
       var r = o.apply(this, arguments);
       var c = $('toc-retChip'); if (c && (m === 'tocar' || m !== 'explorer')){ c.hidden = true; if (m === 'tocar') retFrom = false; }
+      if (m === 'tocar') setTimeout(fitName, 50);
       if (c && m === 'explorer' && retFrom) c.hidden = false;
       return r;
     };
@@ -53408,7 +53414,7 @@ const AU = (() => {
     try { localStorage.setItem('toc:stage', '1'); } catch(e){}
     var b = $('toc-stageBtn'); if (b) b.setAttribute('aria-pressed', 'true');
     window.scrollTo(0, 0);
-    t.redraw();
+    t.redraw(); setTimeout(fitName, 50);
   }
   function exitStage(){
     if (!stageOn) return;
@@ -53420,7 +53426,7 @@ const AU = (() => {
     fsOwn = false;
     try { localStorage.removeItem('toc:stage'); } catch(e){}
     var b = $('toc-stageBtn'); if (b) b.setAttribute('aria-pressed', 'false');
-    if (t) t.redraw();
+    if (t) t.redraw(); setTimeout(fitName, 50);
   }
   function onFs(){ if (stageOn && fsOwn && !(document.fullscreenElement || document.webkitFullscreenElement)) exitStage(); }
   document.addEventListener('fullscreenchange', onFs); document.addEventListener('webkitfullscreenchange', onFs);
@@ -53495,8 +53501,27 @@ const AU = (() => {
     new MutationObserver(function(){ if (!sh.classList.contains('toc-hidden')) setTimeout(invRow, 0); }).observe(sh, { attributes: true, attributeFilter: ['class'] });
   }
 
+  // ── Nombre del acorde en una sola línea y siempre del mismo alto (el diapasón no se mueve) ──
+  var fitting = false;
+  function fitName(){
+    var el = $('toc-nowChord'); if (!el || fitting || !el.offsetParent) return;
+    fitting = true;
+    try {
+      el.style.fontSize = ''; el.style.height = '';
+      var h = el.offsetHeight, w = el.clientWidth, sw = el.scrollWidth;
+      if (sw > w + 1){ var fs = parseFloat(getComputedStyle(el).fontSize); el.style.fontSize = Math.floor(fs * w / sw) + 'px'; }
+      el.style.height = h + 'px';
+    } finally { fitting = false; }
+  }
+  function watchName(){
+    var el = $('toc-nowChord'); if (!el) return;
+    new MutationObserver(function(){ if (!fitting) fitName(); }).observe(el, { childList: true, characterData: true, subtree: true });
+    window.addEventListener('resize', fitName);
+  }
+
   function init(){
     addButtons();
+    watchName();
     watchFix();
     var pv = $('toc-playView'); if (pv) new MutationObserver(function(){ if (!$('toc-stageBtn')) addButtons(); }).observe(pv, { childList: true, subtree: true });
   }
